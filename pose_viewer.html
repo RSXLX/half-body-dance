@@ -2,64 +2,299 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>动作匹配工作台</title>
   <link rel="icon" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="16" fill="%2300c2ff"/%3E%3Cpath d="M22 18h8v10l8-6 4 5-8 6 8 14h-8l-5-9-7 5v4h-8V18z" fill="%23040f19"/%3E%3C/svg%3E' />
   <style>
     :root {
       color-scheme: dark;
-      --bg: #070b12;
-      --panel: rgba(12, 17, 27, 0.9);
-      --panel-strong: rgba(9, 13, 21, 0.96);
+      --bg: #05080e;
+      --surface: rgba(10, 14, 23, 0.86);
+      --surface-strong: rgba(7, 10, 17, 0.96);
+      --surface-soft: rgba(255, 255, 255, 0.04);
+      --glass-tint: rgba(7, 12, 20, 0.18);
+      --glass-tint-strong: rgba(7, 12, 20, 0.42);
+      --glass-stroke: rgba(255, 255, 255, 0.12);
+      --glass-blur: 14px;
       --border: rgba(255, 255, 255, 0.08);
       --text: #f5f8ff;
-      --muted: #93a3c2;
+      --muted: #94a3be;
       --accent: #6ee7ff;
       --accent-strong: #00c2ff;
       --success: #54f3a8;
       --warning: #ffd36e;
       --danger: #ff7b8a;
-      --radius: 24px;
-      --shadow: 0 36px 120px rgba(0, 0, 0, 0.38);
-      font-family: "SF Pro Display", "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+      --radius: 18px;
+      --radius-lg: 24px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      --shadow-strong: 0 20px 56px rgba(0, 0, 0, 0.42);
+      --sheet-peek-height: 104px;
+      --sheet-open-height: min(50dvh, 460px);
+      font-family: "SF Pro Display", "PingFang SC", "Noto Sans SC", "Helvetica Neue", sans-serif;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
     body {
+      min-height: 100svh;
+      min-height: 100dvh;
       margin: 0;
-      min-height: 100vh;
       background:
-        radial-gradient(circle at 15% 10%, rgba(0, 194, 255, 0.18), transparent 24%),
-        radial-gradient(circle at 80% 0%, rgba(84, 243, 168, 0.12), transparent 28%),
+        radial-gradient(circle at 18% 10%, rgba(0, 194, 255, 0.16), transparent 24%),
+        radial-gradient(circle at 82% 0%, rgba(84, 243, 168, 0.1), transparent 28%),
         linear-gradient(180deg, #07111d 0%, #04070d 100%);
+      color: var(--text);
+      overscroll-behavior-y: none;
+    }
+
+    body[data-view="practice"] {
+      background: #010205;
+    }
+
+    body.immersive-lock {
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      min-height: 44px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+      transform: none;
+      box-shadow: none;
+    }
+
+    input[type="file"],
+    input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-strong);
+    }
+
+    label {
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    code {
+      font-family: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.92em;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
+      color: #041019;
+      font-weight: 700;
+      box-shadow: 0 12px 30px rgba(0, 194, 255, 0.2);
+    }
+
+    .secondary {
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
     }
 
-    .shell {
-      max-width: 1440px;
+    .danger {
+      background: rgba(255, 123, 138, 0.14);
+      color: #ffc2c9;
+    }
+
+    .ghost {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .text-link {
+      background: transparent;
+      color: var(--muted);
+      padding: 0;
+      min-height: auto;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .nav-icon {
+      width: 44px;
+      min-height: 44px;
+      padding: 0;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+
+    .chip-icon {
+      width: 40px;
+      min-height: 40px;
+      border-radius: 999px;
+    }
+
+    .sr-only,
+    .control-backup {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .app-shell {
+      width: 100%;
+      min-height: 100svh;
+      min-height: 100dvh;
+    }
+
+    .app-nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 40;
+      display: grid;
+      gap: 10px;
+      padding: calc(env(safe-area-inset-top) + 8px) 16px 12px;
+      background: linear-gradient(180deg, rgba(5, 8, 14, 0.96) 0%, rgba(5, 8, 14, 0.88) 72%, rgba(5, 8, 14, 0) 100%);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    body[data-view="practice"] .app-nav {
+      opacity: 0;
+      transform: translateY(-120%);
+      pointer-events: none;
+    }
+
+    .app-bar {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      gap: 12px;
+      align-items: center;
+      min-height: 48px;
+    }
+
+    .nav-center {
+      min-width: 0;
+      display: grid;
+      justify-items: center;
+      gap: 2px;
+    }
+
+    .nav-overline {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(110, 231, 255, 0.72);
+    }
+
+    #navStatus {
+      max-width: 100%;
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 4px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab {
+      min-height: 40px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted);
+    }
+
+    .nav-tab.is-active {
+      background: linear-gradient(135deg, rgba(0, 194, 255, 0.22), rgba(78, 242, 207, 0.18));
+      color: var(--text);
+      border: 1px solid rgba(110, 231, 255, 0.2);
+    }
+
+    .app-main {
+      min-height: 100svh;
+      min-height: 100dvh;
+      position: relative;
+    }
+
+    .view {
+      display: none;
+      width: min(100%, 860px);
       margin: 0 auto;
-      padding: 28px;
-      display: grid;
-      gap: 24px;
+      padding: calc(env(safe-area-inset-top) + 112px) 16px calc(env(safe-area-inset-bottom) + 24px);
+      gap: 16px;
+      animation: view-slide 0.3s ease;
     }
 
-    .hero,
-    .panel,
-    .stage-shell {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+    .view.is-active {
+      display: grid;
     }
 
-    .hero {
-      padding: 28px;
-      display: grid;
-      gap: 18px;
+    @keyframes view-slide {
+      from {
+        opacity: 0;
+        transform: translateX(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .setup-view,
+    .result-view {
+      align-content: start;
     }
 
     .eyebrow {
@@ -71,154 +306,233 @@
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.04);
       color: var(--accent);
-      font-size: 0.92rem;
-      letter-spacing: 0.02em;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(2.2rem, 4vw, 4rem);
-      line-height: 0.95;
-      letter-spacing: -0.05em;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.75;
-    }
-
-    .hero-grid {
+    .intro-card {
       display: grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap: 24px;
-      align-items: end;
+      gap: 12px;
+      padding: 4px 2px 6px;
     }
 
-    .hero-cards {
+    .intro-card h1 {
+      font-size: clamp(1.6rem, 7vw, 2.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+    }
+
+    .setup-flow {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
     }
 
-    .metric {
+    .app-card {
+      display: grid;
+      gap: 16px;
       padding: 18px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    .metric span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-bottom: 10px;
-    }
-
-    .metric strong {
-      font-size: 1.45rem;
-      letter-spacing: -0.03em;
-    }
-
-    .layout {
-      display: grid;
-      /* 右列最小宽度放到 0，让竖屏 stage 不再被 560px 的最小宽度挤压 */
-      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-      gap: 24px;
-      align-items: start;
-    }
-
-    .panel {
-      padding: 22px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .panel h2 {
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       margin: 0;
-      font-size: 1.08rem;
+      font-size: 1.04rem;
       letter-spacing: -0.02em;
     }
 
-    .stack {
-      display: grid;
-      gap: 12px;
-    }
-
-    .button-row,
-    .button-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .button-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    button,
-    input[type="file"]::file-selector-button {
-      border: 0;
-      border-radius: 16px;
-      padding: 12px 16px;
-      font: inherit;
-      cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
-    }
-
-    button:hover,
-    input[type="file"]::file-selector-button:hover {
-      transform: translateY(-1px);
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.42;
-      transform: none;
-    }
-
-    .primary {
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
       background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
       color: #041019;
-      font-weight: 700;
     }
 
-    .secondary {
-      background: rgba(255, 255, 255, 0.06);
+    .stack,
+    .button-row,
+    .setup-status-copy {
+      display: grid;
+      gap: 12px;
+    }
+
+    .action-carousel {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(180px, 78%);
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .action-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .action-card {
+      scroll-snap-align: start;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-height: 124px;
+      padding: 16px;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .action-card strong {
+      font-size: 1.04rem;
+      letter-spacing: -0.02em;
+    }
+
+    .action-card small {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .action-emoji {
+      font-size: 1.7rem;
+      line-height: 1;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .video-extract-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .video-extract-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .video-extract-copy strong {
+      font-size: 0.98rem;
+      letter-spacing: -0.02em;
+    }
+
+    .video-extract-copy span {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.88rem;
+    }
+
+    .video-extract-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .fine-print {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .camera-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .camera-secondary[hidden] {
+      display: none;
+    }
+
+    .speed-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .speed-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .speed-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    #speedLabel {
+      font-size: clamp(2rem, 12vw, 3rem);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
       color: var(--text);
     }
 
-    .danger {
-      background: rgba(255, 123, 138, 0.14);
-      color: #ffc2c9;
+    .speed-stepper {
+      display: flex;
+      gap: 8px;
     }
 
-    .ghost {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--muted);
+    .speed-stepper button {
+      width: 44px;
+      min-height: 44px;
+      padding: 0;
     }
 
-    label {
+    .range-wrap {
       display: grid;
       gap: 10px;
-      color: var(--muted);
-      font-size: 0.94rem;
     }
 
-    input[type="file"],
-    input[type="range"] {
+    .collapsible-toggle {
       width: 100%;
-    }
-
-    input[type="file"] {
-      border-radius: 18px;
-      padding: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0;
+      min-height: auto;
+      background: transparent;
       color: var(--text);
+      box-shadow: none;
     }
 
-    input[type="range"] {
-      accent-color: var(--accent-strong);
+    .collapsible-toggle span {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .collapsible-toggle strong {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .collapsible-body[hidden] {
+      display: none;
     }
 
     .info-list {
@@ -229,8 +543,9 @@
     .info-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 16px;
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -240,28 +555,74 @@
     .info-row strong {
       color: var(--text);
       text-align: right;
+      font-size: 0.94rem;
     }
 
-    .stage-shell {
-      padding: 20px;
+    .setup-footer {
+      position: sticky;
+      bottom: calc(env(safe-area-inset-bottom) + 8px);
+      z-index: 6;
       display: grid;
-      gap: 16px;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(8, 14, 24, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(16px);
+    }
+
+    .setup-footer-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .setup-footer-copy strong {
+      font-size: 1.08rem;
+      letter-spacing: -0.03em;
+    }
+
+    .setup-footer .primary {
+      width: 100%;
+      min-height: 52px;
+    }
+
+    .practice-view {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      width: 100%;
+      max-width: none;
+      padding: 0;
+      margin: 0;
+      background: #010205;
+      overflow: hidden;
+    }
+
+    .practice-view.is-active {
+      display: block;
+    }
+
+    .practice-stage-shell {
+      position: absolute;
+      inset: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
     }
 
     .stage {
       position: relative;
-      /* 9:16 竖屏：以高度驱动，aspect-ratio 反推宽度，避免父容器过宽时 stage 高度失控 */
-      aspect-ratio: 9 / 16;
-      height: min(78vh, 820px);
-      width: auto;
-      max-width: 100%;
-      margin: 0 auto;
+      width: 100vw;
+      height: 100svh;
+      height: 100dvh;
       overflow: hidden;
-      border-radius: 22px;
+      border-radius: 0;
       background:
         radial-gradient(circle at top, rgba(0, 194, 255, 0.18), transparent 32%),
         linear-gradient(180deg, #071019 0%, #03050b 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     video,
@@ -282,184 +643,119 @@
       transform-origin: center;
     }
 
-    .overlay-card {
+    .practice-topbar {
       position: absolute;
-      z-index: 3;
-      min-width: 220px;
-      max-width: min(34vw, 340px);
-      padding: 14px 16px;
+      inset: 0 0 auto 0;
+      z-index: 14;
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: calc(env(safe-area-inset-top) + 12px) 16px 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .practice-heading {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px;
       border-radius: 18px;
-      background: rgba(6, 9, 15, 0.72);
+      background: rgba(8, 14, 24, 0.58);
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
     }
 
-    .overlay-card h3,
-    .overlay-card pre {
-      margin: 0;
+    .practice-heading strong {
+      font-size: 1rem;
+      letter-spacing: -0.03em;
     }
 
-    .overlay-card h3 {
-      font-size: 0.92rem;
-      margin-bottom: 10px;
-      color: var(--accent);
-    }
-
-    .overlay-card pre {
-      white-space: pre-wrap;
-      color: #d8e6ff;
+    .practice-heading span {
       font-size: 0.82rem;
-      line-height: 1.55;
-      font-family: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
-    }
-
-    .overlay-top {
-      top: 18px;
-      left: 18px;
-    }
-
-    .overlay-bottom {
-      right: 18px;
-      bottom: 18px;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
       color: var(--muted);
-      font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .legend span {
-      display: inline-flex;
-      align-items: center;
+    .practice-header-actions {
+      display: flex;
+      align-items: flex-start;
       gap: 8px;
     }
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      display: inline-block;
+    .practice-menu-anchor {
+      position: relative;
     }
 
-    .dot-target {
-      background: #ffbe3b;
-      box-shadow: 0 0 16px rgba(255, 190, 59, 0.68);
+    .practice-menu {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: min(220px, 72vw);
+      display: grid;
+      gap: 6px;
+      padding: 8px;
+      border-radius: 16px;
+      background: rgba(8, 14, 24, 0.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
     }
 
-    .dot-user {
-      background: #56f4aa;
-      box-shadow: 0 0 16px rgba(86, 244, 170, 0.55);
+    .practice-menu.is-open {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
     }
 
-    .dot-miss {
-      background: #ff7b8a;
-      box-shadow: 0 0 16px rgba(255, 123, 138, 0.55);
-    }
-
-    .fine-print {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 0.88rem;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .panel-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0;
-      font-size: 1.08rem;
-      letter-spacing: -0.02em;
-    }
-
-    .step-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
-      color: #041019;
+    .menu-action {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      min-height: 44px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      border-radius: 12px;
     }
 
     .stage-primary {
       position: absolute;
-      top: 18px;
-      right: 18px;
-      z-index: 4;
+      top: calc(env(safe-area-inset-top) + 16px);
+      right: 16px;
+      z-index: 13;
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font: inherit;
-      font-size: 0.92rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
-      color: #041019;
-      border: 0;
-      cursor: pointer;
-      box-shadow: 0 14px 40px rgba(0, 194, 255, 0.28);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-    }
-
-    .chip:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 18px 48px rgba(0, 194, 255, 0.38);
-    }
-
-    .chip.ghost {
-      background: rgba(8, 14, 24, 0.7);
-      color: var(--text);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      box-shadow: none;
-    }
-
-    .chip.ghost:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .stage-hud {
+    .stage-score-hud {
       position: absolute;
-      left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%);
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 12px 20px 12px 14px;
-      border-radius: 999px;
-      background: rgba(4, 9, 16, 0.74);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(18px);
-      max-width: calc(100% - 32px);
+      top: calc(env(safe-area-inset-top) + 92px);
+      left: 16px;
+      z-index: 12;
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 22px;
+      background: rgba(8, 14, 24, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
     }
 
     .score-dial {
       position: relative;
-      width: 72px;
-      height: 72px;
+      width: 64px;
+      height: 64px;
       flex-shrink: 0;
     }
 
@@ -480,13 +776,13 @@
     }
 
     .score-dial-value strong {
-      font-size: 1.2rem;
+      font-size: 1rem;
       letter-spacing: -0.02em;
       color: var(--text);
     }
 
     .score-dial-value span {
-      font-size: 0.68rem;
+      font-size: 0.64rem;
       color: var(--muted);
       margin-top: 3px;
     }
@@ -496,116 +792,668 @@
       transition: stroke-dashoffset 0.25s ease, stroke 0.25s ease;
     }
 
-    .stage-labels {
+    .beat-strip {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+
+    .beat-strip-secondary {
+      justify-content: flex-start;
+    }
+
+    .beat-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .beat-dot.active {
+      background: #ffd36e;
+      box-shadow: 0 0 18px rgba(255, 211, 110, 0.65);
+      transform: scale(1.35);
+    }
+
+    .beat-dot.downbeat {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.38);
+    }
+
+    .beat-dot.hit {
+      background: #54f3a8;
+      box-shadow: 0 0 14px rgba(84, 243, 168, 0.45);
+    }
+
+    .beat-dot.miss {
+      background: #ff7b8a;
+      box-shadow: 0 0 14px rgba(255, 123, 138, 0.4);
+    }
+
+    .practice-dock {
+      position: absolute;
+      inset: auto 0 0 0;
+      z-index: 15;
+      height: 100%;
       display: grid;
-      gap: 4px;
+      align-content: end;
+      padding: 0 12px calc(env(safe-area-inset-bottom) + 12px);
+      pointer-events: none;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .sheet-shell {
+      position: relative;
+      pointer-events: auto;
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      gap: 0;
+      width: min(100%, 480px);
+      max-height: var(--sheet-open-height);
+      border-radius: var(--radius-lg);
+      margin-bottom: 72px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.035) 18%, rgba(7, 12, 20, 0.14) 48%, rgba(7, 12, 20, 0.32) 100%);
+      border: 1px solid var(--glass-stroke);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+      overflow: hidden;
+      transform: translateY(calc(100% - var(--sheet-peek-height)));
+      transition: transform 0.24s ease, background 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+    }
+
+    .practice-dock.is-expanded .sheet-shell {
+      transform: translateY(0);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.035) 18%, rgba(7, 12, 20, 0.18) 46%, rgba(7, 12, 20, 0.42) 100%);
+      border-color: rgba(255, 255, 255, 0.14);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .sheet-handle {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      width: 100%;
+      padding: 10px 16px 6px;
+      background: transparent;
+      color: var(--muted);
+      min-height: auto;
+      box-shadow: none;
+    }
+
+    .sheet-handle-bar {
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.26);
+    }
+
+    .sheet-handle-copy {
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.36);
+    }
+
+    .sheet-peek {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 0 16px 14px;
+    }
+
+    .practice-score-peek {
+      display: grid;
+      gap: 2px;
       min-width: 0;
     }
 
-    .stage-labels strong {
-      font-size: 1rem;
+    .practice-score-peek strong {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.08em;
       color: var(--text);
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.34);
     }
 
-    .stage-labels span {
+    .practice-score-peek span:last-child {
       color: var(--muted);
-      font-size: 0.82rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
     }
 
-    .overlay-card {
-      transition: background 0.2s ease, padding 0.2s ease, max-width 0.2s ease;
-    }
-
-    .overlay-card.collapsed {
-      padding: 10px 40px 10px 14px;
+    .sheet-rhythm {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      padding: 0 16px 16px;
       min-width: 0;
-      max-width: 160px;
+      max-height: 80px;
+      overflow: hidden;
+      transition: max-height 0.2s ease, opacity 0.18s ease, padding 0.18s ease;
     }
 
-    .overlay-card.collapsed h3 {
-      margin-bottom: 0;
+    .practice-dock:not(.is-expanded) .sheet-rhythm {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .overlay-card.collapsed pre {
+    .beat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 0.76rem;
+      width: fit-content;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .sheet-rhythm > span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .beat-badge strong {
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .beat-badge.hot {
+      background: rgba(255, 211, 110, 0.16);
+      color: #fff0c3;
+      transform: translateY(-1px);
+    }
+
+    .sheet-expand-content {
+      display: grid;
+      gap: 12px;
+      min-height: 0;
+      padding: 14px 16px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: auto;
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .practice-dock:not(.is-expanded) .sheet-expand-content {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+    }
+
+    .practice-floating-controls {
+      position: absolute;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      z-index: 16;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .playback-glass {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      min-height: 52px;
+      padding: 0 22px;
+      border-radius: 999px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
+        rgba(8, 14, 24, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text);
+      font-size: 0.96rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(12px) saturate(135%);
+      -webkit-backdrop-filter: blur(12px) saturate(135%);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    .playback-glass:hover {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.025)),
+        rgba(8, 14, 24, 0.2);
+    }
+
+    .playback-glass.is-playing {
+      background:
+        linear-gradient(180deg, rgba(110, 231, 255, 0.16), rgba(110, 231, 255, 0.02)),
+        rgba(0, 194, 255, 0.12);
+      border-color: rgba(110, 231, 255, 0.28);
+      color: #dff8ff;
+    }
+
+    .playback-glass:disabled {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: rgba(245, 248, 255, 0.42);
+    }
+
+    .dock-panel {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-width: 0;
+    }
+
+    .dock-kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .dock-panel strong {
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .dock-panel span {
+      color: var(--muted);
+    }
+
+    .practice-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .practice-actions button {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .legend-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot-target {
+      background: #ffbe3b;
+      box-shadow: 0 0 14px rgba(255, 190, 59, 0.5);
+    }
+
+    .dot-user {
+      background: #56f4aa;
+      box-shadow: 0 0 14px rgba(86, 244, 170, 0.44);
+    }
+
+    .dot-miss {
+      background: #ff7b8a;
+      box-shadow: 0 0 14px rgba(255, 123, 138, 0.44);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      background: rgba(255, 255, 255, 0.06);
+      width: fit-content;
+    }
+
+    .practice-view.is-immersive .stage {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .debug-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: block;
+      padding: 0;
+      background: rgba(1, 3, 8, 0.46);
+      border: 0;
+      box-shadow: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .debug-panel[hidden] {
       display: none;
     }
 
-    .card-toggle {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      width: 24px;
-      height: 24px;
-      border: 0;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--muted);
-      font-size: 0.8rem;
-      line-height: 1;
-      cursor: pointer;
-      border-radius: 8px;
-      padding: 0;
+    .debug-panel.is-open {
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    .card-toggle:hover {
-      background: rgba(255, 255, 255, 0.12);
+    .debug-dismiss {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: calc(100vw - min(420px, 92vw));
+      min-height: 100dvh;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .debug-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(420px, 92vw);
+      height: 100svh;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto auto auto auto 1fr;
+      gap: 14px;
+      padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+      background: var(--surface-strong);
+      border-left: 1px solid var(--border);
+      box-shadow: -18px 0 48px rgba(0, 0, 0, 0.36);
+      transform: translateX(100%);
+      transition: transform 0.24s ease;
+      overflow: auto;
+    }
+
+    .debug-panel.is-open .debug-drawer {
+      transform: none;
+    }
+
+    .debug-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .debug-header h2 {
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .debug-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .debug-tab {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+    }
+
+    .debug-tab.is-active {
+      background: linear-gradient(135deg, rgba(0, 194, 255, 0.18), rgba(78, 242, 207, 0.16));
       color: var(--text);
     }
 
-    @media (max-width: 720px) {
-      .stage-hud {
-        bottom: 14px;
-        padding: 10px 16px 10px 10px;
+    .debug-tab-panel {
+      display: none;
+      gap: 10px;
+    }
+
+    .debug-tab-panel.is-active {
+      display: grid;
+    }
+
+    .debug-pre {
+      margin: 0;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(6, 9, 15, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: pre-wrap;
+      color: #d8e6ff;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      font-family: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+      max-height: 40vh;
+      overflow: auto;
+    }
+
+    .result-view {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 120px);
+    }
+
+    .result-hero {
+      display: grid;
+      gap: 12px;
+      padding: 22px 18px 20px;
+    }
+
+    .result-hero h2 {
+      font-size: clamp(2rem, 8vw, 3rem);
+      letter-spacing: -0.06em;
+    }
+
+    .result-banner {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    #finalAverageScore {
+      font-size: clamp(3rem, 14vw, 5rem);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      color: var(--text);
+    }
+
+    #finalConclusion {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(110, 231, 255, 0.12);
+      color: #dff8ff;
+      font-size: 0.92rem;
+      letter-spacing: -0.02em;
+    }
+
+    .result-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+
+    .result-score-card .info-row strong {
+      font-size: 1.18rem;
+    }
+
+    .result-review p {
+      line-height: 1.75;
+    }
+
+    .result-footer {
+      position: sticky;
+      bottom: calc(env(safe-area-inset-bottom) + 8px);
+      z-index: 6;
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      background: rgba(8, 14, 24, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(16px);
+    }
+
+    .result-footer .primary {
+      width: 100%;
+      min-height: 52px;
+    }
+
+    .result-inline-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .result-inline-links button {
+      min-height: auto;
+      padding: 0;
+      background: transparent;
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .result-inline-links span {
+      opacity: 0.6;
+    }
+
+    @media (min-width: 900px) {
+      .view {
+        padding-left: 24px;
+        padding-right: 24px;
       }
-      .score-dial {
-        width: 56px;
-        height: 56px;
+
+      .action-carousel {
+        grid-auto-columns: 220px;
       }
-      .score-dial-value strong {
-        font-size: 0.98rem;
-      }
+
+      .practice-topbar,
       .stage-primary {
-        top: 12px;
-        right: 12px;
+        right: 24px;
+      }
+
+      .practice-topbar {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .stage-score-hud {
+        left: 24px;
+      }
+
+      .practice-dock {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .sheet-shell {
+        width: 460px;
+        justify-self: end;
+      }
+
+      .practice-floating-controls {
+        left: auto;
+        right: 24px;
+        width: 460px;
+        transform: none;
       }
     }
 
-    @media (max-width: 1100px) {
-      .hero-grid,
-      .layout {
+    @media (max-width: 420px) {
+      .practice-heading span {
+        white-space: normal;
+      }
+
+      .action-carousel {
+        grid-auto-columns: minmax(168px, 84%);
+      }
+
+      .camera-secondary {
         grid-template-columns: 1fr;
-      }
-
-      .stage-shell {
-        order: -1;
-      }
-
-      .hero-cards {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 720px) {
-      .shell {
-        padding: 16px;
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
       }
+    }
 
-      .hero,
-      .panel,
-      .stage-shell {
-        padding: 18px;
-      }
-
-      .hero-cards,
-      .button-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .overlay-card {
-        max-width: calc(100% - 32px);
-      }
+    /* ====== 录屏模块（zero-conflict add-on） ====== */
+    .record-indicator {
+      position: absolute;
+      top: calc(env(safe-area-inset-top) + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 30, 60, 0.22);
+      border: 1px solid rgba(255, 30, 60, 0.5);
+      color: #ffdce1;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      pointer-events: none;
+    }
+    .record-indicator[hidden] { display: none; }
+    .record-indicator .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4a63;
+      box-shadow: 0 0 10px rgba(255, 74, 99, 0.8);
+      animation: recordPulse 1.2s infinite;
+    }
+    .record-indicator .timer { font-variant-numeric: tabular-nums; opacity: 0.85; }
+    @keyframes recordPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .menu-action.is-recording {
+      background: rgba(255, 74, 99, 0.2);
+      color: #ffdce1;
+    }
+    .result-footer .result-recording-action {
+      width: 100%;
+      min-height: 48px;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"></script>
@@ -614,178 +1462,370 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js"></script>
 </head>
 <body>
-  <div class="shell">
-    <section class="hero">
-      <div class="eyebrow">动作捕捉 / JSON 叠加 / 手臂专项评分</div>
-      <div class="hero-grid">
-        <div>
-          <h1>把 JSON 动作谱直接叠加到摄像头画面里</h1>
-          <p>这个页面会读取你离线导出的 MediaPipe Pose JSON，在摄像头画面上显示标准动作骨架，同时实时捕捉画面中的人，并只针对双臂做专项评分分析。</p>
+  <div class="app-shell">
+    <header class="app-nav">
+      <div class="app-bar">
+        <button id="navBack" class="nav-icon ghost" type="button" hidden aria-label="返回准备页">←</button>
+        <div class="nav-center">
+          <span class="nav-overline">动作跟练</span>
+          <span id="navStatus" title="等待加载 JSON 与摄像头">等待加载 JSON 与摄像头</span>
         </div>
-        <div class="hero-cards">
-          <div class="metric">
-            <span>摄像头</span>
-            <strong id="heroCamera">未启动</strong>
-          </div>
-          <div class="metric">
-            <span>标准动作</span>
-            <strong id="heroJson">未加载</strong>
-          </div>
-          <div class="metric">
-            <span>人体检测</span>
-            <strong id="heroDetection">等待中</strong>
-          </div>
-          <div class="metric">
-            <span>手臂评分</span>
-            <strong id="heroMatch">--</strong>
-          </div>
-        </div>
+        <button id="debugToggle" class="nav-icon ghost" type="button" hidden aria-label="打开调试">🐛</button>
       </div>
-    </section>
+      <div class="nav-tabs">
+        <button id="navSetup" class="nav-tab is-active" type="button">准备</button>
+        <button id="navPractice" class="nav-tab" type="button">练习</button>
+        <button id="navResult" class="nav-tab" type="button">结果</button>
+      </div>
+    </header>
 
-    <div class="layout">
-      <aside class="panel">
-        <div class="stack">
-          <h2 class="panel-title"><span class="step-badge">1</span>选择标准动作</h2>
-          <label>
-            上传你自己的 JSON
-            <input id="jsonFile" type="file" accept="application/json" />
-          </label>
-          <div class="button-grid">
-            <button id="loadAngel" class="secondary">✨ angel</button>
-            <button id="loadLadada" class="secondary">💃 ladada</button>
-            <button id="loadHongmenNew" class="secondary">🥁 鸿门旋律</button>
-          </div>
-          <p class="fine-print">示例来自项目 <code>wudao/</code>；自定义 JSON 需符合 <code>{ frames: [{ time, pose_landmarks[], hands[] }] }</code>。</p>
-        </div>
+    <main class="app-main">
+      <section class="view setup-view is-active" data-view="setup">
+        <article class="intro-card">
+          <span class="eyebrow">动作跟练</span>
+          <h1>选择标准动作后即可打开摄像头开始练习</h1>
+          <p>单手完成动作、设备和速度设置，再进入全屏舞台跟练，主流程只保留必要反馈。</p>
+        </article>
 
-        <div class="stack">
-          <h2 class="panel-title"><span class="step-badge">2</span>打开摄像头</h2>
-          <div class="button-row">
-            <button id="openCamera" class="primary">📷 打开摄像头</button>
-            <button id="stopCamera" class="danger">关闭摄像头</button>
-            <button id="togglePlayback" class="secondary">▶ 开始播放</button>
-            <button id="toggleMirror" class="ghost">镜像: 开</button>
-          </div>
-          <p class="fine-print">摄像头需要 <code>http://localhost</code> 或 HTTPS 下访问，直接双击 HTML 文件通常拿不到权限。</p>
-        </div>
+        <div class="setup-flow">
+          <article class="app-card">
+            <div class="stack">
+              <h2 class="panel-title"><span class="step-badge">1</span>选择标准动作</h2>
+              <input id="jsonFile" class="file-input" type="file" accept="application/json" />
+              <input id="videoFileInput" class="file-input" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/*" />
+              <button id="jsonFileTrigger" class="primary upload-trigger" type="button">📤 上传自定义 JSON</button>
+              <div class="video-extract-card">
+                <div class="video-extract-copy">
+                  <strong>上传短视频自动生成 JSON</strong>
+                  <span id="videoExtractHint">通过本地识别服务提取姿态关键点，生成后会直接载入当前练习流程。</span>
+                </div>
+                <div class="video-extract-actions">
+                  <button id="videoFileTrigger" class="secondary" type="button">🎬 上传短视频并识别</button>
+                  <button id="downloadGeneratedJson" class="ghost" type="button" hidden>下载生成 JSON</button>
+                </div>
+                <span id="videoExtractStatus" class="fine-print">支持短视频文件；识别时间取决于视频长度和设备性能。</span>
+              </div>
+              <div class="action-carousel" role="list" aria-label="示例动作选择">
+                <button id="loadHongmen" class="action-card secondary" type="button" role="listitem">
+                  <span class="action-emoji">🥁</span>
+                  <strong>鸿门旋律</strong>
+                  <small>默认示例之一，节拍感强，进入练习时会同步背景音乐。</small>
+                </button>
+                <button id="loadTimoteam" class="action-card secondary" type="button" role="listitem">
+                  <span class="action-emoji">🎖️</span>
+                  <strong>提莫队长</strong>
+                  <small>默认示例之一，动作切换清晰，适合观察对拍和衔接。</small>
+                </button>
+                <button id="loadShoushi" class="action-card secondary" type="button" role="listitem">
+                  <span class="action-emoji">🫶</span>
+                  <strong>shoushi</strong>
+                  <small>默认示例之一，手势更集中，适合看手部和节奏提示。</small>
+                </button>
+              </div>
+              <p class="fine-print">默认示例来自项目 <code>wudao/</code>，会自动挂载同名视频作为背景音乐；自定义 JSON 需符合 <code>{ frames: [{ time, pose_landmarks[], hands[] }] }</code>。</p>
+            </div>
+          </article>
 
-        <div class="stack">
-          <h2 class="panel-title"><span class="step-badge">3</span>调节节奏</h2>
-          <label>
-            播放速度
-            <input id="speed" type="range" min="0.25" max="2.5" step="0.25" value="1" />
-            <span id="speedLabel">1.00x</span>
-          </label>
-          <label>
-            拖动定位某一帧
-            <input id="frameSlider" type="range" min="0" max="0" value="0" disabled />
-          </label>
-        </div>
+          <article class="app-card">
+            <div class="stack">
+              <h2 class="panel-title"><span class="step-badge">2</span>设备准备</h2>
+              <button id="openCamera" class="primary" type="button">📷 打开摄像头</button>
+              <div id="cameraSecondaryActions" class="camera-secondary" hidden>
+                <button id="stopCamera" class="danger" type="button">关闭摄像头</button>
+                <button id="toggleMirror" class="ghost" type="button">镜像: 开</button>
+              </div>
+              <p class="fine-print">摄像头需要 <code>http://localhost</code> 或 HTTPS 下访问，直接双击 HTML 文件通常拿不到权限。</p>
+            </div>
+          </article>
 
-        <div class="stack">
-          <h2>状态面板</h2>
-          <div class="info-list">
-            <div class="info-row">
-              <span>系统状态</span>
-              <strong id="status">等待初始化</strong>
-            </div>
-            <div class="info-row">
-              <span>JSON 文件</span>
-              <strong id="jsonName">未加载</strong>
-            </div>
-            <div class="info-row">
-              <span>当前目标帧</span>
-              <strong id="frameInfo">0 / 0</strong>
-            </div>
-            <div class="info-row">
-              <span>当前时间</span>
-              <strong id="timeInfo">0.000s</strong>
-            </div>
-            <div class="info-row">
-              <span>人体状态</span>
-              <strong id="personState">未检测</strong>
-            </div>
-            <div class="info-row">
-              <span>手臂总分</span>
-              <strong id="scoreLabel">0%</strong>
-            </div>
-            <div class="info-row">
-              <span>评分体系</span>
-              <strong id="scoreSystem">双臂专项</strong>
-            </div>
-            <div class="info-row">
-              <span>左臂最终分</span>
-              <strong id="leftArmScore">--</strong>
-            </div>
-            <div class="info-row">
-              <span>右臂最终分</span>
-              <strong id="rightArmScore">--</strong>
-            </div>
-            <div class="info-row">
-              <span>过程均分</span>
-              <strong id="finalAverageScore">--</strong>
-            </div>
-            <div class="info-row">
-              <span>最终结论</span>
-              <strong id="finalConclusion">待结算</strong>
-            </div>
-            <div class="info-row">
-              <span>动作结论</span>
-              <strong id="matchLabel">待机中</strong>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <section class="stage-shell">
-        <div class="stage">
-          <video id="cameraVideo" playsinline autoplay muted></video>
-          <canvas id="overlayCanvas" width="720" height="1280"></canvas>
-          <audio id="bgmAudio" preload="metadata"></audio>
-
-          <div class="stage-primary">
-            <button id="quickStart" class="chip" type="button">🚀 一键开始跟练</button>
-          </div>
-
-          <div class="overlay-card overlay-top collapsed" id="jsonOverlay">
-            <button type="button" class="card-toggle" data-target="jsonOverlay">▾</button>
-            <h3>JSON 帧摘要</h3>
-            <pre id="jsonPreview">{
-  "status": "请先加载 JSON"
-}</pre>
-          </div>
-          <div class="overlay-card overlay-bottom collapsed" id="hudOverlay">
-            <button type="button" class="card-toggle" data-target="hudOverlay">▾</button>
-            <h3>调试 HUD</h3>
-            <pre id="hudText">摄像头未打开</pre>
-          </div>
-
-          <div class="stage-hud">
-            <div class="score-dial">
-              <svg viewBox="0 0 72 72" aria-hidden="true">
-                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>
-                <circle id="matchRing" class="match-ring" cx="36" cy="36" r="30" fill="none" stroke="#ffbe3b" stroke-width="6" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
-              </svg>
-              <div class="score-dial-value">
-                <strong id="scoreDialValue">--</strong>
-                <span>手臂分</span>
+          <article class="app-card">
+            <div class="speed-panel">
+              <h2 class="panel-title"><span class="step-badge">3</span>练习设置</h2>
+              <div class="speed-header">
+                <div class="speed-copy">
+                  <span class="dock-kicker">播放速度</span>
+                  <span id="speedLabel">1.00x</span>
+                </div>
+                <div class="speed-stepper">
+                  <button id="speedDown" class="ghost" type="button" aria-label="降低播放速度">−</button>
+                  <button id="speedUp" class="ghost" type="button" aria-label="提高播放速度">+</button>
+                </div>
+              </div>
+              <div class="range-wrap">
+                <input id="speed" type="range" min="0.25" max="2.5" step="0.25" value="1" />
+                <strong id="setupSpeedSummary">当前播放速度 1.00x</strong>
+                <span id="setupReadyHint">加载标准动作后即可进入练习页，练习页会默认进入沉浸式舞台。</span>
               </div>
             </div>
-            <div class="stage-labels">
-              <strong id="stageLabel">准备开始</strong>
-              <span id="stageSubLabel">先选择一个标准动作，或点右上角「一键开始跟练」</span>
+          </article>
+
+          <article class="app-card">
+            <div class="stack">
+              <button id="setupStatusToggle" class="collapsible-toggle" type="button" aria-expanded="false">
+                <span><h2 class="panel-title"><span class="step-badge">4</span>准备状态</h2></span>
+                <strong id="setupStatusSummary">已完成 0 / 6</strong>
+              </button>
+              <div id="setupStatusContent" class="collapsible-body" hidden>
+                <div class="info-list">
+                  <div class="info-row">
+                    <span>系统状态</span>
+                    <strong id="status">等待初始化</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>JSON 文件</span>
+                    <strong id="jsonName">未加载</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>人体状态</span>
+                    <strong id="personState">未检测</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>手臂总分</span>
+                    <strong id="scoreLabel">0%</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>动作结论</span>
+                    <strong id="matchLabel">待机中</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>下一拍提示</span>
+                    <strong id="beatPrompt">--</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <article class="setup-footer">
+          <div class="setup-footer-copy">
+            <strong id="setupReadyTitle">先完成动作和摄像头准备</strong>
+            <span id="setupReadyCopy">选择标准动作后进入练习页，练习页内会以全屏舞台和底部 Sheet 呈现控制与反馈。</span>
+          </div>
+          <button id="enterPractice" class="primary" type="button">开始练习</button>
+        </article>
+      </section>
+
+      <section class="view practice-view" data-view="practice">
+        <div class="practice-stage-shell">
+          <div class="stage">
+            <video id="cameraVideo" playsinline autoplay muted></video>
+            <canvas id="overlayCanvas" width="720" height="1280"></canvas>
+            <audio id="bgmAudio" preload="metadata"></audio>
+
+            <div class="practice-topbar">
+              <button id="backToSetup" class="nav-icon ghost" type="button" aria-label="返回准备页">←</button>
+              <div class="practice-heading">
+                <strong id="practiceHeaderTitle">练习中</strong>
+                <span id="practiceHeaderSubtitle">舞台和练习反馈只保留必要信息。</span>
+              </div>
+              <div class="practice-header-actions">
+                <button id="practiceDebugToggle" class="nav-icon ghost" type="button" hidden aria-label="打开调试">🐛</button>
+                <div class="practice-menu-anchor">
+                  <button id="practiceMenuToggle" class="nav-icon ghost" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="更多操作">⋯</button>
+                  <div id="practiceMenu" class="practice-menu" role="menu">
+                    <button id="openResult" class="menu-action" type="button">查看结果</button>
+                    <button id="toggleImmersive" class="menu-action" type="button">进入全屏练习</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stage-score-hud">
+              <div class="score-dial">
+                <svg viewBox="0 0 72 72" aria-hidden="true">
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="7"/>
+                  <circle id="matchRing" class="match-ring" cx="36" cy="36" r="30" fill="none" stroke="#ffbe3b" stroke-width="7" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+                </svg>
+                <div class="score-dial-value">
+                  <strong id="scoreDialValue">--</strong>
+                  <span>手臂分</span>
+                </div>
+              </div>
+              <div class="beat-strip" id="beatStrip">
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+              </div>
+            </div>
+
+            <div class="stage-primary">
+              <button id="stageBack" class="control-backup" type="button" aria-hidden="true" tabindex="-1" hidden>返回</button>
+              <button id="stageImmersive" class="nav-icon chip-icon ghost" type="button" aria-label="进入全屏">⛶</button>
             </div>
           </div>
         </div>
-        <div class="legend">
-          <span><i class="dot dot-target"></i>标准动作</span>
-          <span><i class="dot dot-user"></i>你</span>
-          <span><i class="dot dot-miss"></i>姿态偏差</span>
-          <span class="pill" id="playbackState">暂停</span>
+
+        <div class="practice-dock">
+          <div class="sheet-shell">
+            <button id="practiceSheetToggle" class="sheet-handle" type="button" aria-expanded="false">
+              <span class="sheet-handle-bar"></span>
+              <span class="sheet-handle-copy">展开练习详情</span>
+            </button>
+
+            <div class="sheet-peek">
+              <div class="practice-score-peek">
+                <span class="dock-kicker">当前总分</span>
+                <strong id="practiceScoreLabel">--</strong>
+                <span id="practiceArmSummary">左臂 -- / 右臂 --</span>
+              </div>
+            </div>
+
+            <div class="sheet-rhythm">
+              <div class="beat-badge" id="beatBadge">节拍未就绪</div>
+              <span id="practiceRhythmSummary">等待开始播放</span>
+            </div>
+
+            <div class="sheet-expand-content">
+              <div class="dock-panel">
+                <span class="dock-kicker">当前状态</span>
+                <strong id="stageLabel">准备开始</strong>
+                <span id="stageSubLabel">先选择一个标准动作，然后进入练习。</span>
+                <div class="legend-row">
+                  <span><i class="dot dot-target"></i>标准动作</span>
+                  <span><i class="dot dot-user"></i>你</span>
+                  <span><i class="dot dot-miss"></i>姿态偏差</span>
+                </div>
+              </div>
+
+              <div class="dock-panel">
+                <span class="dock-kicker">节拍详情</span>
+                <div class="beat-strip beat-strip-secondary" id="beatStripMirror">
+                  <span class="beat-dot"></span>
+                  <span class="beat-dot"></span>
+                  <span class="beat-dot"></span>
+                  <span class="beat-dot"></span>
+                  <span class="beat-dot"></span>
+                </div>
+                <span>下一拍提示、命中结果和节奏热区会在这里持续同步。</span>
+              </div>
+
+              <div class="dock-panel practice-actions">
+                <span class="dock-kicker">练习控制</span>
+                <button id="practiceReplay" class="ghost" type="button">重新播放</button>
+                <button id="practiceCameraAction" class="ghost" type="button">关闭摄像头</button>
+                <span class="pill" id="playbackState">暂停</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="practice-floating-controls">
+            <button id="togglePlayback" class="playback-glass" type="button" aria-label="开始播放">开始播放</button>
+          </div>
         </div>
+
+        <section id="debugPanel" class="debug-panel" hidden>
+          <button id="debugDismiss" class="debug-dismiss" type="button" aria-label="关闭调试"></button>
+          <aside class="debug-drawer">
+            <div class="debug-header">
+              <div class="stack">
+                <h2>高级调试</h2>
+                <p>默认界面不显示调试信息。仅在 <code>?debug=1</code> 下通过右侧抽屉查看。</p>
+              </div>
+              <button id="debugClose" class="nav-icon ghost" type="button" aria-label="关闭调试">×</button>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row">
+                <span>当前目标帧</span>
+                <strong id="frameInfo">0 / 0</strong>
+              </div>
+              <div class="info-row">
+                <span>当前时间</span>
+                <strong id="timeInfo">0.000s</strong>
+              </div>
+              <div class="info-row">
+                <span>评分体系</span>
+                <strong id="scoreSystem">双臂专项</strong>
+              </div>
+              <div class="info-row">
+                <span>节奏分析</span>
+                <strong id="beatStatus">等待音频</strong>
+              </div>
+              <div class="info-row">
+                <span>拍点统计</span>
+                <strong id="beatHitStats">0 / 0</strong>
+              </div>
+            </div>
+
+            <label>
+              拖动定位某一帧
+              <input id="frameSlider" type="range" min="0" max="0" value="0" disabled />
+            </label>
+
+            <div class="debug-tabs">
+              <button id="debugTabJson" class="debug-tab is-active" type="button">JSON 帧摘要</button>
+              <button id="debugTabHud" class="debug-tab" type="button">调试 HUD</button>
+            </div>
+
+            <div>
+              <div id="debugJsonPanel" class="debug-tab-panel is-active">
+                <pre id="jsonPreview" class="debug-pre">{
+  "status": "请先加载 JSON"
+}</pre>
+              </div>
+              <div id="debugHudPanel" class="debug-tab-panel">
+                <pre id="hudText" class="debug-pre">摄像头未打开</pre>
+              </div>
+            </div>
+          </aside>
+        </section>
       </section>
-    </div>
+
+      <section class="view result-view" data-view="result">
+        <article class="result-hero app-card">
+          <span class="eyebrow">本轮结果</span>
+          <h2 id="resultTitle">等待练习完成</h2>
+          <p id="resultSubtitle">完成一轮播放后，这里会展示过程均分、节奏命中和动作结论。</p>
+          <div class="result-banner">
+            <strong id="finalAverageScore">--</strong>
+            <strong id="finalConclusion">待结算</strong>
+          </div>
+        </article>
+
+        <div class="result-grid">
+          <article class="app-card result-score-card">
+            <div class="info-list">
+              <div class="info-row">
+                <span>左臂最终分</span>
+                <strong id="leftArmScore">--</strong>
+              </div>
+              <div class="info-row">
+                <span>右臂最终分</span>
+                <strong id="rightArmScore">--</strong>
+              </div>
+              <div class="info-row">
+                <span>拍点命中率</span>
+                <strong id="beatHitRate">--</strong>
+              </div>
+              <div class="info-row">
+                <span>拍点击分</span>
+                <strong id="beatCompositeScore">--</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="app-card result-review">
+            <div class="stack">
+              <span class="dock-kicker">本轮复盘</span>
+              <strong id="resultReviewTitle">还没有结算结果</strong>
+              <p id="resultReviewText">进入练习页并完成一轮播放后，这里会输出动作和节奏复盘摘要。</p>
+            </div>
+          </article>
+        </div>
+
+        <article class="result-footer">
+          <button id="resultReplay" class="primary" type="button">重新练习</button>
+          <div class="result-inline-links">
+            <button id="resultToPractice" class="text-link" type="button">回到练习页</button>
+            <span>·</span>
+            <button id="resultToSetup" class="text-link" type="button">返回准备页</button>
+          </div>
+        </article>
+      </section>
+    </main>
   </div>
 
   <script>
@@ -857,6 +1897,15 @@
       weak: 'D · 手臂偏差较大',
     };
 
+    const RHYTHM_EVAL_WINDOW = 0.16;
+    const RHYTHM_PERFECT_WINDOW = 0.09;
+    const RHYTHM_GOOD_WINDOW = 0.14;
+    const RHYTHM_PREP_WINDOW = 0.36;
+    const RHYTHM_HIT_SCORE = 75;
+    const RHYTHM_GOOD_SCORE = 60;
+    const RHYTHM_COMPOSITE_PERFECT = 82;
+    const RHYTHM_COMPOSITE_GOOD = 68;
+
     // 人体实体（半透明 + 描边）调色板——填充克制，描边清晰，不压住视频画面
     const BODY_PALETTES = {
       target: { fill: 'rgba(255, 184, 59, 0.28)', stroke: 'rgba(255, 214, 122, 0.98)', glow: 'rgba(255, 184, 59, 0.5)' },
@@ -880,6 +1929,14 @@
       showHead: false,
       showNeck: false,
     };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const BUNDLED_POSE_PRESETS = [
+      { buttonId: 'loadHongmen', path: 'wudao/鸿门旋律_pose.json', label: '鸿门旋律_pose.json' },
+      { buttonId: 'loadTimoteam', path: 'wudao/提莫队长_pose.json', label: '提莫队长_pose.json' },
+      { buttonId: 'loadShoushi', path: 'wudao/shoushi_pose.json', label: 'shoushi_pose.json' },
+    ];
+    const DEFAULT_BUNDLED_POSE = BUNDLED_POSE_PRESETS[0];
 
     const state = {
       poseData: null,
@@ -916,12 +1973,69 @@
       jsonAspectRatio: null,
       audioSource: null,
       audioReady: false,
+      audioBeatAnalysisId: 0,
+      audioBeatContext: null,
+      beatTimes: [],
+      beatSummary: null,
+      beatStatus: '等待音频',
+      beatPrompt: '--',
+      beatWindow: null,
+      rhythmSamples: [],
+      beatEvaluations: [],
+      beatCursor: 0,
+      beatHitRate: null,
+      beatCompositeScore: null,
+      playbackCompleted: false,
+      currentView: 'setup',
+      isImmersive: false,
+      debugEnabled: urlParams.get('debug') === '1',
+      setupStatusExpanded: false,
+      practiceSheetExpanded: false,
+      practiceMenuOpen: false,
+      debugDrawerOpen: false,
+      debugTab: 'json',
+      wakeLock: null,
+      sheetTouchStartY: null,
+      sheetTouchEndY: null,
+      serverExtractionAvailable: false,
+      extractionChecked: false,
+      videoExtracting: false,
+      uploadedVideoObjectUrl: null,
+      generatedJsonBlobUrl: null,
+      generatedJsonName: '',
     };
 
     const elements = {
+      appShell: document.querySelector('.app-shell'),
+      navBack: document.querySelector('#navBack'),
+      debugToggle: document.querySelector('#debugToggle'),
+      navStatus: document.querySelector('#navStatus'),
+      navSetup: document.querySelector('#navSetup'),
+      navPractice: document.querySelector('#navPractice'),
+      navResult: document.querySelector('#navResult'),
+      setupView: document.querySelector('[data-view="setup"]'),
+      practiceView: document.querySelector('[data-view="practice"]'),
+      resultView: document.querySelector('[data-view="result"]'),
       video: document.querySelector('#cameraVideo'),
       canvas: document.querySelector('#overlayCanvas'),
       ctx: document.querySelector('#overlayCanvas').getContext('2d'),
+      jsonFileTrigger: document.querySelector('#jsonFileTrigger'),
+      videoFileInput: document.querySelector('#videoFileInput'),
+      videoFileTrigger: document.querySelector('#videoFileTrigger'),
+      videoExtractHint: document.querySelector('#videoExtractHint'),
+      videoExtractStatus: document.querySelector('#videoExtractStatus'),
+      downloadGeneratedJson: document.querySelector('#downloadGeneratedJson'),
+      enterPractice: document.querySelector('#enterPractice'),
+      setupReadyTitle: document.querySelector('#setupReadyTitle'),
+      setupReadyCopy: document.querySelector('#setupReadyCopy'),
+      setupReadyHint: document.querySelector('#setupReadyHint'),
+      setupSpeedSummary: document.querySelector('#setupSpeedSummary'),
+      speedDown: document.querySelector('#speedDown'),
+      speedUp: document.querySelector('#speedUp'),
+      cameraSecondaryActions: document.querySelector('#cameraSecondaryActions'),
+      setupStatusToggle: document.querySelector('#setupStatusToggle'),
+      setupStatusSummary: document.querySelector('#setupStatusSummary'),
+      setupStatusContent: document.querySelector('#setupStatusContent'),
       status: document.querySelector('#status'),
       jsonName: document.querySelector('#jsonName'),
       frameInfo: document.querySelector('#frameInfo'),
@@ -934,17 +2048,36 @@
       finalAverageScore: document.querySelector('#finalAverageScore'),
       finalConclusion: document.querySelector('#finalConclusion'),
       matchLabel: document.querySelector('#matchLabel'),
+      beatStatus: document.querySelector('#beatStatus'),
+      beatPrompt: document.querySelector('#beatPrompt'),
+      beatHitRate: document.querySelector('#beatHitRate'),
+      beatCompositeScore: document.querySelector('#beatCompositeScore'),
+      beatHitStats: document.querySelector('#beatHitStats'),
       jsonPreview: document.querySelector('#jsonPreview'),
       hudText: document.querySelector('#hudText'),
+      debugPanel: document.querySelector('#debugPanel'),
       frameSlider: document.querySelector('#frameSlider'),
       speedInput: document.querySelector('#speed'),
       speedLabel: document.querySelector('#speedLabel'),
-      heroCamera: document.querySelector('#heroCamera'),
-      heroJson: document.querySelector('#heroJson'),
-      heroDetection: document.querySelector('#heroDetection'),
-      heroMatch: document.querySelector('#heroMatch'),
       playbackState: document.querySelector('#playbackState'),
       togglePlayback: document.querySelector('#togglePlayback'),
+      practiceDock: document.querySelector('.practice-dock'),
+      practiceSheetToggle: document.querySelector('#practiceSheetToggle'),
+      practiceReplay: document.querySelector('#practiceReplay'),
+      practiceCameraAction: document.querySelector('#practiceCameraAction'),
+      practiceScoreLabel: document.querySelector('#practiceScoreLabel'),
+      practiceArmSummary: document.querySelector('#practiceArmSummary'),
+      practiceRhythmSummary: document.querySelector('#practiceRhythmSummary'),
+      practiceHeaderTitle: document.querySelector('#practiceHeaderTitle'),
+      practiceHeaderSubtitle: document.querySelector('#practiceHeaderSubtitle'),
+      backToSetup: document.querySelector('#backToSetup'),
+      practiceDebugToggle: document.querySelector('#practiceDebugToggle'),
+      practiceMenuToggle: document.querySelector('#practiceMenuToggle'),
+      practiceMenu: document.querySelector('#practiceMenu'),
+      openResult: document.querySelector('#openResult'),
+      toggleImmersive: document.querySelector('#toggleImmersive'),
+      stageBack: document.querySelector('#stageBack'),
+      stageImmersive: document.querySelector('#stageImmersive'),
       toggleMirror: document.querySelector('#toggleMirror'),
       openCamera: document.querySelector('#openCamera'),
       stopCamera: document.querySelector('#stopCamera'),
@@ -952,13 +2085,358 @@
       scoreDialValue: document.querySelector('#scoreDialValue'),
       stageLabel: document.querySelector('#stageLabel'),
       stageSubLabel: document.querySelector('#stageSubLabel'),
-      quickStart: document.querySelector('#quickStart'),
+      beatBadge: document.querySelector('#beatBadge'),
+      beatStrip: document.querySelector('#beatStrip'),
+      beatStripMirror: document.querySelector('#beatStripMirror'),
       bgmAudio: document.querySelector('#bgmAudio'),
+      resultTitle: document.querySelector('#resultTitle'),
+      resultSubtitle: document.querySelector('#resultSubtitle'),
+      resultReviewTitle: document.querySelector('#resultReviewTitle'),
+      resultReviewText: document.querySelector('#resultReviewText'),
+      resultReplay: document.querySelector('#resultReplay'),
+      resultToPractice: document.querySelector('#resultToPractice'),
+      resultToSetup: document.querySelector('#resultToSetup'),
+      debugDismiss: document.querySelector('#debugDismiss'),
+      debugClose: document.querySelector('#debugClose'),
+      debugTabJson: document.querySelector('#debugTabJson'),
+      debugTabHud: document.querySelector('#debugTabHud'),
+      debugJsonPanel: document.querySelector('#debugJsonPanel'),
+      debugHudPanel: document.querySelector('#debugHudPanel'),
     };
 
     function setStatus(text) {
       state.status = text;
-      elements.status.textContent = text;
+      if (elements.status) elements.status.textContent = text;
+      if (elements.navStatus) {
+        elements.navStatus.textContent = text;
+        elements.navStatus.title = text;
+      }
+    }
+
+    function isCompactViewport() {
+      return window.innerWidth < 768;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function revokeObjectUrl(url) {
+      if (!url) return;
+      try {
+        URL.revokeObjectURL(url);
+      } catch (_) {
+        // ignore revoke errors
+      }
+    }
+
+    function clearUploadedVideoAudio() {
+      revokeObjectUrl(state.uploadedVideoObjectUrl);
+      state.uploadedVideoObjectUrl = null;
+    }
+
+    function clearGeneratedJsonDownload() {
+      revokeObjectUrl(state.generatedJsonBlobUrl);
+      state.generatedJsonBlobUrl = null;
+      state.generatedJsonName = '';
+      if (elements.downloadGeneratedJson) {
+        elements.downloadGeneratedJson.hidden = true;
+        elements.downloadGeneratedJson.disabled = true;
+        elements.downloadGeneratedJson.textContent = '下载生成 JSON';
+      }
+    }
+
+    function setGeneratedJsonDownload(jsonData, fileName) {
+      clearGeneratedJsonDownload();
+      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+      state.generatedJsonBlobUrl = URL.createObjectURL(blob);
+      state.generatedJsonName = fileName || 'generated_pose.json';
+      if (elements.downloadGeneratedJson) {
+        elements.downloadGeneratedJson.hidden = false;
+        elements.downloadGeneratedJson.disabled = false;
+        elements.downloadGeneratedJson.textContent = `下载 ${state.generatedJsonName}`;
+      }
+    }
+
+    async function checkExtractionApiAvailability() {
+      try {
+        const response = await fetch('/api/health', { cache: 'no-store' });
+        const payload = await response.json().catch(() => null);
+        state.serverExtractionAvailable = Boolean(response.ok && payload?.ok);
+      } catch (_) {
+        state.serverExtractionAvailable = false;
+      } finally {
+        state.extractionChecked = true;
+      }
+    }
+
+    async function extractPoseFromUploadedVideo(file) {
+      if (!file) return;
+      if (!state.serverExtractionAvailable) {
+        setStatus('当前服务不支持视频转 JSON，请使用 dev_server.py 启动。');
+        return;
+      }
+
+      state.videoExtracting = true;
+      if (elements.videoFileTrigger) {
+        elements.videoFileTrigger.disabled = true;
+        elements.videoFileTrigger.textContent = '识别中...';
+      }
+      if (elements.videoExtractStatus) {
+        elements.videoExtractStatus.textContent = `正在识别 ${file.name}，请等待视频关键点提取完成。`;
+      }
+      setStatus(`正在识别视频并生成 JSON: ${file.name}`);
+
+      try {
+        const response = await fetch('/api/extract-pose', {
+          method: 'POST',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+            'X-Filename': encodeURIComponent(file.name),
+          },
+          body: file,
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload?.ok || !payload?.json) {
+          throw new Error(payload?.error || `HTTP ${response.status}`);
+        }
+
+        clearUploadedVideoAudio();
+        state.uploadedVideoObjectUrl = URL.createObjectURL(file);
+        loadPoseData(payload.json, payload.json_name || `${file.name.replace(/\.[^.]+$/, '')}_pose.json`);
+        attachAudio(state.uploadedVideoObjectUrl);
+        setGeneratedJsonDownload(payload.json, payload.json_name || `${file.name.replace(/\.[^.]+$/, '')}_pose.json`);
+        if (elements.videoExtractStatus) {
+          const frameCount = payload.json?.frames?.length || 0;
+          elements.videoExtractStatus.textContent = `识别完成，已生成 ${frameCount} 帧关键点数据并自动载入。`;
+        }
+        setStatus(`短视频识别完成: ${file.name}`);
+      } catch (error) {
+        if (elements.videoExtractStatus) {
+          elements.videoExtractStatus.textContent = `识别失败：${error.message}`;
+        }
+        setStatus(`短视频识别失败: ${error.message}`);
+      } finally {
+        state.videoExtracting = false;
+        if (elements.videoFileTrigger) {
+          elements.videoFileTrigger.disabled = !state.serverExtractionAvailable;
+          elements.videoFileTrigger.textContent = '🎬 上传短视频并识别';
+        }
+        if (elements.videoFileInput) {
+          elements.videoFileInput.value = '';
+        }
+      }
+    }
+
+    function setSetupStatusExpanded(expanded) {
+      state.setupStatusExpanded = Boolean(expanded);
+      if (elements.setupStatusToggle) {
+        elements.setupStatusToggle.setAttribute('aria-expanded', String(state.setupStatusExpanded));
+      }
+      if (elements.setupStatusContent) {
+        elements.setupStatusContent.hidden = !state.setupStatusExpanded;
+      }
+    }
+
+    function setPracticeSheetExpanded(expanded) {
+      state.practiceSheetExpanded = Boolean(expanded);
+      if (elements.practiceDock) {
+        elements.practiceDock.classList.toggle('is-expanded', state.practiceSheetExpanded);
+      }
+      if (elements.practiceSheetToggle) {
+        elements.practiceSheetToggle.setAttribute('aria-expanded', String(state.practiceSheetExpanded));
+      }
+    }
+
+    function setPracticeMenuOpen(expanded) {
+      state.practiceMenuOpen = Boolean(expanded);
+      if (elements.practiceMenu) {
+        elements.practiceMenu.classList.toggle('is-open', state.practiceMenuOpen);
+      }
+      if (elements.practiceMenuToggle) {
+        elements.practiceMenuToggle.setAttribute('aria-expanded', String(state.practiceMenuOpen));
+      }
+    }
+
+    function setDebugTab(tabName) {
+      state.debugTab = tabName === 'hud' ? 'hud' : 'json';
+      if (elements.debugTabJson) {
+        elements.debugTabJson.classList.toggle('is-active', state.debugTab === 'json');
+      }
+      if (elements.debugTabHud) {
+        elements.debugTabHud.classList.toggle('is-active', state.debugTab === 'hud');
+      }
+      if (elements.debugJsonPanel) {
+        elements.debugJsonPanel.classList.toggle('is-active', state.debugTab === 'json');
+      }
+      if (elements.debugHudPanel) {
+        elements.debugHudPanel.classList.toggle('is-active', state.debugTab === 'hud');
+      }
+    }
+
+    function setDebugDrawerOpen(expanded) {
+      if (!state.debugEnabled) return;
+      state.debugDrawerOpen = Boolean(expanded);
+      if (elements.debugPanel) {
+        elements.debugPanel.classList.toggle('is-open', state.debugDrawerOpen);
+      }
+      [elements.debugToggle, elements.practiceDebugToggle].forEach((button) => {
+        if (!button) return;
+        button.setAttribute('aria-expanded', String(state.debugDrawerOpen));
+      });
+    }
+
+    function countSetupReadyItems() {
+      const checks = [
+        state.status !== '等待初始化',
+        Boolean(state.poseData),
+        state.cameraRunning,
+        state.personVisible,
+        typeof state.matchScore === 'number',
+        state.beatPrompt && state.beatPrompt !== '--',
+      ];
+      return checks.filter(Boolean).length;
+    }
+
+    function syncBeatStripMirror() {
+      if (!elements.beatStrip || !elements.beatStripMirror) return;
+      const sourceDots = Array.from(elements.beatStrip.children);
+      const mirrorDots = Array.from(elements.beatStripMirror.children);
+      mirrorDots.forEach((dot, index) => {
+        dot.className = sourceDots[index]?.className || 'beat-dot';
+      });
+    }
+
+    async function requestScreenWakeLock() {
+      if (!('wakeLock' in navigator) || state.wakeLock || !state.isPlaying) return;
+      try {
+        state.wakeLock = await navigator.wakeLock.request('screen');
+        state.wakeLock.addEventListener('release', () => {
+          state.wakeLock = null;
+        });
+      } catch (_) {
+        state.wakeLock = null;
+      }
+    }
+
+    async function releaseScreenWakeLock() {
+      if (!state.wakeLock) return;
+      try {
+        await state.wakeLock.release();
+      } catch (_) {
+        // 忽略释放失败
+      } finally {
+        state.wakeLock = null;
+      }
+    }
+
+    function triggerBeatFeedback(result) {
+      if (!navigator.vibrate || state.currentView !== 'practice') return;
+      if (result === 'perfect' || result === 'good') {
+        navigator.vibrate(15);
+      } else if (result === 'miss') {
+        navigator.vibrate([10, 30, 10]);
+      }
+    }
+
+    function syncViewClasses() {
+      document.body.dataset.view = state.currentView;
+      document.body.dataset.debugEnabled = state.debugEnabled ? 'true' : 'false';
+      [elements.setupView, elements.practiceView, elements.resultView].forEach((view) => {
+        if (!view) return;
+        view.classList.toggle('is-active', view.dataset.view === state.currentView);
+      });
+
+      [
+        [elements.navSetup, 'setup'],
+        [elements.navPractice, 'practice'],
+        [elements.navResult, 'result'],
+      ].forEach(([button, viewName]) => {
+        if (!button) return;
+        button.classList.toggle('is-active', state.currentView === viewName);
+      });
+
+      if (elements.navBack) {
+        elements.navBack.hidden = state.currentView === 'setup';
+      }
+    }
+
+    async function setImmersiveMode(nextValue) {
+      const shouldEnable = Boolean(nextValue);
+      if (state.isImmersive === shouldEnable) return;
+      state.isImmersive = shouldEnable;
+      document.body.classList.toggle('immersive-lock', shouldEnable);
+      if (elements.practiceView) {
+        elements.practiceView.classList.toggle('is-immersive', shouldEnable);
+      }
+
+      if (shouldEnable) {
+        const fullscreenTarget = elements.practiceView;
+        if (fullscreenTarget?.requestFullscreen && !document.fullscreenElement) {
+          try {
+            await fullscreenTarget.requestFullscreen();
+          } catch (_) {
+            // Fullscreen API 作为增强能力，失败时保留 CSS 沉浸态
+          }
+        }
+      } else if (document.fullscreenElement && document.exitFullscreen) {
+        try {
+          await document.exitFullscreen();
+        } catch (_) {
+          // 忽略退出失败，CSS 状态仍然可控
+        }
+      }
+      resizeCanvas();
+    }
+
+    async function setView(nextView) {
+      state.currentView = nextView;
+      setPracticeMenuOpen(false);
+      if (nextView !== 'practice') {
+        setPracticeSheetExpanded(false);
+      }
+      if (nextView !== 'practice' && state.isImmersive) {
+        await setImmersiveMode(false);
+      }
+      if (nextView !== 'practice') {
+        await releaseScreenWakeLock();
+      }
+      syncViewClasses();
+      resizeCanvas();
+    }
+
+    async function enterPracticeFlow({ autoplay = true } = {}) {
+      if (!state.poseData) return;
+      await setView('practice');
+      setPracticeSheetExpanded(false);
+      if (isCompactViewport()) {
+        await setImmersiveMode(true);
+      }
+      if (autoplay && !state.isPlaying) {
+        togglePlayback();
+      }
+    }
+
+    async function replayPractice({ autoplay = true } = {}) {
+      if (!state.poseData) return;
+      state.currentFrame = 0;
+      state.isPlaying = false;
+      resyncPlaybackClock(0);
+      resetPlaybackSummary();
+      elements.playbackState.textContent = '暂停';
+      const audio = elements.bgmAudio;
+      if (audio && state.audioSource) {
+        if (!audio.paused) audio.pause();
+        syncAudioToFrame();
+      }
+      await setView('practice');
+      setPracticeSheetExpanded(false);
+      if (isCompactViewport()) {
+        await setImmersiveMode(true);
+      }
+      if (autoplay) {
+        togglePlayback();
+      }
     }
 
     // MediaPipe Pose 33 点的左右对称对（按鼻=0 对称）
@@ -1336,6 +2814,298 @@
       return typeof score === 'number' ? `${score}%` : '--';
     }
 
+    function formatPercent(score) {
+      return typeof score === 'number' ? `${score}%` : '--';
+    }
+
+    function resetRhythmSummary() {
+      state.rhythmSamples = [];
+      state.beatEvaluations = [];
+      state.beatCursor = 0;
+      state.beatHitRate = null;
+      state.beatCompositeScore = null;
+      state.beatPrompt = state.beatTimes.length ? '等待开始播放' : '--';
+      state.beatWindow = null;
+    }
+
+    function resetBeatAnalysis(status = '等待音频') {
+      state.beatTimes = [];
+      state.beatSummary = null;
+      state.beatStatus = status;
+      resetRhythmSummary();
+    }
+
+    function getPlaybackClockTime() {
+      const frame = state.poseData?.frames?.[state.currentFrame];
+      if (!frame) return null;
+      if (state.audioSource && elements.bgmAudio && Number.isFinite(elements.bgmAudio.currentTime)) {
+        return elements.bgmAudio.currentTime;
+      }
+      return typeof frame.time === 'number' ? frame.time : null;
+    }
+
+    function getUpcomingBeatWindow(currentTime) {
+      if (!state.beatTimes.length || typeof currentTime !== 'number') return null;
+      let nextIndex = state.beatCursor;
+      while (nextIndex < state.beatTimes.length - 1 && state.beatTimes[nextIndex] < currentTime - RHYTHM_EVAL_WINDOW) {
+        nextIndex += 1;
+      }
+      const nextTime = state.beatTimes[nextIndex];
+      if (typeof nextTime !== 'number') return null;
+      const delta = nextTime - currentTime;
+      return {
+        nextIndex,
+        nextTime,
+        delta,
+        isHot: Math.abs(delta) <= RHYTHM_GOOD_WINDOW,
+        beatType: getBeatType(nextIndex),
+      };
+    }
+
+    function getBeatType(index) {
+      const accentEvery = state.beatSummary?.accentEvery || 4;
+      return index % accentEvery === 0 ? 'downbeat' : 'beat';
+    }
+
+    function getBeatTypeLabel(beatType) {
+      return beatType === 'downbeat' ? '重拍' : '拍点';
+    }
+
+    function getTimingScore(delta) {
+      if (typeof delta !== 'number' || !Number.isFinite(delta)) return 0;
+      return Math.max(0, Math.round((1 - Math.min(1, delta / RHYTHM_EVAL_WINDOW)) * 100));
+    }
+
+    function summarizeBeatEvaluations(evaluations) {
+      if (!Array.isArray(evaluations) || !evaluations.length) return null;
+      const hits = evaluations.filter((item) => item.result === 'perfect' || item.result === 'good').length;
+      const timingScores = evaluations.map((item) => item.timingScore).filter((value) => typeof value === 'number');
+      const poseScores = evaluations.map((item) => item.poseScore).filter((value) => typeof value === 'number');
+      const compositeScores = evaluations.map((item) => item.compositeScore).filter((value) => typeof value === 'number');
+      return {
+        total: evaluations.length,
+        hits,
+        perfect: evaluations.filter((item) => item.result === 'perfect').length,
+        good: evaluations.filter((item) => item.result === 'good').length,
+        miss: evaluations.filter((item) => item.result === 'miss').length,
+        rate: Math.round((hits / evaluations.length) * 100),
+        timingAverage: timingScores.length ? Math.round(timingScores.reduce((sum, value) => sum + value, 0) / timingScores.length) : null,
+        poseAverage: poseScores.length ? Math.round(poseScores.reduce((sum, value) => sum + value, 0) / poseScores.length) : null,
+        compositeAverage: compositeScores.length ? Math.round(compositeScores.reduce((sum, value) => sum + value, 0) / compositeScores.length) : null,
+      };
+    }
+
+    function updateRhythmPrompt(currentTime) {
+      if (!state.beatTimes.length) {
+        state.beatPrompt = '--';
+        state.beatWindow = null;
+        return;
+      }
+      if (typeof currentTime !== 'number') {
+        state.beatPrompt = state.isPlaying ? '节拍等待同步' : '等待开始播放';
+        state.beatWindow = null;
+        return;
+      }
+
+      const window = getUpcomingBeatWindow(currentTime);
+      state.beatWindow = window;
+      if (!window) {
+        state.beatPrompt = '节拍结束';
+        return;
+      }
+      const delta = window.delta;
+      const beatLabel = getBeatTypeLabel(window.beatType);
+      if (Math.abs(delta) <= RHYTHM_PERFECT_WINDOW) {
+        state.beatPrompt = `${beatLabel}，落点`;
+      } else if (delta > 0 && delta <= RHYTHM_PREP_WINDOW) {
+        state.beatPrompt = `预备${beatLabel} ${delta.toFixed(2)}s`;
+      } else if (delta > 0) {
+        state.beatPrompt = `下一${beatLabel} ${delta.toFixed(2)}s`;
+      } else {
+        state.beatPrompt = `${beatLabel}已过 ${Math.abs(delta).toFixed(2)}s`;
+      }
+    }
+
+    function collectRhythmSample(frameTime, score) {
+      if (!state.isPlaying || typeof frameTime !== 'number' || typeof score !== 'number') return;
+      const last = state.rhythmSamples[state.rhythmSamples.length - 1];
+      if (last && Math.abs(last.time - frameTime) < 0.01) {
+        last.score = score;
+        last.frameIndex = state.currentFrame;
+        return;
+      }
+      state.rhythmSamples.push({
+        time: frameTime,
+        score,
+        frameIndex: state.currentFrame,
+      });
+      if (state.rhythmSamples.length > 600) {
+        state.rhythmSamples.splice(0, state.rhythmSamples.length - 600);
+      }
+    }
+
+    function classifyBeatHit(bestSample, beatTime) {
+      if (!bestSample || typeof bestSample.score !== 'number') {
+        return { result: 'miss', score: null, delta: null, timingScore: 0, poseScore: null, compositeScore: 0 };
+      }
+      const delta = Math.abs(bestSample.time - beatTime);
+      const timingScore = getTimingScore(delta);
+      const poseScore = bestSample.score;
+      const compositeScore = Math.round(poseScore * 0.55 + timingScore * 0.45);
+      if (
+        delta <= RHYTHM_PERFECT_WINDOW &&
+        poseScore >= RHYTHM_HIT_SCORE &&
+        compositeScore >= RHYTHM_COMPOSITE_PERFECT
+      ) {
+        return { result: 'perfect', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+      }
+      if (
+        delta <= RHYTHM_GOOD_WINDOW &&
+        poseScore >= RHYTHM_GOOD_SCORE &&
+        compositeScore >= RHYTHM_COMPOSITE_GOOD
+      ) {
+        return { result: 'good', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+      }
+      return { result: 'miss', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+    }
+
+    function evaluateRhythmProgress(currentTime) {
+      if (!state.beatTimes.length || typeof currentTime !== 'number') return;
+      while (state.beatCursor < state.beatTimes.length) {
+        const beatTime = state.beatTimes[state.beatCursor];
+        if (currentTime < beatTime + RHYTHM_EVAL_WINDOW) break;
+
+        const candidates = state.rhythmSamples.filter((sample) => Math.abs(sample.time - beatTime) <= RHYTHM_EVAL_WINDOW);
+        const bestSample = candidates.reduce((best, sample) => {
+          if (!best) return sample;
+          const bestDelta = Math.abs(best.time - beatTime);
+          const sampleDelta = Math.abs(sample.time - beatTime);
+          if (sampleDelta !== bestDelta) return sampleDelta < bestDelta ? sample : best;
+          return sample.score > best.score ? sample : best;
+        }, null);
+
+        const result = classifyBeatHit(bestSample, beatTime);
+        state.beatEvaluations.push({
+          beatIndex: state.beatCursor,
+          time: beatTime,
+          beatType: getBeatType(state.beatCursor),
+          ...result,
+        });
+        triggerBeatFeedback(result.result);
+        const summary = summarizeBeatEvaluations(state.beatEvaluations);
+        state.beatHitRate = summary?.rate ?? null;
+        state.beatCompositeScore = summary?.compositeAverage ?? null;
+        state.beatCursor += 1;
+      }
+    }
+
+    async function analyzeAudioBeats(source) {
+      if (!source) {
+        resetBeatAnalysis('无背景音');
+        return;
+      }
+
+      const requestId = state.audioBeatAnalysisId + 1;
+      state.audioBeatAnalysisId = requestId;
+      state.beatStatus = '分析拍点中';
+      resetRhythmSummary();
+
+      try {
+        if (!state.audioBeatContext) {
+          const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+          const RealtimeContext = window.AudioContext || window.webkitAudioContext;
+          if (OfflineContext) {
+            state.audioBeatContext = new OfflineContext(1, 2, 44100);
+          } else if (RealtimeContext) {
+            // 仅作为解码上下文兜底使用，不主动 resume，避免无手势时触发 autoplay 警告。
+            state.audioBeatContext = new RealtimeContext();
+          } else {
+            throw new Error('当前环境不支持 Web Audio 解码。');
+          }
+        }
+        const context = state.audioBeatContext;
+
+        const response = await fetch(source);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await context.decodeAudioData(arrayBuffer.slice(0));
+        if (requestId !== state.audioBeatAnalysisId) return;
+
+        const channelData = [];
+        for (let i = 0; i < audioBuffer.numberOfChannels; i += 1) {
+          channelData.push(audioBuffer.getChannelData(i));
+        }
+        const mono = new Float32Array(audioBuffer.length);
+        for (let i = 0; i < audioBuffer.length; i += 1) {
+          let sum = 0;
+          for (let c = 0; c < channelData.length; c += 1) sum += channelData[c][i] || 0;
+          mono[i] = sum / Math.max(1, channelData.length);
+        }
+
+        const windowSize = 1024;
+        const hopSize = 512;
+        const energies = [];
+        for (let offset = 0; offset + windowSize < mono.length; offset += hopSize) {
+          let sum = 0;
+          for (let i = 0; i < windowSize; i += 1) {
+            const value = mono[offset + i];
+            sum += value * value;
+          }
+          energies.push({
+            time: offset / audioBuffer.sampleRate,
+            value: Math.sqrt(sum / windowSize),
+          });
+        }
+
+        if (!energies.length) throw new Error('音频能量为空');
+        const averageEnergy = energies.reduce((sum, item) => sum + item.value, 0) / energies.length;
+        const threshold = averageEnergy * 1.35;
+        const beats = [];
+        let lastBeatTime = -Infinity;
+        for (let i = 1; i < energies.length - 1; i += 1) {
+          const prev = energies[i - 1];
+          const current = energies[i];
+          const next = energies[i + 1];
+          if (
+            current.value > threshold &&
+            current.value >= prev.value &&
+            current.value > next.value &&
+            current.time - lastBeatTime >= 0.28
+          ) {
+            beats.push(current.time);
+            lastBeatTime = current.time;
+          }
+        }
+
+        const limitedBeats = beats.filter((time) => time <= audioBuffer.duration + 0.01);
+        if (limitedBeats.length < 2) {
+          resetBeatAnalysis('拍点不足');
+          return;
+        }
+
+        const intervals = [];
+        for (let i = 1; i < limitedBeats.length; i += 1) {
+          intervals.push(limitedBeats[i] - limitedBeats[i - 1]);
+        }
+        const sortedIntervals = intervals.slice().sort((a, b) => a - b);
+        const medianInterval = sortedIntervals[Math.floor(sortedIntervals.length / 2)] || 0;
+        const bpm = medianInterval ? Math.round(60 / medianInterval) : null;
+
+        state.beatTimes = limitedBeats;
+        state.beatSummary = {
+          bpm,
+          total: limitedBeats.length,
+          accentEvery: 4,
+        };
+        state.beatStatus = bpm ? `已识别 ${limitedBeats.length} 个拍点 · ${bpm} BPM` : `已识别 ${limitedBeats.length} 个拍点`;
+        resetRhythmSummary();
+      } catch (error) {
+        if (requestId !== state.audioBeatAnalysisId) return;
+        console.error('[beat analysis failed]', error);
+        resetBeatAnalysis(`拍点分析失败: ${error.message}`);
+      }
+    }
+
     function getFinalConclusion(score) {
       if (typeof score !== 'number') return '待结算';
       if (score >= 85) return FINAL_CONCLUSION_LABELS.excellent;
@@ -1372,6 +3142,8 @@
       state.finalScores = null;
       state.playbackScoreSamples = [];
       state.lastSampledFrameIndex = -1;
+      state.playbackCompleted = false;
+      resetRhythmSummary();
     }
 
     function recordPlaybackSample(armScores) {
@@ -1387,7 +3159,12 @@
     }
 
     function finalizePlaybackSummary() {
+      evaluateRhythmProgress(Number.POSITIVE_INFINITY);
+      const rhythmSummary = summarizeBeatEvaluations(state.beatEvaluations);
+      state.beatHitRate = rhythmSummary?.rate ?? null;
+      state.beatCompositeScore = rhythmSummary?.compositeAverage ?? null;
       state.finalScores = summarizePlaybackScores(state.playbackScoreSamples);
+      state.playbackCompleted = true;
     }
 
     function captureFinalPlaybackFrame(frame) {
@@ -1784,11 +3561,14 @@
           captureFinalPlaybackFrame(frames[state.currentFrame]);
           state.isPlaying = false;
           finalizePlaybackSummary();
+          void releaseScreenWakeLock();
           elements.playbackState.textContent = '已结束';
-          elements.togglePlayback.textContent = '重新播放';
           setStatus('标准动作播放完成');
           const audio = elements.bgmAudio;
           if (audio && !audio.paused) audio.pause();
+          if (state.currentView !== 'result') {
+            void setView('result');
+          }
         } else {
           let nearest = 0;
           for (let i = 0; i < frames.length; i += 1) {
@@ -1835,7 +3615,42 @@
       elements.jsonPreview.textContent = JSON.stringify(preview, null, 2);
     }
 
-    function updateStatusUI(frame) {
+    function getStageCopy(alignedFrame) {
+      let main;
+      let sub;
+      if (!state.poseData && !state.cameraRunning) {
+        main = '准备开始';
+        sub = '先选择一个标准动作，然后进入练习。';
+      } else if (!state.poseData && state.cameraRunning && state.personVisible) {
+        main = '人像已锁定';
+        sub = '现在可以加载一个标准动作。';
+      } else if (!state.poseData && state.cameraRunning) {
+        main = '搜索人像中';
+        sub = '请站到画面中央。';
+      } else if (state.poseData && state.isPlaying) {
+        main = state.personVisible
+          ? (alignedFrame?.alignedToUser ? '跟上了，动作贴合中' : '播放中')
+          : '标准动作播放中';
+        sub = state.personVisible
+          ? `${buildArmScoreSummary(state.armScores)} · ${state.beatPrompt}`
+          : `可随时入镜跟练 · ${state.beatPrompt}`;
+      } else if (state.poseData && state.finalScores) {
+        main = '本轮评分已结算';
+        sub = `过程均分 ${formatScoreValue(state.finalScores.average)} · 拍点命中 ${formatPercent(state.beatHitRate)} · 拍点击分 ${formatPercent(state.beatCompositeScore)}`;
+      } else if (state.poseData && !state.cameraRunning) {
+        main = '动作已就绪';
+        sub = '进入练习页后可直接开始播放，也可以先打开摄像头。';
+      } else if (state.poseData && !state.personVisible) {
+        main = '等待人像';
+        sub = '请站到画面中央。';
+      } else {
+        main = state.matchLabel;
+        sub = `${buildArmScoreSummary(state.armScores)} · 总分 ${formatScoreValue(state.matchScore)}`;
+      }
+      return { main, sub };
+    }
+
+    function buildUiSnapshot(frame, stageCopy) {
       const totalFrames = state.poseData?.frames?.length || 0;
       const timeText = frame ? `${frame.time.toFixed(3)}s` : '0.000s';
       const personText = state.cameraRunning
@@ -1844,53 +3659,158 @@
       const targetHandCount = frame?.hands?.length || 0;
       const userHandText = state.handsDisabledReason ? '降级' : String(state.lastHands.length);
       const scoreText = typeof state.matchScore === 'number' ? `${state.matchScore}%` : '--';
-      const heroMatchText = typeof state.matchScore === 'number' ? `${state.matchScore}%` : state.matchLabel;
       const leftArmText = formatScoreValue(state.finalScores?.leftAverage ?? state.armScores?.left?.score);
       const rightArmText = formatScoreValue(state.finalScores?.rightAverage ?? state.armScores?.right?.score);
       const finalAverageText = formatScoreValue(state.finalScores?.average);
       const finalConclusionText = state.finalScores?.conclusion || '待结算';
+      const rhythmSummary = summarizeBeatEvaluations(state.beatEvaluations);
+      const beatHitRateText = formatPercent(state.beatHitRate);
+      const beatCompositeText = formatPercent(state.beatCompositeScore);
+      const beatStatsText = rhythmSummary
+        ? `${rhythmSummary.hits} / ${rhythmSummary.total}`
+        : '0 / 0';
       const userCenter = state.lastPose ? getPoseCenter(state.lastPose) : null;
       const userPositionText = userCenter
         ? `用户位置: x=${(userCenter.x * 100).toFixed(1)}%, y=${(userCenter.y * 100).toFixed(1)}%`
         : '用户位置: 未检测到';
+      const togglePlaybackText = state.isPlaying
+        ? '暂停播放'
+        : isPlaybackAtEnd()
+          ? '重新播放'
+          : '开始播放';
+      const playbackStateText = state.isPlaying
+        ? '播放中'
+        : (state.poseData && isPlaybackAtEnd() ? '已结束' : '暂停');
+      const practiceRhythmText = state.beatWindow
+        ? `${state.beatPrompt} · 命中 ${beatHitRateText}`
+        : state.beatStatus;
 
+      return {
+        totalFrames,
+        timeText,
+        personText,
+        targetHandCount,
+        userHandText,
+        scoreText,
+        leftArmText,
+        rightArmText,
+        finalAverageText,
+        finalConclusionText,
+        rhythmSummary,
+        beatHitRateText,
+        beatCompositeText,
+        beatStatsText,
+        userPositionText,
+        togglePlaybackText,
+        playbackStateText,
+        practiceRhythmText,
+        canEnterPractice: Boolean(state.poseData),
+        canOpenResult: Boolean(state.finalScores || state.playbackCompleted),
+        stageMain: stageCopy.main,
+        stageSub: stageCopy.sub,
+      };
+    }
+
+    function renderNavigation(snapshot) {
+      if (elements.navStatus) elements.navStatus.textContent = state.status;
+      if (elements.navPractice) elements.navPractice.disabled = !snapshot.canEnterPractice;
+      if (elements.navResult) elements.navResult.disabled = !snapshot.canOpenResult;
+      if (elements.enterPractice) elements.enterPractice.disabled = !snapshot.canEnterPractice;
+      if (elements.navBack) {
+        elements.navBack.hidden = state.currentView === 'setup';
+      }
+      if (elements.debugToggle) {
+        elements.debugToggle.hidden = !state.debugEnabled || state.currentView === 'practice';
+      }
+      syncViewClasses();
+    }
+
+    function renderSetupView(snapshot) {
+      const completedCount = countSetupReadyItems();
       elements.jsonName.textContent = state.jsonName || '未加载';
-      elements.frameInfo.textContent = `${totalFrames ? state.currentFrame + 1 : 0} / ${totalFrames}`;
-      elements.timeInfo.textContent = timeText;
-      elements.personState.textContent = personText;
-      elements.scoreLabel.textContent = scoreText;
-      elements.scoreSystem.textContent = ARM_SCORE_SYSTEM_LABEL;
-      elements.leftArmScore.textContent = leftArmText;
-      elements.rightArmScore.textContent = rightArmText;
-      elements.finalAverageScore.textContent = finalAverageText;
-      elements.finalConclusion.textContent = finalConclusionText;
+      elements.personState.textContent = snapshot.personText;
+      elements.scoreLabel.textContent = snapshot.scoreText;
       elements.matchLabel.textContent = state.matchLabel;
+      elements.beatPrompt.textContent = state.beatPrompt;
       elements.speedLabel.textContent = `${state.playSpeed.toFixed(2)}x`;
-      elements.heroCamera.textContent = state.cameraRunning ? '已启动' : '未启动';
-      elements.heroJson.textContent = state.jsonName || '未加载';
-      elements.heroDetection.textContent = state.personVisible ? '已锁定' : '未锁定';
-      elements.heroMatch.textContent = state.cameraRunning || state.poseData ? heroMatchText : '--';
-      elements.hudText.textContent = [
-        `状态: ${state.status}`,
-        `人体: ${personText}`,
-        `镜像: ${state.mirrorEnabled ? '开启' : '关闭'}`,
-        `${userPositionText}`,
-        `评分范围: 仅双臂（肩/肘/腕）`,
-        `手部可视化: 用户 ${userHandText} / JSON ${targetHandCount}`,
-        `匹配状态: ${state.matchDisabledReason ? `降级(${state.matchDisabledReason})` : '正常'}`,
-        `左臂: ${leftArmText} / 右臂: ${rightArmText}`,
-        `比对: ${state.matchLabel} (${scoreText})`,
-        `结算: ${finalAverageText} / ${finalConclusionText}`,
-        `帧: ${totalFrames ? `${state.currentFrame + 1}/${totalFrames}` : '--'}`,
-      ].join('\n');
-      elements.playbackState.textContent = state.isPlaying ? '播放中' : elements.playbackState.textContent || '暂停';
-      elements.togglePlayback.disabled = !state.poseData;
-      elements.frameSlider.disabled = !state.poseData;
-      elements.frameSlider.max = Math.max(0, totalFrames - 1);
-      elements.frameSlider.value = totalFrames ? state.currentFrame : 0;
-      elements.togglePlayback.textContent = state.isPlaying ? '暂停播放' : totalFrames ? '开始播放' : '开始播放';
+      if (elements.setupSpeedSummary) elements.setupSpeedSummary.textContent = `当前播放速度 ${state.playSpeed.toFixed(2)}x`;
+      if (elements.cameraSecondaryActions) elements.cameraSecondaryActions.hidden = !state.cameraRunning;
+      if (elements.setupStatusSummary) {
+        elements.setupStatusSummary.textContent = `已完成 ${completedCount} / 6`;
+      }
+      if (elements.enterPractice) {
+        elements.enterPractice.textContent = state.poseData ? '开始练习' : '先加载标准动作';
+      }
+      if (elements.videoFileTrigger) {
+        elements.videoFileTrigger.disabled = !state.serverExtractionAvailable || state.videoExtracting;
+      }
+      if (elements.videoExtractHint) {
+        elements.videoExtractHint.textContent = state.serverExtractionAvailable
+          ? '通过本地识别服务提取姿态关键点，生成后会直接载入当前练习流程。'
+          : '当前页面未连接到本地识别服务。请使用 dev_server.py 启动后再上传短视频。';
+      }
+      if (elements.videoExtractStatus && !state.videoExtracting && !state.poseData && state.extractionChecked && !state.serverExtractionAvailable) {
+        elements.videoExtractStatus.textContent = '视频转 JSON 功能当前不可用。请使用 ./.venv/bin/python dev_server.py 或 npm start 启动。';
+      }
 
-      // 分数仪表盘
+      if (elements.setupReadyTitle) {
+        elements.setupReadyTitle.textContent = state.poseData
+          ? (state.cameraRunning ? '动作与设备已就绪' : '动作已就绪，可以进入练习页')
+          : '先完成动作和摄像头准备';
+      }
+      if (elements.setupReadyCopy) {
+        elements.setupReadyCopy.textContent = state.poseData
+          ? (state.cameraRunning ? '进入练习页后会直接开始播放，你也可以再切到全屏沉浸练习。' : '你可以先进入练习页观看标准动作，或先打开摄像头。')
+          : '先选择标准动作；进入练习页后会提供播放控制和全屏入口。';
+      }
+      if (elements.setupReadyHint) {
+        elements.setupReadyHint.textContent = state.poseData
+          ? `当前 ${state.playSpeed.toFixed(2)}x，可在进入练习前继续调整速度。`
+          : '请先加载标准动作 JSON；全屏舞台会在练习页里自动接管视口。';
+      }
+    }
+
+    function renderPracticeView(snapshot) {
+      if (elements.practiceHeaderTitle) elements.practiceHeaderTitle.textContent = snapshot.stageMain;
+      if (elements.practiceHeaderSubtitle) elements.practiceHeaderSubtitle.textContent = snapshot.stageSub;
+      if (elements.stageLabel) elements.stageLabel.textContent = snapshot.stageMain;
+      if (elements.stageSubLabel) elements.stageSubLabel.textContent = snapshot.stageSub;
+      if (elements.practiceScoreLabel) elements.practiceScoreLabel.textContent = snapshot.scoreText;
+      if (elements.practiceArmSummary) elements.practiceArmSummary.textContent = buildArmScoreSummary(state.armScores);
+      if (elements.practiceRhythmSummary) elements.practiceRhythmSummary.textContent = snapshot.practiceRhythmText;
+      if (elements.playbackState) elements.playbackState.textContent = snapshot.playbackStateText;
+      if (elements.togglePlayback) {
+        elements.togglePlayback.disabled = !state.poseData;
+        elements.togglePlayback.textContent = snapshot.togglePlaybackText;
+        elements.togglePlayback.setAttribute('aria-label', snapshot.togglePlaybackText);
+        elements.togglePlayback.setAttribute('aria-pressed', String(state.isPlaying));
+        elements.togglePlayback.classList.toggle('is-playing', state.isPlaying);
+      }
+      if (elements.practiceDebugToggle) elements.practiceDebugToggle.hidden = !state.debugEnabled;
+      if (elements.practiceReplay) elements.practiceReplay.disabled = !state.poseData;
+      if (elements.practiceCameraAction) {
+        elements.practiceCameraAction.textContent = state.cameraRunning ? '关闭摄像头' : '打开摄像头';
+      }
+      if (elements.openResult) elements.openResult.disabled = !snapshot.canOpenResult;
+      if (elements.practiceDock) {
+        elements.practiceDock.classList.toggle('is-expanded', state.practiceSheetExpanded);
+      }
+      if (elements.practiceMenu) {
+        elements.practiceMenu.classList.toggle('is-open', state.practiceMenuOpen);
+      }
+      if (elements.practiceSheetToggle) {
+        elements.practiceSheetToggle.setAttribute('aria-expanded', String(state.practiceSheetExpanded));
+        const copy = elements.practiceSheetToggle.querySelector('.sheet-handle-copy');
+        if (copy) copy.textContent = state.practiceSheetExpanded ? '收起练习详情' : '展开练习详情';
+      }
+
+      const immersiveText = state.isImmersive ? '退出全屏' : '进入全屏练习';
+      if (elements.toggleImmersive) elements.toggleImmersive.textContent = immersiveText;
+      if (elements.stageImmersive) {
+        elements.stageImmersive.textContent = state.isImmersive ? '⤡' : '⛶';
+        elements.stageImmersive.setAttribute('aria-label', immersiveText);
+      }
+
       if (elements.matchRing && elements.scoreDialValue) {
         const ringLen = 2 * Math.PI * 30;
         const hasScore = typeof state.matchScore === 'number';
@@ -1906,6 +3826,119 @@
         elements.matchRing.setAttribute('stroke', ringColor);
         elements.scoreDialValue.textContent = hasScore ? String(state.matchScore) : '--';
       }
+
+      if (elements.beatBadge) {
+        const hot = Boolean(state.beatWindow?.isHot);
+        const nextBeatLabel = state.beatWindow ? getBeatTypeLabel(state.beatWindow.beatType) : '';
+        const summaryText = typeof snapshot.rhythmSummary?.compositeAverage === 'number'
+          ? `${nextBeatLabel || '节拍'}评分 ${snapshot.rhythmSummary.compositeAverage}%`
+          : '拍点击分待统计';
+        elements.beatBadge.classList.toggle('hot', hot);
+        elements.beatBadge.innerHTML = state.beatWindow
+          ? `<strong>${state.beatPrompt}</strong><span>${summaryText}</span>`
+          : state.beatStatus;
+      }
+
+      if (elements.beatStrip) {
+        const dots = Array.from(elements.beatStrip.children);
+        const recentResults = state.beatEvaluations.slice(-dots.length);
+        dots.forEach((dot, index) => {
+          const globalIndex = state.beatCursor - recentResults.length + index;
+          const item = recentResults[index];
+          dot.className = 'beat-dot';
+          if (item) {
+            if (item.beatType === 'downbeat') dot.classList.add('downbeat');
+            if (item.result === 'perfect' || item.result === 'good') dot.classList.add('hit');
+            if (item.result === 'miss') dot.classList.add('miss');
+          }
+          if (state.beatWindow && globalIndex === state.beatWindow.nextIndex) {
+            if (state.beatWindow.beatType === 'downbeat') dot.classList.add('downbeat');
+            dot.classList.add('active');
+          }
+        });
+      }
+
+      syncBeatStripMirror();
+    }
+
+    function renderResultView(snapshot) {
+      elements.leftArmScore.textContent = snapshot.leftArmText;
+      elements.rightArmScore.textContent = snapshot.rightArmText;
+      elements.beatHitRate.textContent = snapshot.beatHitRateText;
+      elements.beatCompositeScore.textContent = snapshot.beatCompositeText;
+
+      if (state.finalScores) {
+        elements.resultTitle.textContent = '本轮评分已结算';
+        elements.resultSubtitle.textContent = `过程均分 ${snapshot.finalAverageText} · 拍点命中 ${snapshot.beatHitRateText} · 拍点击分 ${snapshot.beatCompositeText}`;
+        elements.finalAverageScore.textContent = snapshot.finalAverageText;
+        elements.finalConclusion.textContent = snapshot.finalConclusionText;
+        elements.resultReviewTitle.textContent = state.finalScores.conclusion || '已完成结算';
+        elements.resultReviewText.textContent = `左右臂结果 ${snapshot.leftArmText} / ${snapshot.rightArmText}，动作结论 ${state.matchLabel}，节奏统计 ${snapshot.beatStatsText}。`;
+      } else if (state.playbackCompleted) {
+        elements.resultTitle.textContent = '本轮播放已完成';
+        elements.resultSubtitle.textContent = '标准动作已完整播放，但本轮没有生成有效评分。通常是因为未打开摄像头或人体未稳定入镜。';
+        elements.finalAverageScore.textContent = '--';
+        elements.finalConclusion.textContent = '未产生有效评分';
+        elements.resultReviewTitle.textContent = '未产生有效评分';
+        elements.resultReviewText.textContent = `拍点命中 ${snapshot.beatHitRateText}，拍点击分 ${snapshot.beatCompositeText}。如需动作评分，请返回准备页打开摄像头后再练一轮。`;
+      } else {
+        elements.resultTitle.textContent = '等待练习完成';
+        elements.resultSubtitle.textContent = '完成一轮播放后，这里会展示过程均分、节奏命中和动作结论。';
+        elements.finalAverageScore.textContent = '--';
+        elements.finalConclusion.textContent = '待结算';
+        elements.resultReviewTitle.textContent = '还没有结算结果';
+        elements.resultReviewText.textContent = '进入练习页并完成一轮播放后，这里会输出动作和节奏复盘摘要。';
+      }
+
+      if (elements.resultReplay) elements.resultReplay.disabled = !state.poseData;
+      if (elements.resultToPractice) elements.resultToPractice.disabled = !state.poseData;
+    }
+
+    function renderDebugPanel(snapshot) {
+      if (elements.debugPanel) elements.debugPanel.hidden = !state.debugEnabled;
+      if (!state.debugEnabled) {
+        state.debugDrawerOpen = false;
+        return;
+      }
+
+      if (elements.debugPanel) {
+        elements.debugPanel.classList.toggle('is-open', state.debugDrawerOpen);
+      }
+      setDebugTab(state.debugTab);
+
+      elements.frameInfo.textContent = `${snapshot.totalFrames ? state.currentFrame + 1 : 0} / ${snapshot.totalFrames}`;
+      elements.timeInfo.textContent = snapshot.timeText;
+      elements.scoreSystem.textContent = ARM_SCORE_SYSTEM_LABEL;
+      elements.beatStatus.textContent = state.beatStatus;
+      elements.beatHitStats.textContent = snapshot.beatStatsText;
+      elements.frameSlider.disabled = !state.poseData;
+      elements.frameSlider.max = Math.max(0, snapshot.totalFrames - 1);
+      elements.frameSlider.value = snapshot.totalFrames ? state.currentFrame : 0;
+      elements.hudText.textContent = [
+        `状态: ${state.status}`,
+        `人体: ${snapshot.personText}`,
+        `镜像: ${state.mirrorEnabled ? '开启' : '关闭'}`,
+        `${snapshot.userPositionText}`,
+        `评分范围: 仅双臂（肩/肘/腕）`,
+        `手部可视化: 用户 ${snapshot.userHandText} / JSON ${snapshot.targetHandCount}`,
+        `匹配状态: ${state.matchDisabledReason ? `降级(${state.matchDisabledReason})` : '正常'}`,
+        `左臂: ${snapshot.leftArmText} / 右臂: ${snapshot.rightArmText}`,
+        `比对: ${state.matchLabel} (${snapshot.scoreText})`,
+        `节拍: ${state.beatStatus}`,
+        `拍点命中: ${snapshot.beatHitRateText} (${snapshot.beatStatsText})`,
+        `拍点击分: ${snapshot.beatCompositeText} / 时序 ${formatPercent(snapshot.rhythmSummary?.timingAverage)} / 动作 ${formatPercent(snapshot.rhythmSummary?.poseAverage)}`,
+        `结算: ${snapshot.finalAverageText} / ${snapshot.finalConclusionText}`,
+        `帧: ${snapshot.totalFrames ? `${state.currentFrame + 1}/${snapshot.totalFrames}` : '--'}`,
+      ].join('\n');
+    }
+
+    function updateStatusUI(frame, stageCopy) {
+      const snapshot = buildUiSnapshot(frame, stageCopy);
+      renderNavigation(snapshot);
+      renderSetupView(snapshot);
+      renderPracticeView(snapshot);
+      renderResultView(snapshot);
+      renderDebugPanel(snapshot);
     }
 
     function render() {
@@ -1916,6 +3949,9 @@
       const userPose = Array.isArray(state.lastPose) ? state.lastPose : null;
       const frame = getCurrentTargetFrame();
       const alignedFrame = frame ? safeGetAlignedFrameData(frame, state.lastPose) : null;
+      const playbackTime = getPlaybackClockTime();
+      updateRhythmPrompt(playbackTime);
+      evaluateRhythmProgress(playbackTime);
 
       const mirror = state.mirrorEnabled;
       const maybeMirrorPose = (pose) => (mirror ? mirrorLandmarksX(pose) : pose);
@@ -1952,43 +3988,9 @@
         });
       }
 
-      // 舞台主文案统一由 DOM（stage-hud）呈现，避免文字被人体实体覆盖
-      let stageMain;
-      let stageSub;
-      if (!state.poseData && !state.cameraRunning) {
-        stageMain = '准备开始';
-        stageSub = '先选择一个标准动作，或点右上角「一键开始跟练」';
-      } else if (!state.poseData && state.cameraRunning && state.personVisible) {
-        stageMain = '人像已锁定';
-        stageSub = '现在可以加载一个标准动作';
-      } else if (!state.poseData && state.cameraRunning) {
-        stageMain = '搜索人像中';
-        stageSub = '请站到画面中央';
-      } else if (state.poseData && state.isPlaying) {
-        stageMain = state.personVisible
-          ? (alignedFrame?.alignedToUser ? '跟上了！动作贴合中' : '播放中')
-          : '标准动作播放中';
-        stageSub = state.personVisible
-          ? `${buildArmScoreSummary(state.armScores)} · 总分 ${formatScoreValue(state.matchScore)}`
-          : '可随时入镜跟练';
-      } else if (state.poseData && state.finalScores) {
-        stageMain = '本轮评分已结算';
-        stageSub = `过程均分 ${formatScoreValue(state.finalScores.average)} · ${state.finalScores.conclusion}`;
-      } else if (state.poseData && !state.cameraRunning) {
-        stageMain = '动作已就绪';
-        stageSub = '点击 ▶ 开始播放，或再打开摄像头';
-      } else if (state.poseData && !state.personVisible) {
-        stageMain = '等待人像';
-        stageSub = '请站到画面中央';
-      } else {
-        stageMain = state.matchLabel;
-        stageSub = `${buildArmScoreSummary(state.armScores)} · 总分 ${formatScoreValue(state.matchScore)}`;
-      }
-      if (elements.stageLabel) elements.stageLabel.textContent = stageMain;
-      if (elements.stageSubLabel) elements.stageSubLabel.textContent = stageSub;
-
       updateJsonPreview(frame);
-      updateStatusUI(frame);
+      const stageCopy = getStageCopy(alignedFrame);
+      updateStatusUI(frame, stageCopy);
       state.rafId = requestAnimationFrame(render);
     }
 
@@ -2037,6 +4039,9 @@
       state.armScores = armScores;
       state.matchScore = armScores?.total ?? null;
       recordPlaybackSample(armScores);
+      if (typeof frame?.time === 'number' && typeof armScores?.total === 'number') {
+        collectRhythmSample(frame.time, armScores.total);
+      }
       state.matchDisabledReason = null;
       state.matchLabel = typeof state.matchScore === 'number'
         ? scoreLabelFromValue(state.matchScore)
@@ -2232,13 +4237,18 @@
     }
 
     function stopCamera() {
+      const shouldResetSummary = state.isPlaying;
       if (state.stream) {
         state.stream.getTracks().forEach((track) => track.stop());
+      }
+      if (elements.bgmAudio && !elements.bgmAudio.paused) {
+        elements.bgmAudio.pause();
       }
       elements.video.srcObject = null;
       state.stream = null;
       state.cameraRunning = false;
       state.loopRunning = false;
+      state.isPlaying = false;
       state.lastPose = null;
       state.lastHands = [];
       state.handsDisabledReason = null;
@@ -2246,7 +4256,11 @@
       state.personVisible = false;
       state.matchScore = null;
       state.armScores = null;
-      resetPlaybackSummary();
+      void releaseScreenWakeLock();
+      if (shouldResetSummary) {
+        resetPlaybackSummary();
+      }
+      elements.playbackState.textContent = shouldResetSummary ? '暂停' : elements.playbackState.textContent;
       state.matchLabel = '摄像头未开启';
       setStatus('摄像头已关闭');
     }
@@ -2293,6 +4307,7 @@
       state.isPlaying = false;
       elements.playbackState.textContent = '暂停';
       setStatus('标准动作 JSON 已加载');
+      resetRhythmSummary();
     }
 
     // 推断同名 mp4 做背景音：wudao/angel_pose.json → wudao/angel.mp4
@@ -2326,6 +4341,11 @@
       state.playbackStartAt = performance.now();
     }
 
+    function isPlaybackAtEnd() {
+      const totalFrames = state.poseData?.frames?.length || 0;
+      return totalFrames > 0 && state.currentFrame >= totalFrames - 1;
+    }
+
     function attachAudio(source) {
       const audio = elements.bgmAudio;
       if (!audio) return;
@@ -2334,13 +4354,18 @@
         audio.removeAttribute('src');
         audio.load();
         state.audioSource = null;
+        resetBeatAnalysis('无背景音');
         return;
       }
-      if (state.audioSource === source) return; // 已是同一首
+      if (state.audioSource === source) {
+        resetRhythmSummary();
+        return; // 已是同一首
+      }
       state.audioSource = source;
       audio.src = source;
       applyAudioPlaybackSettings();
       audio.load();
+      analyzeAudioBeats(source);
     }
 
     async function loadBundledJson(path, label) {
@@ -2351,6 +4376,8 @@
           throw new Error(`HTTP ${response.status}`);
         }
         const json = await response.json();
+        clearUploadedVideoAudio();
+        clearGeneratedJsonDownload();
         loadPoseData(json, label);
         attachAudio(inferAudioSource(path, json.audio_source));
       } catch (error) {
@@ -2380,15 +4407,21 @@
         elements.playbackState.textContent = '暂停';
         setStatus('已暂停播放');
         if (audio && !audio.paused) audio.pause();
+        void releaseScreenWakeLock();
+        resetRhythmSummary();
         return;
       }
 
       resetPlaybackSummary();
+      if (isPlaybackAtEnd()) {
+        state.currentFrame = 0;
+      }
       state.isPlaying = true;
       resyncPlaybackClock(state.currentFrame);
       state.lastSampledFrameIndex = -1;
       elements.playbackState.textContent = '播放中';
       setStatus('标准动作自动播放中');
+      void requestScreenWakeLock();
 
       if (audio && state.audioSource) {
         applyAudioPlaybackSettings();
@@ -2406,12 +4439,43 @@
       applyMirrorState();
     }
 
+    if (elements.jsonFileTrigger) {
+      elements.jsonFileTrigger.addEventListener('click', () => {
+        document.querySelector('#jsonFile').click();
+      });
+    }
+    if (elements.videoFileTrigger) {
+      elements.videoFileTrigger.addEventListener('click', () => {
+        if (!state.serverExtractionAvailable || state.videoExtracting) return;
+        elements.videoFileInput.click();
+      });
+    }
+    if (elements.videoFileInput) {
+      elements.videoFileInput.addEventListener('change', (event) => {
+        const file = event.target.files?.[0];
+        void extractPoseFromUploadedVideo(file);
+      });
+    }
+    if (elements.downloadGeneratedJson) {
+      elements.downloadGeneratedJson.addEventListener('click', () => {
+        if (!state.generatedJsonBlobUrl) return;
+        const anchor = document.createElement('a');
+        anchor.href = state.generatedJsonBlobUrl;
+        anchor.download = state.generatedJsonName || 'generated_pose.json';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      });
+    }
+
     document.querySelector('#jsonFile').addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
       try {
         const text = await file.text();
         const json = JSON.parse(text);
+        clearUploadedVideoAudio();
+        clearGeneratedJsonDownload();
         loadPoseData(json, file.name);
         attachAudio(null); // 用户上传的 JSON 没有对应音频
       } catch (error) {
@@ -2419,49 +4483,192 @@
       }
     });
 
-    document.querySelector('#loadAngel').addEventListener('click', () => {
-      loadBundledJson('wudao/angel_pose.json', 'angel_pose.json');
-    });
-
-    document.querySelector('#loadLadada').addEventListener('click', () => {
-      loadBundledJson('wudao/ladada_pose.json', 'ladada_pose.json');
-    });
-
-    document.querySelector('#loadHongmenNew').addEventListener('click', () => {
-      loadBundledJson('wudao/鸿门旋律_pose_new.json', '鸿门旋律_pose_new.json');
+    BUNDLED_POSE_PRESETS.forEach((preset) => {
+      const button = document.querySelector(`#${preset.buttonId}`);
+      if (!button) return;
+      button.addEventListener('click', () => {
+        loadBundledJson(preset.path, preset.label);
+      });
     });
 
     elements.openCamera.addEventListener('click', openCamera);
     elements.stopCamera.addEventListener('click', stopCamera);
     elements.togglePlayback.addEventListener('click', togglePlayback);
     elements.toggleMirror.addEventListener('click', toggleMirror);
-
-    async function quickStart() {
-      if (elements.quickStart) elements.quickStart.disabled = true;
-      try {
-        if (!state.poseData) {
-          await loadBundledJson('wudao/angel_pose.json', 'angel_pose.json');
-        }
-        if (!state.cameraRunning) {
-          await openCamera();
-        }
-        if (state.poseData && !state.isPlaying) {
-          togglePlayback();
-        }
-      } finally {
-        if (elements.quickStart) elements.quickStart.disabled = false;
-      }
-    }
-    if (elements.quickStart) elements.quickStart.addEventListener('click', quickStart);
-
-    document.querySelectorAll('.card-toggle').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.target;
-        const card = document.getElementById(id);
-        if (!card) return;
-        card.classList.toggle('collapsed');
-        btn.textContent = card.classList.contains('collapsed') ? '▾' : '▴';
+    if (elements.speedDown) {
+      elements.speedDown.addEventListener('click', () => {
+        const min = Number(elements.speedInput.min);
+        const max = Number(elements.speedInput.max);
+        const next = clamp(Number(elements.speedInput.value) - 0.25, min, max);
+        elements.speedInput.value = next.toFixed(2);
+        elements.speedInput.dispatchEvent(new Event('input', { bubbles: true }));
       });
+    }
+    if (elements.speedUp) {
+      elements.speedUp.addEventListener('click', () => {
+        const min = Number(elements.speedInput.min);
+        const max = Number(elements.speedInput.max);
+        const next = clamp(Number(elements.speedInput.value) + 0.25, min, max);
+        elements.speedInput.value = next.toFixed(2);
+        elements.speedInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+    if (elements.setupStatusToggle) {
+      elements.setupStatusToggle.addEventListener('click', () => {
+        setSetupStatusExpanded(!state.setupStatusExpanded);
+      });
+    }
+    if (elements.practiceSheetToggle) {
+      elements.practiceSheetToggle.addEventListener('click', () => {
+        setPracticeSheetExpanded(!state.practiceSheetExpanded);
+      });
+      elements.practiceSheetToggle.addEventListener('touchstart', (event) => {
+        state.sheetTouchStartY = event.changedTouches[0]?.clientY ?? null;
+        state.sheetTouchEndY = null;
+      }, { passive: true });
+      elements.practiceSheetToggle.addEventListener('touchend', (event) => {
+        state.sheetTouchEndY = event.changedTouches[0]?.clientY ?? null;
+        if (state.sheetTouchStartY === null || state.sheetTouchEndY === null) return;
+        const delta = state.sheetTouchEndY - state.sheetTouchStartY;
+        if (delta <= -40) setPracticeSheetExpanded(true);
+        if (delta >= 40) setPracticeSheetExpanded(false);
+        state.sheetTouchStartY = null;
+        state.sheetTouchEndY = null;
+      }, { passive: true });
+    }
+    if (elements.enterPractice) {
+      elements.enterPractice.addEventListener('click', () => {
+        void enterPracticeFlow({ autoplay: true });
+      });
+    }
+    if (elements.practiceReplay) {
+      elements.practiceReplay.addEventListener('click', () => {
+        void replayPractice({ autoplay: true });
+      });
+    }
+    if (elements.practiceCameraAction) {
+      elements.practiceCameraAction.addEventListener('click', async () => {
+        if (state.cameraRunning) stopCamera();
+        else await openCamera();
+      });
+    }
+    if (elements.navSetup) {
+      elements.navSetup.addEventListener('click', () => {
+        void setView('setup');
+      });
+    }
+    if (elements.navPractice) {
+      elements.navPractice.addEventListener('click', () => {
+        if (!state.poseData) return;
+        void (async () => {
+          await setView('practice');
+          setPracticeSheetExpanded(false);
+          if (isCompactViewport()) {
+            await setImmersiveMode(true);
+          }
+        })();
+      });
+    }
+    if (elements.navResult) {
+      elements.navResult.addEventListener('click', () => {
+        if (!(state.finalScores || state.playbackCompleted)) return;
+        setPracticeMenuOpen(false);
+        void setView('result');
+      });
+    }
+    if (elements.navBack) {
+      elements.navBack.addEventListener('click', () => {
+        void setView('setup');
+      });
+    }
+    [elements.backToSetup, elements.stageBack, elements.resultToSetup].forEach((button) => {
+      if (!button) return;
+      button.addEventListener('click', () => {
+        void setView('setup');
+      });
+    });
+    [elements.toggleImmersive, elements.stageImmersive].forEach((button) => {
+      if (!button) return;
+      button.addEventListener('click', () => {
+        setPracticeMenuOpen(false);
+        if (state.currentView !== 'practice') {
+          void (async () => {
+            await setView('practice');
+            await setImmersiveMode(!state.isImmersive);
+          })();
+          return;
+        }
+        void setImmersiveMode(!state.isImmersive);
+      });
+    });
+    if (elements.openResult) {
+      elements.openResult.addEventListener('click', () => {
+        if (!(state.finalScores || state.playbackCompleted)) return;
+        setPracticeMenuOpen(false);
+        void setView('result');
+      });
+    }
+    if (elements.resultReplay) {
+      elements.resultReplay.addEventListener('click', () => {
+        void replayPractice({ autoplay: true });
+      });
+    }
+    if (elements.resultToPractice) {
+      elements.resultToPractice.addEventListener('click', () => {
+        if (!state.poseData) return;
+        void (async () => {
+          await setView('practice');
+          if (isCompactViewport()) {
+            await setImmersiveMode(true);
+          }
+        })();
+      });
+    }
+    if (elements.practiceMenuToggle) {
+      elements.practiceMenuToggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setPracticeMenuOpen(!state.practiceMenuOpen);
+      });
+    }
+    if (elements.practiceMenu) {
+      elements.practiceMenu.addEventListener('click', (event) => {
+        event.stopPropagation();
+      });
+    }
+    [elements.debugToggle, elements.practiceDebugToggle].forEach((button) => {
+      if (!button) return;
+      button.addEventListener('click', () => {
+        setDebugDrawerOpen(!state.debugDrawerOpen);
+      });
+    });
+    [elements.debugDismiss, elements.debugClose].forEach((button) => {
+      if (!button) return;
+      button.addEventListener('click', () => {
+        setDebugDrawerOpen(false);
+      });
+    });
+    if (elements.debugTabJson) {
+      elements.debugTabJson.addEventListener('click', () => {
+        setDebugTab('json');
+      });
+    }
+    if (elements.debugTabHud) {
+      elements.debugTabHud.addEventListener('click', () => {
+        setDebugTab('hud');
+      });
+    }
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (
+        state.practiceMenuOpen &&
+        elements.practiceMenu &&
+        elements.practiceMenuToggle &&
+        target instanceof Node &&
+        !elements.practiceMenu.contains(target) &&
+        !elements.practiceMenuToggle.contains(target)
+      ) {
+        setPracticeMenuOpen(false);
+      }
     });
 
     elements.frameSlider.addEventListener('input', (event) => {
@@ -2469,6 +4676,7 @@
       state.currentFrame = Number(event.target.value);
       resyncPlaybackClock(state.currentFrame);
       state.isPlaying = false;
+      void releaseScreenWakeLock();
       resetPlaybackSummary();
       elements.playbackState.textContent = '暂停';
       const frame = state.poseData.frames[state.currentFrame];
@@ -2485,6 +4693,7 @@
         if (!audio.paused) audio.pause();
         syncAudioToFrame();
       }
+      resetRhythmSummary();
     });
 
     elements.speedInput.addEventListener('input', (event) => {
@@ -2510,14 +4719,478 @@
     }
 
     window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state.isPlaying) {
+        void requestScreenWakeLock();
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const fullscreenActive = Boolean(document.fullscreenElement);
+      state.isImmersive = fullscreenActive;
+      document.body.classList.toggle('immersive-lock', fullscreenActive);
+      if (elements.practiceView) {
+        elements.practiceView.classList.toggle('is-immersive', fullscreenActive);
+      }
+      resizeCanvas();
+    });
     window.addEventListener('beforeunload', () => {
       if (state.rafId) cancelAnimationFrame(state.rafId);
       stopCamera();
+      clearUploadedVideoAudio();
+      clearGeneratedJsonDownload();
     });
 
+    setSetupStatusExpanded(false);
+    setPracticeSheetExpanded(false);
+    setPracticeMenuOpen(false);
+    setDebugTab('json');
+    if (elements.debugPanel) {
+      elements.debugPanel.classList.remove('is-open');
+    }
+    syncViewClasses();
     applyMirrorState();
+    void checkExtractionApiAvailability();
     setStatus('等待加载 JSON 与摄像头');
+    void loadBundledJson(DEFAULT_BUNDLED_POSE.path, DEFAULT_BUNDLED_POSE.label);
     render();
+
+    /* =============================================================
+       录屏模块（ScreenRecorder）
+       - 完全自包含的 IIFE，不触碰已有的 state / elements 字段
+       - 录制 #cameraVideo + #overlayCanvas 合成画面 + #bgmAudio 背景音
+       ============================================================= */
+    (function initScreenRecorder() {
+      if (!('MediaRecorder' in window) || !HTMLCanvasElement.prototype.captureStream) {
+        console.warn('[recorder] 当前环境不支持 MediaRecorder 或 canvas.captureStream');
+        return;
+      }
+
+      const local = {
+        isRecording: false,
+        isFinalizing: false,
+        mediaRecorder: null,
+        chunks: [],
+        composeCanvas: null,
+        composeCtx: null,
+        composeRafId: 0,
+        captureStream: null,
+        micStream: null,
+        audioCtx: null,
+        audioDest: null,
+        bgmSourceNode: null,
+        micSourceNode: null,
+        startedAt: 0,
+        timerId: 0,
+        mimeType: '',
+        lastBlobUrl: '',
+        lastFileName: '',
+        finalizePromise: null,
+        finalizeResolve: null,
+        ui: { button: null, indicator: null, timer: null, resultButton: null },
+      };
+
+      function isWebKitRecorderPreferred() {
+        const ua = navigator.userAgent || '';
+        return /Safari\//.test(ua) && !/(Chrome|Chromium|Edg|OPR)\//.test(ua);
+      }
+
+      function pickMimeType() {
+        const webmCandidates = [
+          'video/webm;codecs=vp9,opus',
+          'video/webm;codecs=vp8,opus',
+          'video/webm',
+        ];
+        const mp4Candidates = [
+          'video/mp4;codecs=avc1,mp4a',
+          'video/mp4',
+        ];
+        const candidates = isWebKitRecorderPreferred()
+          ? [...mp4Candidates, ...webmCandidates]
+          : [...webmCandidates, ...mp4Candidates];
+        return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+      }
+
+      function buildLocalFileStamp(date = new Date()) {
+        const yyyy = String(date.getFullYear());
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const mi = String(date.getMinutes()).padStart(2, '0');
+        const ss = String(date.getSeconds()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}T${hh}-${mi}-${ss}`;
+      }
+
+      function ensureComposeCanvas() {
+        if (local.composeCanvas) return;
+        const cvs = document.createElement('canvas');
+        cvs.width = 720;
+        cvs.height = 1280;
+        local.composeCanvas = cvs;
+        local.composeCtx = cvs.getContext('2d');
+      }
+
+      function clearLastRecording() {
+        if (local.lastBlobUrl) {
+          try { URL.revokeObjectURL(local.lastBlobUrl); } catch (_) {}
+        }
+        local.lastBlobUrl = '';
+        local.lastFileName = '';
+      }
+
+      function waitForFinalize() {
+        return local.finalizePromise || Promise.resolve();
+      }
+
+      function composeFrame() {
+        if (!local.isRecording) return;
+        const video = document.querySelector('#cameraVideo');
+        const overlay = document.querySelector('#overlayCanvas');
+        const ctx = local.composeCtx;
+        const cvs = local.composeCanvas;
+
+        if (overlay && overlay.width && overlay.height) {
+          if (cvs.width !== overlay.width) cvs.width = overlay.width;
+          if (cvs.height !== overlay.height) cvs.height = overlay.height;
+        }
+
+        ctx.save();
+        ctx.fillStyle = '#010205';
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+        const mirrored = Boolean(
+          typeof state !== 'undefined' && state && state.mirrorEnabled
+        );
+
+        if (video && video.readyState >= 2 && video.videoWidth && video.videoHeight) {
+          const vw = video.videoWidth;
+          const vh = video.videoHeight;
+          const scale = Math.max(cvs.width / vw, cvs.height / vh);
+          const dw = vw * scale;
+          const dh = vh * scale;
+          const ox = (cvs.width - dw) / 2;
+          const oy = (cvs.height - dh) / 2;
+
+          if (mirrored) {
+            ctx.translate(cvs.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, ox, oy, dw, dh);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+          } else {
+            ctx.drawImage(video, ox, oy, dw, dh);
+          }
+        }
+
+        if (overlay) {
+          ctx.drawImage(overlay, 0, 0, cvs.width, cvs.height);
+        }
+
+        ctx.restore();
+        local.composeRafId = requestAnimationFrame(composeFrame);
+      }
+
+      async function buildAudioGraph({ includeMic }) {
+        if (!local.audioCtx) {
+          local.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const ctx = local.audioCtx;
+        if (ctx.state === 'suspended') {
+          try { await ctx.resume(); } catch (_) {}
+        }
+
+        local.audioDest = ctx.createMediaStreamDestination();
+
+        const bgm = document.querySelector('#bgmAudio');
+        if (bgm) {
+          if (!local.bgmSourceNode) {
+            try {
+              local.bgmSourceNode = ctx.createMediaElementSource(bgm);
+              local.bgmSourceNode.connect(ctx.destination);
+            } catch (err) {
+              console.warn('[recorder] 无法建立 BGM 源节点', err);
+            }
+          }
+          if (local.bgmSourceNode) {
+            try { local.bgmSourceNode.connect(local.audioDest); } catch (_) {}
+          }
+        }
+
+        if (includeMic) {
+          try {
+            local.micStream = await navigator.mediaDevices.getUserMedia({
+              audio: true,
+              video: false,
+            });
+            local.micSourceNode = ctx.createMediaStreamSource(local.micStream);
+            local.micSourceNode.connect(local.audioDest);
+          } catch (err) {
+            console.warn('[recorder] 麦克风接入失败，忽略', err);
+          }
+        }
+      }
+
+      function teardownAudioGraph() {
+        try { if (local.micSourceNode) local.micSourceNode.disconnect(); } catch (_) {}
+        try { if (local.micStream) local.micStream.getTracks().forEach((track) => track.stop()); } catch (_) {}
+        local.micSourceNode = null;
+        local.micStream = null;
+
+        if (local.bgmSourceNode && local.audioDest) {
+          try { local.bgmSourceNode.disconnect(local.audioDest); } catch (_) {}
+        }
+        local.audioDest = null;
+      }
+
+      async function startRecording({ includeMic = false } = {}) {
+        await waitForFinalize();
+        if (local.isRecording) return;
+
+        const mimeType = pickMimeType();
+        if (!mimeType) {
+          alert('当前浏览器没有可用的视频编码器。');
+          return;
+        }
+        local.mimeType = mimeType;
+        clearLastRecording();
+
+        ensureComposeCanvas();
+        local.isRecording = true;
+        composeFrame();
+
+        const videoStream = local.composeCanvas.captureStream(30);
+
+        try {
+          await buildAudioGraph({ includeMic });
+        } catch (err) {
+          console.warn('[recorder] 音频链路失败，继续录制静音视频', err);
+        }
+
+        const tracks = [...videoStream.getVideoTracks()];
+        if (local.audioDest?.stream?.getAudioTracks?.().length) {
+          tracks.push(...local.audioDest.stream.getAudioTracks());
+        }
+        local.captureStream = new MediaStream(tracks);
+
+        const mr = new MediaRecorder(local.captureStream, { mimeType });
+        local.mediaRecorder = mr;
+        local.chunks = [];
+        mr.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) local.chunks.push(event.data);
+        };
+        mr.onstop = finalizeRecording;
+        mr.onerror = (event) => console.error('[recorder]', event);
+
+        mr.start(1000);
+        local.startedAt = performance.now();
+        renderUi();
+        startTimerTick();
+      }
+
+      function stopRecording() {
+        if (!local.isRecording) return;
+        local.isRecording = false;
+
+        if (local.mediaRecorder && local.mediaRecorder.state !== 'inactive') {
+          local.isFinalizing = true;
+          local.finalizePromise = new Promise((resolve) => {
+            local.finalizeResolve = resolve;
+          });
+          try { local.mediaRecorder.stop(); } catch (_) {}
+        }
+
+        cancelAnimationFrame(local.composeRafId);
+        local.composeRafId = 0;
+
+        if (local.captureStream) {
+          local.captureStream.getTracks().forEach((track) => track.stop());
+          local.captureStream = null;
+        }
+        teardownAudioGraph();
+        stopTimerTick();
+        renderUi();
+      }
+
+      function finalizeRecording() {
+        const blob = new Blob(local.chunks, { type: local.mimeType });
+        local.chunks = [];
+        clearLastRecording();
+        local.lastBlobUrl = URL.createObjectURL(blob);
+        const ext = blob.type.includes('webm') ? 'webm' : 'mp4';
+        const stamp = buildLocalFileStamp();
+        local.lastFileName = `动作跟练录屏-${stamp}.${ext}`;
+        local.isFinalizing = false;
+        if (local.finalizeResolve) {
+          local.finalizeResolve();
+          local.finalizeResolve = null;
+        }
+        local.finalizePromise = null;
+        renderUi();
+      }
+
+      function toggleRecording() {
+        if (local.isRecording) stopRecording();
+        else void startRecording({ includeMic: false });
+      }
+
+      function openLastRecording() {
+        if (!local.lastBlobUrl) return;
+        const opened = window.open(local.lastBlobUrl, '_blank', 'noopener');
+        if (opened) return;
+        const anchor = document.createElement('a');
+        anchor.href = local.lastBlobUrl;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+
+      function renderUi() {
+        if (local.ui.button) {
+          local.ui.button.textContent = local.isRecording ? '⏹ 停止录屏' : '⏺ 开始录屏';
+          local.ui.button.classList.toggle('is-recording', local.isRecording);
+        }
+        if (local.ui.indicator) {
+          local.ui.indicator.hidden = !local.isRecording;
+        }
+        if (local.ui.resultButton) {
+          if (local.isRecording) {
+            local.ui.resultButton.textContent = '练习录屏进行中...';
+            local.ui.resultButton.disabled = true;
+          } else if (local.isFinalizing) {
+            local.ui.resultButton.textContent = '正在生成录屏...';
+            local.ui.resultButton.disabled = true;
+          } else if (local.lastBlobUrl) {
+            local.ui.resultButton.textContent = '打开本轮录屏';
+            local.ui.resultButton.disabled = false;
+          } else {
+            local.ui.resultButton.textContent = '本轮暂无录屏';
+            local.ui.resultButton.disabled = true;
+          }
+        }
+      }
+
+      function startTimerTick() {
+        stopTimerTick();
+        local.timerId = setInterval(() => {
+          if (!local.ui.timer) return;
+          const seconds = Math.floor((performance.now() - local.startedAt) / 1000);
+          const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+          const ss = String(seconds % 60).padStart(2, '0');
+          local.ui.timer.textContent = `${mm}:${ss}`;
+        }, 500);
+      }
+
+      function stopTimerTick() {
+        if (local.timerId) {
+          clearInterval(local.timerId);
+          local.timerId = 0;
+        }
+        if (local.ui.timer) local.ui.timer.textContent = '00:00';
+      }
+
+      function injectUi() {
+        const menu = document.querySelector('#practiceMenu');
+        if (menu) {
+          const btn = document.createElement('button');
+          btn.id = 'toggleScreenRecord';
+          btn.type = 'button';
+          btn.className = 'menu-action';
+          btn.setAttribute('role', 'menuitem');
+          btn.textContent = '⏺ 开始录屏';
+          btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleRecording();
+          });
+          menu.appendChild(btn);
+          local.ui.button = btn;
+        }
+
+        const stage = document.querySelector('.stage');
+        if (stage) {
+          const badge = document.createElement('div');
+          badge.className = 'record-indicator';
+          badge.hidden = true;
+          badge.innerHTML = `
+            <span class="dot"></span>
+            <span>录制中</span>
+            <span class="timer">00:00</span>
+          `;
+          stage.appendChild(badge);
+          local.ui.indicator = badge;
+          local.ui.timer = badge.querySelector('.timer');
+        }
+
+        const resultFooter = document.querySelector('.result-footer');
+        if (resultFooter) {
+          const openBtn = document.createElement('button');
+          openBtn.id = 'openLatestPracticeRecording';
+          openBtn.type = 'button';
+          openBtn.className = 'secondary result-recording-action';
+          openBtn.disabled = true;
+          openBtn.textContent = '本轮暂无录屏';
+          openBtn.addEventListener('click', () => {
+            openLastRecording();
+          });
+          resultFooter.insertBefore(openBtn, resultFooter.querySelector('.result-inline-links'));
+          local.ui.resultButton = openBtn;
+        }
+        renderUi();
+      }
+
+      async function ensurePracticeRecording() {
+        if (!state?.poseData) return;
+        if (local.isRecording) return;
+        await startRecording({ includeMic: false });
+      }
+
+      const originalTogglePlayback = typeof togglePlayback === 'function' ? togglePlayback : null;
+      if (originalTogglePlayback) {
+        togglePlayback = function wrappedTogglePlayback(...args) {
+          if (!state.isPlaying && state.poseData && !local.isRecording) {
+            void ensurePracticeRecording();
+          }
+          return originalTogglePlayback.apply(this, args);
+        };
+      }
+
+      const originalSetView = typeof setView === 'function' ? setView : null;
+      if (originalSetView) {
+        setView = async function wrappedSetView(nextView, ...args) {
+          if (nextView !== 'practice' && (local.isRecording || local.isFinalizing)) {
+            stopRecording();
+            await waitForFinalize();
+          }
+          return originalSetView.call(this, nextView, ...args);
+        };
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectUi);
+      } else {
+        injectUi();
+      }
+
+      window.addEventListener('beforeunload', () => {
+        if (local.isRecording) stopRecording();
+        clearLastRecording();
+      });
+
+      window.__screenRecorder = {
+        start: startRecording,
+        stop: stopRecording,
+        toggle: toggleRecording,
+        openLastRecording,
+        get state() {
+          return {
+            isRecording: local.isRecording,
+            isFinalizing: local.isFinalizing,
+            mimeType: local.mimeType,
+            hasRecording: Boolean(local.lastBlobUrl),
+            fileName: local.lastFileName,
+          };
+        },
+      };
+    })();
   </script>
 </body>
 </html>

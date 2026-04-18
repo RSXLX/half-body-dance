@@ -4,8 +4,8 @@
   "description": "Pose matching workspace",
   "main": "index.js",
   "scripts": {
-    "dev": "python3 -m http.server 4173",
-    "start": "python3 -m http.server 4173",
+    "dev": "./.venv/bin/python dev_server.py",
+    "start": "./.venv/bin/python dev_server.py",
     "test": "echo \"No automated tests configured\""
   },
   "keywords": [],

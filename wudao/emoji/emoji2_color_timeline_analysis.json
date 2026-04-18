@@ -1,0 +1,188 @@
+{
+  "video_url": "https://bucketsxlx.tos-cn-beijing.volces.com/emoji-analysis/56764ce491-emoji2.mp4",
+  "model": "doubao-seed-1-6-vision-250815",
+  "prompt": "你是一个视频分镜和时间轴分析器。\n请分析视频中的 emoji 画面变化和音频结构，并输出一个“emoji 变色持续时间时间轴”。\n\n任务要求：\n1. 识别视频里出现的 emoji 或主要图形符号。\n2. 识别每个 emoji 在什么时间段变成什么颜色，持续多久。\n3. 同时分析音频结构：节奏段落、能量变化、明显转场、打点、停顿、高潮、收尾。\n4. 说明每段颜色变化是否和音频节奏、段落、打点有关。\n5. 如果同一个 emoji 在一段时间内保持同一种颜色，就合并成一个连续时间段。\n\n输出要求：\n1. 只输出 JSON，不要 Markdown，不要解释。\n2. start_sec 和 end_sec 保留 2 位小数。\n3. duration_sec = end_sec - start_sec。\n4. confidence 为 0 到 1。\n\nJSON 顶层结构必须是：\n{\n  \"video_summary\": \"一句话总结画面变化\",\n  \"audio_summary\": \"一句话总结音频结构\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"😀\",\n      \"label\": \"笑脸 emoji\",\n      \"color\": \"yellow\",\n      \"hex\": \"#F7D447\",\n      \"visual_change\": \"从开场持续保持黄色\",\n      \"audio_relation\": \"对应前奏平稳段\",\n      \"confidence\": 0.92\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫\"\n    }\n  ],\n  \"sync_observations\": [\n    \"某个 emoji 颜色变化与鼓点同步\",\n    \"某段颜色持续时间覆盖副歌段落\"\n  ]\n}\n\n颜色命名要求：优先使用基础颜色词，例如 red, orange, yellow, green, cyan, blue, purple, pink, white, black, gray。\n如果无法确定精确 hex，可以给近似值，但不要留空。\n如果视频里没有清晰 emoji，而是类似 emoji 风格的图形，也按主要符号分析。",
+  "analysis": {
+    "video_summary": "人物做手势，上方6个emoji风格图形依次在2.5秒间隔内变粉色，呈现节奏性视觉变化",
+    "audio_summary": "节奏型音乐分6个2.5秒段落，能量从低到高再回落，鼓点密度随段落推进增加，与图形变色同步",
+    "emoji_color_timeline": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "👋✊",
+        "label": "手掌拳头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第1个图形（手掌+拳头）变粉色",
+        "audio_relation": "对应音频intro段（0 - 2.5s，低能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 5.0,
+        "duration_sec": 2.5,
+        "emoji": "✊",
+        "label": "拳头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第2个图形（拳头）变粉色",
+        "audio_relation": "对应音频build up段（2.5 - 5s，中能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 5.0,
+        "end_sec": 7.5,
+        "duration_sec": 2.5,
+        "emoji": "🔄",
+        "label": "交换图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第3个图形（交换）变粉色",
+        "audio_relation": "对应音频action段（5 - 7.5s，中高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 7.5,
+        "end_sec": 10.0,
+        "duration_sec": 2.5,
+        "emoji": "🤌👾",
+        "label": "手指星人图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第4个图形（手指+星人）变粉色",
+        "audio_relation": "对应音频middle段（7.5 - 10s，高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 12.5,
+        "duration_sec": 2.5,
+        "emoji": "😀",
+        "label": "笑脸图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第5个图形（笑脸）变粉色",
+        "audio_relation": "对应音频pre - climax段（10 - 12.5s，高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 12.5,
+        "end_sec": 15.0,
+        "duration_sec": 2.5,
+        "emoji": "⬅️➡️",
+        "label": "左右箭头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第6个图形（左右箭头）变粉色",
+        "audio_relation": "对应音频outro段（12.5 - 15s，中能量）",
+        "confidence": 0.95
+      }
+    ],
+    "audio_structure": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "section": "intro",
+        "energy": "low",
+        "beat_density": "sparse",
+        "cue": "前奏铺垫，无明显鼓点"
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 5.0,
+        "section": "build up",
+        "energy": "medium",
+        "beat_density": "medium",
+        "cue": "鼓点开始密集，推动节奏"
+      },
+      {
+        "start_sec": 5.0,
+        "end_sec": 7.5,
+        "section": "action",
+        "energy": "medium - high",
+        "beat_density": "dense",
+        "cue": "动作配合节奏，鼓点更密集"
+      },
+      {
+        "start_sec": 7.5,
+        "end_sec": 10.0,
+        "section": "middle",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "节奏高潮段，鼓点持续密集"
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 12.5,
+        "section": "pre - climax",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "接近高潮，能量保持高位"
+      },
+      {
+        "start_sec": 12.5,
+        "end_sec": 15.0,
+        "section": "outro",
+        "energy": "medium",
+        "beat_density": "medium",
+        "cue": "节奏回落，收尾铺垫"
+      }
+    ],
+    "sync_observations": [
+      "每个emoji图形的2.5秒变色时间与音频6个段落严格同步，变色触发点与鼓点节奏一致",
+      "图形变色的持续时间（2.5s）完全覆盖对应音频段落，视觉节奏与听觉节奏高度同步"
+    ]
+  },
+  "raw_response": {
+    "created_at": 1776514948,
+    "id": "resp_0217765149463411d3a1d4bbb7934834cc5dea1149c19ea913580",
+    "max_output_tokens": 32768,
+    "model": "doubao-seed-1-6-vision-250815",
+    "object": "response",
+    "output": [
+      {
+        "id": "rs_02177651494846600000000000000000000ffffac15ab1b779fca",
+        "type": "reasoning",
+        "summary": [
+          {
+            "type": "summary_text",
+            "text": "用户现在需要分析视频中的emoji变色和音频结构，生成对应的JSON。首先看视频里的emoji，有手掌拳头、拳头、交换、上下箭头、手指星人、笑脸、左右箭头这些图形。然后看时间：\n\n0 - 2.5秒左右，第一个手掌拳头（👋✊）变成粉色？不对，看截图，第一个图形（手掌和拳头）在0 - 2.5秒左右是粉色？然后第二个拳头（✊）在2.5 - 5秒左右粉色？然后交换（🔄）在5 - 7.5秒？手指星人（🤌👾）在7.5 - 10秒？笑脸（😀）在10 - 12.5秒？左右箭头（⬅️➡️）在12.5 - 15秒？\n\n先整理每个图形的颜色变化时间：\n\n1. 手掌拳头（👋✊）：start 0.00，end 2.50，粉色（pink），hex #FFC0CB，对应前奏。\n2. 拳头（✊）：start 2.50，end 5.00，粉色，对应节奏启动。\n3. 交换（🔄）：start 5.00，end 7.50，粉色，对应动作变化。\n4. 手指星人（🤌👾）：start 7.50，end 10.00，粉色，对应中间段。\n5. 笑脸（😀）：start 10.00，end 12.50，粉色，对应高潮前。\n6. 左右箭头（⬅️➡️）：start 12.50，end 15.00，粉色，对应收尾前。\n\n音频结构：intro（0 - 2.5）低能量，然后每个2.5秒的段落能量逐渐提升，beat密度增加，到中间是高潮，最后收尾。\n\n现在构建JSON：\n\nvideo_summary：人物做手势，上方emoji图形依次变粉色，节奏性变化。\n\naudio_summary：节奏型音乐，分6个2.5秒段落，能量从低到高再平稳，鼓点与emoji变色同步。\n\nemoji_color_timeline里的每个条目，注意emoji和label，比如第一个是手掌和拳头的图形，label为“手掌拳头图形”，color pink，hex #FFC0CB，visual_change是“第1个图形变粉色”，audio_relation对应intro。\n\n然后audio_structure每个section，energy从low到medium到high，beat_density从sparse到dense。\n\nsync_observations：每个emoji变色与2.5秒的节奏段落同步，颜色变化时间覆盖每个节奏段。\n\n现在具体时间：\n\n第一个图形（👋✊）：0.00 - 2.50，duration 2.50，emoji类似👋✊，label“手掌拳头图形”，color pink，hex #FFC0CB，visual_change“开场第一个图形变粉色”，audio_relation“前奏段（0 - 2.5s）”，confidence 0.95。\n\n第二个图形（✊）：2.50 - 5.00，duration 2.50，emoji✊，label“拳头图形”，color pink，hex #FFC0CB，visual_change“第二个图形变粉色”，audio_relation“节奏启动段（2.5 - 5s）”，confidence 0.95。\n\n第三个图形（🔄）：5.00 - 7.50，duration 2.50，emoji🔄，label“交换图形”，color pink，hex #FFC0CB，visual_change“第三个图形变粉色”，audio_relation“动作变化段（5 - 7.5s）”，confidence 0.95。\n\n第四个图形（🤌👾）：7.50 - 10.00，duration 2.50，emoji🤌👾，label“手指星人图形”，color pink，hex #FFC0CB，visual_change“第四个图形变粉色”，audio_relation“中间节奏段（7.5 - 10s）”，confidence 0.95。\n\n第五个图形（😀）：10.00 - 12.50，duration 2.50，emoji😀，label“笑脸图形”，color pink，hex #FFC0CB，visual_change“第五个图形变粉色”，audio_relation“高潮前节奏段（10 - 12.5s）”，confidence 0.95。\n\n第六个图形（⬅️➡️）：12.50 - 15.00，duration 2.50，emoji⬅️➡️，label“左右箭头图形”，color pink，hex #FFC0CB，visual_change“第六个图形变粉色”，audio_relation“收尾前节奏段（12.5 - 15s）”，confidence 0.95。\n\naudio_structure每个section：\n\n0 - 2.5：intro，energy low，beat_density sparse，cue前奏。\n\n2.5 - 5：build up，energy medium，beat_density medium，cue节奏启动。\n\n5 - 7.5：action，energy medium-high，beat_density dense，cue动作段。\n\n7.5 - 10：middle，energy high，beat_density dense，cue中间高潮。\n\n10 - 12.5：pre-climax，energy high，beat_density dense，cue高潮前。\n\n12.5 - 15：outro，energy medium，beat_density medium，cue收尾。\n\nsync_observations：每个emoji图形变色时间（2.5s）与音频段落严格同步，颜色变化触发点与鼓点节奏一致。\n\n现在整理JSON结构：\n\n{\n  \"video_summary\": \"人物做手势，上方6个emoji风格图形依次在2.5秒间隔内变粉色，呈现节奏性视觉变化\",\n  \"audio_summary\": \"节奏型音乐分6个2.5秒段落，能量从低到高再回落，鼓点密度随段落推进增加，与图形变色同步\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"👋✊\",\n      \"label\": \"手掌拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第1个图形（手掌+拳头）变粉色\",\n      \"audio_relation\": \"对应音频intro段（0 - 2.5s，低能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"✊\",\n      \"label\": \"拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第2个图形（拳头）变粉色\",\n      \"audio_relation\": \"对应音频build up段（2.5 - 5s，中能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🔄\",\n      \"label\": \"交换图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第3个图形（交换）变粉色\",\n      \"audio_relation\": \"对应音频action段（5 - 7.5s，中高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🤌👾\",\n      \"label\": \"手指星人图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第4个图形（手指+星人）变粉色\",\n      \"audio_relation\": \"对应音频middle段（7.5 - 10s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"😀\",\n      \"label\": \"笑脸图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第5个图形（笑脸）变粉色\",\n      \"audio_relation\": \"对应音频pre - climax段（10 - 12.5s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"⬅️➡️\",\n      \"label\": \"左右箭头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第6个图形（左右箭头）变粉色\",\n      \"audio_relation\": \"对应音频outro段（12.5 - 15s，中能量）\",\n      \"confidence\": 0.95\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫，无明显鼓点\"\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"section\": \"build up\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"鼓点开始密集，推动节奏\"\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"section\": \"action\",\n      \"energy\": \"medium - high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"动作配合节奏，鼓点更密集\"\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"section\": \"middle\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"节奏高潮段，鼓点持续密集\"\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"section\": \"pre - climax\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"接近高潮，能量保持高位\"\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"section\": \"outro\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"节奏回落，收尾铺垫\"\n    }\n  ],\n  \"sync_observations\": [\n    \"每个emoji图形的2.5秒变色时间与音频6个段落严格同步，变色触发点与鼓点节奏一致\",\n    \"图形变色的持续时间（2.5s）完全覆盖对应音频段落，视觉节奏与听觉节奏高度同步\"\n  ]\n}\n\n需要检查时间是否正确，视频总时长约15秒，每个2.5秒一段，共6段。颜色都是粉色，所以每个的color是pink，hex近似#FFC0CB。音频结构的energy和beat_density随段落变化。sync_observations说明同步关系。"
+          }
+        ],
+        "status": "completed"
+      },
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "{\n  \"video_summary\": \"人物做手势，上方6个emoji风格图形依次在2.5秒间隔内变粉色，呈现节奏性视觉变化\",\n  \"audio_summary\": \"节奏型音乐分6个2.5秒段落，能量从低到高再回落，鼓点密度随段落推进增加，与图形变色同步\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"👋✊\",\n      \"label\": \"手掌拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第1个图形（手掌+拳头）变粉色\",\n      \"audio_relation\": \"对应音频intro段（0 - 2.5s，低能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"✊\",\n      \"label\": \"拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第2个图形（拳头）变粉色\",\n      \"audio_relation\": \"对应音频build up段（2.5 - 5s，中能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🔄\",\n      \"label\": \"交换图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第3个图形（交换）变粉色\",\n      \"audio_relation\": \"对应音频action段（5 - 7.5s，中高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🤌👾\",\n      \"label\": \"手指星人图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第4个图形（手指+星人）变粉色\",\n      \"audio_relation\": \"对应音频middle段（7.5 - 10s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"😀\",\n      \"label\": \"笑脸图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第5个图形（笑脸）变粉色\",\n      \"audio_relation\": \"对应音频pre - climax段（10 - 12.5s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"⬅️➡️\",\n      \"label\": \"左右箭头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第6个图形（左右箭头）变粉色\",\n      \"audio_relation\": \"对应音频outro段（12.5 - 15s，中能量）\",\n      \"confidence\": 0.95\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫，无明显鼓点\"\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"section\": \"build up\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"鼓点开始密集，推动节奏\"\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"section\": \"action\",\n      \"energy\": \"medium - high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"动作配合节奏，鼓点更密集\"\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"section\": \"middle\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"节奏高潮段，鼓点持续密集\"\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"section\": \"pre - climax\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"接近高潮，能量保持高位\"\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"section\": \"outro\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"节奏回落，收尾铺垫\"\n    }\n  ],\n  \"sync_observations\": [\n    \"每个emoji图形的2.5秒变色时间与音频6个段落严格同步，变色触发点与鼓点节奏一致\",\n    \"图形变色的持续时间（2.5s）完全覆盖对应音频段落，视觉节奏与听觉节奏高度同步\"\n  ]\n}"
+          }
+        ],
+        "status": "completed",
+        "id": "msg_02177651501024200000000000000000000ffffac15ab1b12942b"
+      }
+    ],
+    "service_tier": "default",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 12914,
+      "output_tokens": 4281,
+      "total_tokens": 17195,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 2843
+      }
+    },
+    "caching": {
+      "type": "disabled"
+    },
+    "store": true,
+    "expire_at": 1776774146
+  },
+  "raw_output_text": "{\n  \"video_summary\": \"人物做手势，上方6个emoji风格图形依次在2.5秒间隔内变粉色，呈现节奏性视觉变化\",\n  \"audio_summary\": \"节奏型音乐分6个2.5秒段落，能量从低到高再回落，鼓点密度随段落推进增加，与图形变色同步\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"👋✊\",\n      \"label\": \"手掌拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第1个图形（手掌+拳头）变粉色\",\n      \"audio_relation\": \"对应音频intro段（0 - 2.5s，低能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"✊\",\n      \"label\": \"拳头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第2个图形（拳头）变粉色\",\n      \"audio_relation\": \"对应音频build up段（2.5 - 5s，中能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🔄\",\n      \"label\": \"交换图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第3个图形（交换）变粉色\",\n      \"audio_relation\": \"对应音频action段（5 - 7.5s，中高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"🤌👾\",\n      \"label\": \"手指星人图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第4个图形（手指+星人）变粉色\",\n      \"audio_relation\": \"对应音频middle段（7.5 - 10s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"😀\",\n      \"label\": \"笑脸图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第5个图形（笑脸）变粉色\",\n      \"audio_relation\": \"对应音频pre - climax段（10 - 12.5s，高能量）\",\n      \"confidence\": 0.95\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"⬅️➡️\",\n      \"label\": \"左右箭头图形\",\n      \"color\": \"pink\",\n      \"hex\": \"#FFC0CB\",\n      \"visual_change\": \"第6个图形（左右箭头）变粉色\",\n      \"audio_relation\": \"对应音频outro段（12.5 - 15s，中能量）\",\n      \"confidence\": 0.95\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫，无明显鼓点\"\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 5.00,\n      \"section\": \"build up\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"鼓点开始密集，推动节奏\"\n    },\n    {\n      \"start_sec\": 5.00,\n      \"end_sec\": 7.50,\n      \"section\": \"action\",\n      \"energy\": \"medium - high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"动作配合节奏，鼓点更密集\"\n    },\n    {\n      \"start_sec\": 7.50,\n      \"end_sec\": 10.00,\n      \"section\": \"middle\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"节奏高潮段，鼓点持续密集\"\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 12.50,\n      \"section\": \"pre - climax\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"接近高潮，能量保持高位\"\n    },\n    {\n      \"start_sec\": 12.50,\n      \"end_sec\": 15.00,\n      \"section\": \"outro\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"medium\",\n      \"cue\": \"节奏回落，收尾铺垫\"\n    }\n  ],\n  \"sync_observations\": [\n    \"每个emoji图形的2.5秒变色时间与音频6个段落严格同步，变色触发点与鼓点节奏一致\",\n    \"图形变色的持续时间（2.5s）完全覆盖对应音频段落，视觉节奏与听觉节奏高度同步\"\n  ]\n}"
+}

@@ -1,0 +1,330 @@
+[
+  {
+    "name": "emoji2",
+    "status": "completed",
+    "video_url": "https://bucketsxlx.tos-cn-beijing.volces.com/emoji-analysis/56764ce491-emoji2.mp4",
+    "output_file": "/Users/sxlx/.codex/wu/wudao/emoji/emoji2_color_timeline_analysis.json",
+    "video_summary": "人物做手势，上方6个emoji风格图形依次在2.5秒间隔内变粉色，呈现节奏性视觉变化",
+    "audio_summary": "节奏型音乐分6个2.5秒段落，能量从低到高再回落，鼓点密度随段落推进增加，与图形变色同步",
+    "emoji_color_timeline": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "👋✊",
+        "label": "手掌拳头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第1个图形（手掌+拳头）变粉色",
+        "audio_relation": "对应音频intro段（0 - 2.5s，低能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 5.0,
+        "duration_sec": 2.5,
+        "emoji": "✊",
+        "label": "拳头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第2个图形（拳头）变粉色",
+        "audio_relation": "对应音频build up段（2.5 - 5s，中能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 5.0,
+        "end_sec": 7.5,
+        "duration_sec": 2.5,
+        "emoji": "🔄",
+        "label": "交换图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第3个图形（交换）变粉色",
+        "audio_relation": "对应音频action段（5 - 7.5s，中高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 7.5,
+        "end_sec": 10.0,
+        "duration_sec": 2.5,
+        "emoji": "🤌👾",
+        "label": "手指星人图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第4个图形（手指+星人）变粉色",
+        "audio_relation": "对应音频middle段（7.5 - 10s，高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 12.5,
+        "duration_sec": 2.5,
+        "emoji": "😀",
+        "label": "笑脸图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第5个图形（笑脸）变粉色",
+        "audio_relation": "对应音频pre - climax段（10 - 12.5s，高能量）",
+        "confidence": 0.95
+      },
+      {
+        "start_sec": 12.5,
+        "end_sec": 15.0,
+        "duration_sec": 2.5,
+        "emoji": "⬅️➡️",
+        "label": "左右箭头图形",
+        "color": "pink",
+        "hex": "#FFC0CB",
+        "visual_change": "第6个图形（左右箭头）变粉色",
+        "audio_relation": "对应音频outro段（12.5 - 15s，中能量）",
+        "confidence": 0.95
+      }
+    ],
+    "audio_structure": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "section": "intro",
+        "energy": "low",
+        "beat_density": "sparse",
+        "cue": "前奏铺垫，无明显鼓点"
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 5.0,
+        "section": "build up",
+        "energy": "medium",
+        "beat_density": "medium",
+        "cue": "鼓点开始密集，推动节奏"
+      },
+      {
+        "start_sec": 5.0,
+        "end_sec": 7.5,
+        "section": "action",
+        "energy": "medium - high",
+        "beat_density": "dense",
+        "cue": "动作配合节奏，鼓点更密集"
+      },
+      {
+        "start_sec": 7.5,
+        "end_sec": 10.0,
+        "section": "middle",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "节奏高潮段，鼓点持续密集"
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 12.5,
+        "section": "pre - climax",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "接近高潮，能量保持高位"
+      },
+      {
+        "start_sec": 12.5,
+        "end_sec": 15.0,
+        "section": "outro",
+        "energy": "medium",
+        "beat_density": "medium",
+        "cue": "节奏回落，收尾铺垫"
+      }
+    ],
+    "sync_observations": [
+      "每个emoji图形的2.5秒变色时间与音频6个段落严格同步，变色触发点与鼓点节奏一致",
+      "图形变色的持续时间（2.5s）完全覆盖对应音频段落，视觉节奏与听觉节奏高度同步"
+    ]
+  },
+  {
+    "name": "emoji3",
+    "status": "completed",
+    "video_url": "https://bucketsxlx.tos-cn-beijing.volces.com/emoji-analysis/0a60364895-emoji3.mp4",
+    "output_file": "/Users/sxlx/.codex/wu/wudao/emoji/emoji3_color_timeline_analysis.json",
+    "video_summary": "人物互动时顶部多个类emoji按钮从白色逐步变为蓝色，10秒后切换至抖音搜索界面。",
+    "audio_summary": "音频分intro（0 - 2.5s低能铺垫）、verse（2.5 - 7s中能节奏）、chorus（7 - 10s高能高潮），10s后转场静音。",
+    "emoji_color_timeline": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "点赞类图标",
+        "label": "顶部左一图标（点赞风格）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "点赞类图标",
+        "label": "顶部左一图标（点赞风格）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "左右箭头图标",
+        "label": "顶部左二图标（左右箭头）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "左右箭头图标",
+        "label": "顶部左二图标（左右箭头）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "地球图标",
+        "label": "顶部左三图标（地球）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "地球图标",
+        "label": "顶部左三图标（地球）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "顶肩按钮",
+        "label": "顶部左四文字按钮（顶肩）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "顶肩按钮",
+        "label": "顶部左四文字按钮（顶肩）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 7.0,
+        "duration_sec": 7.0,
+        "emoji": "双指图标",
+        "label": "顶部左五图标（双指）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro到verse段，未到触发节奏",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "duration_sec": 3.0,
+        "emoji": "双指图标",
+        "label": "顶部左五图标（双指）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "chorus段，高能量节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 7.0,
+        "duration_sec": 7.0,
+        "emoji": "右一图标",
+        "label": "顶部右一图标",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro到verse段，未到触发节奏",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "duration_sec": 3.0,
+        "emoji": "右一图标",
+        "label": "顶部右一图标",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "chorus段，高能量节奏触发激活",
+        "confidence": 0.9
+      }
+    ],
+    "audio_structure": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "section": "intro",
+        "energy": "low",
+        "beat_density": "sparse",
+        "cue": "前奏铺垫，图标未激活"
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 7.0,
+        "section": "verse",
+        "energy": "medium",
+        "beat_density": "moderate",
+        "cue": "节奏启动，前四个图标激活"
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "section": "chorus",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "高潮段，后两个图标激活"
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 13.5,
+        "section": "outro",
+        "energy": "silent",
+        "beat_density": "none",
+        "cue": "转场到搜索界面，音频静音"
+      }
+    ],
+    "sync_observations": [
+      "前四个图标在verse段（2.5s）开始时同步变蓝，与节奏启动同步",
+      "后两个图标在chorus段（7s）开始时同步变蓝，与高潮节奏同步"
+    ]
+  }
+]

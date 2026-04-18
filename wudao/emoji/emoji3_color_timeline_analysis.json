@@ -1,0 +1,244 @@
+{
+  "video_url": "https://bucketsxlx.tos-cn-beijing.volces.com/emoji-analysis/0a60364895-emoji3.mp4",
+  "model": "doubao-seed-1-6-vision-250815",
+  "prompt": "你是一个视频分镜和时间轴分析器。\n请分析视频中的 emoji 画面变化和音频结构，并输出一个“emoji 变色持续时间时间轴”。\n\n任务要求：\n1. 识别视频里出现的 emoji 或主要图形符号。\n2. 识别每个 emoji 在什么时间段变成什么颜色，持续多久。\n3. 同时分析音频结构：节奏段落、能量变化、明显转场、打点、停顿、高潮、收尾。\n4. 说明每段颜色变化是否和音频节奏、段落、打点有关。\n5. 如果同一个 emoji 在一段时间内保持同一种颜色，就合并成一个连续时间段。\n\n输出要求：\n1. 只输出 JSON，不要 Markdown，不要解释。\n2. start_sec 和 end_sec 保留 2 位小数。\n3. duration_sec = end_sec - start_sec。\n4. confidence 为 0 到 1。\n\nJSON 顶层结构必须是：\n{\n  \"video_summary\": \"一句话总结画面变化\",\n  \"audio_summary\": \"一句话总结音频结构\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"😀\",\n      \"label\": \"笑脸 emoji\",\n      \"color\": \"yellow\",\n      \"hex\": \"#F7D447\",\n      \"visual_change\": \"从开场持续保持黄色\",\n      \"audio_relation\": \"对应前奏平稳段\",\n      \"confidence\": 0.92\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫\"\n    }\n  ],\n  \"sync_observations\": [\n    \"某个 emoji 颜色变化与鼓点同步\",\n    \"某段颜色持续时间覆盖副歌段落\"\n  ]\n}\n\n颜色命名要求：优先使用基础颜色词，例如 red, orange, yellow, green, cyan, blue, purple, pink, white, black, gray。\n如果无法确定精确 hex，可以给近似值，但不要留空。\n如果视频里没有清晰 emoji，而是类似 emoji 风格的图形，也按主要符号分析。",
+  "analysis": {
+    "video_summary": "人物互动时顶部多个类emoji按钮从白色逐步变为蓝色，10秒后切换至抖音搜索界面。",
+    "audio_summary": "音频分intro（0 - 2.5s低能铺垫）、verse（2.5 - 7s中能节奏）、chorus（7 - 10s高能高潮），10s后转场静音。",
+    "emoji_color_timeline": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "点赞类图标",
+        "label": "顶部左一图标（点赞风格）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "点赞类图标",
+        "label": "顶部左一图标（点赞风格）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "左右箭头图标",
+        "label": "顶部左二图标（左右箭头）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "左右箭头图标",
+        "label": "顶部左二图标（左右箭头）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "地球图标",
+        "label": "顶部左三图标（地球）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "地球图标",
+        "label": "顶部左三图标（地球）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "duration_sec": 2.5,
+        "emoji": "顶肩按钮",
+        "label": "顶部左四文字按钮（顶肩）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro段，低能量无节奏触发",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 10.0,
+        "duration_sec": 7.5,
+        "emoji": "顶肩按钮",
+        "label": "顶部左四文字按钮（顶肩）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "覆盖verse到chorus段，节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 7.0,
+        "duration_sec": 7.0,
+        "emoji": "双指图标",
+        "label": "顶部左五图标（双指）",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro到verse段，未到触发节奏",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "duration_sec": 3.0,
+        "emoji": "双指图标",
+        "label": "顶部左五图标（双指）",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "chorus段，高能量节奏触发激活",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 0.0,
+        "end_sec": 7.0,
+        "duration_sec": 7.0,
+        "emoji": "右一图标",
+        "label": "顶部右一图标",
+        "color": "white",
+        "hex": "#FFFFFF",
+        "visual_change": "初始白色未激活",
+        "audio_relation": "intro到verse段，未到触发节奏",
+        "confidence": 0.9
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "duration_sec": 3.0,
+        "emoji": "右一图标",
+        "label": "顶部右一图标",
+        "color": "blue",
+        "hex": "#448AFF",
+        "visual_change": "激活为蓝色",
+        "audio_relation": "chorus段，高能量节奏触发激活",
+        "confidence": 0.9
+      }
+    ],
+    "audio_structure": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 2.5,
+        "section": "intro",
+        "energy": "low",
+        "beat_density": "sparse",
+        "cue": "前奏铺垫，图标未激活"
+      },
+      {
+        "start_sec": 2.5,
+        "end_sec": 7.0,
+        "section": "verse",
+        "energy": "medium",
+        "beat_density": "moderate",
+        "cue": "节奏启动，前四个图标激活"
+      },
+      {
+        "start_sec": 7.0,
+        "end_sec": 10.0,
+        "section": "chorus",
+        "energy": "high",
+        "beat_density": "dense",
+        "cue": "高潮段，后两个图标激活"
+      },
+      {
+        "start_sec": 10.0,
+        "end_sec": 13.5,
+        "section": "outro",
+        "energy": "silent",
+        "beat_density": "none",
+        "cue": "转场到搜索界面，音频静音"
+      }
+    ],
+    "sync_observations": [
+      "前四个图标在verse段（2.5s）开始时同步变蓝，与节奏启动同步",
+      "后两个图标在chorus段（7s）开始时同步变蓝，与高潮节奏同步"
+    ]
+  },
+  "raw_response": {
+    "created_at": 1776515038,
+    "id": "resp_0217765150345760cecbb43cbf32d5103f1c77803f78f38b5db65",
+    "max_output_tokens": 32768,
+    "model": "doubao-seed-1-6-vision-250815",
+    "object": "response",
+    "output": [
+      {
+        "id": "rs_02177651503826200000000000000000000ffffac15def9e2f64e",
+        "type": "reasoning",
+        "summary": [
+          {
+            "type": "summary_text",
+            "text": "用户现在需要分析视频中的emoji变化和音频结构，生成emoji变色时间轴。首先看视频，顶部有几个emoji或图形按钮，比如第一个类似点赞，然后左右箭头，地球，“顶肩”，还有其他。时间从0到10左右，然后是搜索界面。\n\n首先识别emoji：视频前10秒左右，顶部的按钮（类似emoji风格的图形），比如第一个（点赞？）、左右箭头、地球、“顶肩”（文字但按钮？）、然后两个手指？还有其他。看时间变化：\n\n0.00 - 2.50左右，可能初始颜色是白色？然后变成蓝色？需要看时间。比如从0到约2.5秒，某些按钮是白色，然后2.5到7秒左右变成蓝色？\n\n先看视频时间：\n\n视频前10秒是人物互动，顶部有多个按钮（类似emoji或图标），从0到约2.5秒（比如0-2.5）这些按钮是白色背景？然后2.5到7秒左右变成蓝色？然后7到10秒又有变化？\n\n音频结构：前2.5秒是前奏，能量低，然后2.5到7秒可能是节奏开始，能量中等，7到10秒可能高潮，然后10秒后是搜索界面，音频可能结束或转场。\n\n现在整理emoji（图标）的颜色变化：\n\n第一个图标（左一，类似点赞）：0.00-2.50，颜色白色（或浅灰），然后2.50-7.00变成蓝色，持续4.5秒？然后7.00-10.00可能保持蓝色？或者还有其他？\n\n第二个图标（左右箭头）：0.00-2.50白色，2.50-7.00蓝色，和第一个同步？\n\n第三个图标（地球）：0.00-2.50白色，2.50-7.00蓝色？\n\n“顶肩”按钮：0.00-2.50白色，2.50-7.00蓝色？\n\n然后第五个图标（两个手指？）：0.00-7.00白色，7.00-10.00蓝色？\n\n需要更精确的时间。看视频：\n\n0秒到约2.5秒，顶部的按钮（除了可能的一个）是白色背景，文字或图标。然后从2.5秒左右开始，第一个、第二个、第三个、“顶肩”、第五个？变成蓝色，持续到7秒左右？然后7到10秒，更多按钮变蓝？\n\n现在假设：\n\n图标1（左一，点赞类）：\nstart: 0.00, end: 2.50, 颜色white，持续2.50\n然后2.50-7.00，颜色blue，持续4.50\n然后7.00-10.00，颜色blue，持续3.00？ 不对，可能从2.5到10秒都是blue？\n\n或者看视频中的变化：0-2.5秒，顶部的按钮（比如前四个？）是白色，然后2.5秒后，前四个（点赞、左右、地球、顶肩）变成蓝色，然后第五个（两个手指？）在7秒左右变蓝？\n\n现在重新看时间：\n\n0.00 - 2.50秒：顶部的按钮（图标）颜色为白色（背景），文字或图标颜色可能是灰色或黑色。\n2.50 - 7.00秒：前四个图标（点赞、左右、地球、顶肩）变成蓝色（背景），文字或图标颜色白色？\n7.00 - 10.00秒：第五个和第六个图标（两个手指、其他）也变成蓝色？\n\n音频结构：\n0.00-2.50：intro，energy low，beat sparse，铺垫。\n2.50-7.00：verse，energy medium，beat moderate，节奏开始。\n7.00-10.00：chorus，energy high，beat dense，高潮。\n10.00+：outro，转场到搜索界面，音频结束。\n\n现在整理emoji_color_timeline：\n\n第一个图标（左一，点赞类）：\nstart: 0.00, end: 2.50, duration: 2.50, emoji: \"点赞类图标\", label: \"点赞按钮\", color: \"white\", hex: \"#FFFFFF\", visual_change: \"初始白色\", audio_relation: \"intro段，能量低，无明显同步\", confidence: 0.9\n\n然后2.50-7.00，颜色blue，duration: 4.50，audio_relation: \"verse段，节奏启动，颜色变化同步节奏开始\", confidence: 0.9\n\n第二个图标（左右箭头）：\nstart: 0.00, end: 2.50, color white，duration 2.50\n2.50-7.00, color blue，duration 4.50，和第一个同步\n\n第三个图标（地球）：\nstart: 0.00, end: 2.50, white\n2.50-7.00, blue\n\n“顶肩”按钮（文字按钮）：\nstart: 0.00, end: 2.50, white\n2.50-7.00, blue\n\n第五个图标（两个手指？）：\nstart: 0.00, end: 7.00, white\n7.00-10.00, blue，duration 3.00\n\n第六个图标（右一？）：\nstart: 0.00, end: 7.00, white\n7.00-10.00, blue\n\n现在需要合并同颜色同emoji的时间段。\n\n假设主要图标（前四个）：\n\n0.00-2.50：white，持续2.50\n2.50-7.00：blue，持续4.50\n7.00-10.00：blue，持续3.00（因为前四个可能一直蓝到10秒？）\n\n第五、六个图标：\n\n0.00-7.00：white，持续7.00\n7.00-10.00：blue，持续3.00\n\n现在构建JSON：\n\nvideo_summary: \"人物互动时顶部多个图标（类似emoji按钮）从白色逐步变为蓝色，10秒后切换到抖音搜索界面。\"\n\naudio_summary: \"音频分为intro（0-2.5s，低能量）、verse（2.5-7s，中能量节奏）、chorus（7-10s，高能量），10s后转场静音。\"\n\nemoji_color_timeline：\n\n前四个图标（点赞、左右箭头、地球、顶肩按钮）：\n- 0.00-2.50，white，duration 2.50，audio_relation: \"intro段，能量低，图标未激活\"\n- 2.50-10.00，blue，duration 7.50，audio_relation: \"verse到chorus段，节奏启动后保持激活，颜色同步节奏段落\"\n\n第五、六个图标（双指、右一图标）：\n- 0.00-7.00，white，duration 7.00，audio_relation: \"intro到verse段，未激活\"\n- 7.00-10.00，blue，duration 3.00，audio_relation: \"chorus段，节奏高潮时激活\"\n\n还有可能其他图标，但主要分析明显的。\n\n现在整理JSON结构：\n\n{\n  \"video_summary\": \"人物互动时顶部多个类emoji按钮从白色逐步变为蓝色，10秒后切换至抖音搜索界面。\",\n  \"audio_summary\": \"音频分intro（0-2.5s低能铺垫）、verse（2.5-7s中能节奏）、chorus（7-10s高能高潮），10s后转场至静音搜索界面。\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    }\n  ],\n\naudio_structure: [\n  {\n    \"start_sec\": 0.00,\n    \"end_sec\": 2.50,\n    \"section\": \"intro\",\n    \"energy\": \"low\",\n    \"beat_density\": \"sparse\",\n    \"cue\": \"前奏铺垫，图标未激活\"\n  },\n  {\n    \"start_sec\": 2.50,\n    \"end_sec\": 7.00,\n    \"section\": \"verse\",\n    \"energy\": \"medium\",\n    \"beat_density\": \"moderate\",\n    \"cue\": \"节奏启动，前四个图标激活\"\n  },\n  {\n    \"start_sec\": 7.00,\n    \"end_sec\": 10.00,\n    \"section\": \"chorus\",\n    \"energy\": \"high\",\n    \"beat_density\": \"dense\",\n    \"cue\": \"高潮段，后两个图标激活\"\n  },\n  {\n    \"start_sec\": 10.00,\n    \"end_sec\": 13.50,\n    \"section\": \"outro\",\n    \"energy\": \"silent\",\n    \"beat_density\": \"none\",\n    \"cue\": \"转场到搜索界面，音频静音\"\n  }\n],\n\nsync_observations: [\n  \"前四个图标在verse段（2.5s）开始时同步变蓝，与节奏启动同步\",\n  \"后两个图标在chorus段（7s）开始时同步变蓝，与高潮节奏同步\"\n]\n\n}\n\n需要检查时间是否准确，比如10秒后是搜索界面，所以10秒到13.5秒是outro。\n\n现在调整时间，确保duration正确。比如前四个图标从2.5到10秒，duration是7.5秒（10-2.5=7.5）。后两个从7到10，duration3秒。\n\n现在输出JSON，确保格式正确。"
+          }
+        ],
+        "status": "completed"
+      },
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "{\n  \"video_summary\": \"人物互动时顶部多个类emoji按钮从白色逐步变为蓝色，10秒后切换至抖音搜索界面。\",\n  \"audio_summary\": \"音频分intro（0 - 2.5s低能铺垫）、verse（2.5 - 7s中能节奏）、chorus（7 - 10s高能高潮），10s后转场静音。\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"duration_sec\": 7.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 3.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"duration_sec\": 7.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 3.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫，图标未激活\"\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 7.00,\n      \"section\": \"verse\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"moderate\",\n      \"cue\": \"节奏启动，前四个图标激活\"\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"section\": \"chorus\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"高潮段，后两个图标激活\"\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 13.50,\n      \"section\": \"outro\",\n      \"energy\": \"silent\",\n      \"beat_density\": \"none\",\n      \"cue\": \"转场到搜索界面，音频静音\"\n    }\n  ],\n  \"sync_observations\": [\n    \"前四个图标在verse段（2.5s）开始时同步变蓝，与节奏启动同步\",\n    \"后两个图标在chorus段（7s）开始时同步变蓝，与高潮节奏同步\"\n  ]\n}"
+          }
+        ],
+        "status": "completed",
+        "id": "msg_02177651510822300000000000000000000ffffac15def934ba70"
+      }
+    ],
+    "service_tier": "default",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5544,
+      "output_tokens": 5668,
+      "total_tokens": 11212,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 3695
+      }
+    },
+    "caching": {
+      "type": "disabled"
+    },
+    "store": true,
+    "expire_at": 1776774234
+  },
+  "raw_output_text": "{\n  \"video_summary\": \"人物互动时顶部多个类emoji按钮从白色逐步变为蓝色，10秒后切换至抖音搜索界面。\",\n  \"audio_summary\": \"音频分intro（0 - 2.5s低能铺垫）、verse（2.5 - 7s中能节奏）、chorus（7 - 10s高能高潮），10s后转场静音。\",\n  \"emoji_color_timeline\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"点赞类图标\",\n      \"label\": \"顶部左一图标（点赞风格）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"左右箭头图标\",\n      \"label\": \"顶部左二图标（左右箭头）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"地球图标\",\n      \"label\": \"顶部左三图标（地球）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"duration_sec\": 2.50,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro段，低能量无节奏触发\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 7.50,\n      \"emoji\": \"顶肩按钮\",\n      \"label\": \"顶部左四文字按钮（顶肩）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"覆盖verse到chorus段，节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"duration_sec\": 7.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 3.00,\n      \"emoji\": \"双指图标\",\n      \"label\": \"顶部左五图标（双指）\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 7.00,\n      \"duration_sec\": 7.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"white\",\n      \"hex\": \"#FFFFFF\",\n      \"visual_change\": \"初始白色未激活\",\n      \"audio_relation\": \"intro到verse段，未到触发节奏\",\n      \"confidence\": 0.9\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"duration_sec\": 3.00,\n      \"emoji\": \"右一图标\",\n      \"label\": \"顶部右一图标\",\n      \"color\": \"blue\",\n      \"hex\": \"#448AFF\",\n      \"visual_change\": \"激活为蓝色\",\n      \"audio_relation\": \"chorus段，高能量节奏触发激活\",\n      \"confidence\": 0.9\n    }\n  ],\n  \"audio_structure\": [\n    {\n      \"start_sec\": 0.00,\n      \"end_sec\": 2.50,\n      \"section\": \"intro\",\n      \"energy\": \"low\",\n      \"beat_density\": \"sparse\",\n      \"cue\": \"前奏铺垫，图标未激活\"\n    },\n    {\n      \"start_sec\": 2.50,\n      \"end_sec\": 7.00,\n      \"section\": \"verse\",\n      \"energy\": \"medium\",\n      \"beat_density\": \"moderate\",\n      \"cue\": \"节奏启动，前四个图标激活\"\n    },\n    {\n      \"start_sec\": 7.00,\n      \"end_sec\": 10.00,\n      \"section\": \"chorus\",\n      \"energy\": \"high\",\n      \"beat_density\": \"dense\",\n      \"cue\": \"高潮段，后两个图标激活\"\n    },\n    {\n      \"start_sec\": 10.00,\n      \"end_sec\": 13.50,\n      \"section\": \"outro\",\n      \"energy\": \"silent\",\n      \"beat_density\": \"none\",\n      \"cue\": \"转场到搜索界面，音频静音\"\n    }\n  ],\n  \"sync_observations\": [\n    \"前四个图标在verse段（2.5s）开始时同步变蓝，与节奏启动同步\",\n    \"后两个图标在chorus段（7s）开始时同步变蓝，与高潮节奏同步\"\n  ]\n}"
+}
