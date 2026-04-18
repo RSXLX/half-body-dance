@@ -1,0 +1,24 @@
+.DS_Store
+.claude/
+.playwright-cli/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+node_modules/
+
+# Auto-downloaded MediaPipe models
+*.task
+
+# Local/generated analysis artifacts
+*_volcengine_analysis.json
+*_emoji_analysis.json
+*_emoji_summary.json
+all_videos_volcengine_analysis_summary.json
+test_output.json
+test_*_dry_run.json
+uploaded_video_emoji_analysis.json
+
+# Local docs and exports
+*.docx
