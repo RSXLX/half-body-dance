@@ -456,6 +456,10 @@
       max-width: calc(100% - 32px);
     }
 
+    .stage-hud.beat-hot {
+      box-shadow: 0 0 0 1px rgba(255, 211, 110, 0.18), 0 0 34px rgba(255, 211, 110, 0.24);
+    }
+
     .score-dial {
       position: relative;
       width: 72px;
@@ -515,6 +519,75 @@
       text-overflow: ellipsis;
     }
 
+    .beat-cluster {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+      min-width: 176px;
+      flex-shrink: 0;
+    }
+
+    .beat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 0.82rem;
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .beat-badge strong {
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .beat-badge.hot {
+      background: rgba(255, 211, 110, 0.16);
+      color: #fff0c3;
+      transform: translateY(-1px);
+    }
+
+    .beat-strip {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .beat-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .beat-dot.active {
+      background: #ffd36e;
+      box-shadow: 0 0 18px rgba(255, 211, 110, 0.65);
+      transform: scale(1.35);
+    }
+
+    .beat-dot.downbeat {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.38);
+    }
+
+    .beat-dot.hit {
+      background: #54f3a8;
+      box-shadow: 0 0 14px rgba(84, 243, 168, 0.45);
+    }
+
+    .beat-dot.miss {
+      background: #ff7b8a;
+      box-shadow: 0 0 14px rgba(255, 123, 138, 0.4);
+    }
+
     .overlay-card {
       transition: background 0.2s ease, padding 0.2s ease, max-width 0.2s ease;
     }
@@ -569,6 +642,13 @@
       .stage-primary {
         top: 12px;
         right: 12px;
+      }
+      .beat-cluster {
+        min-width: 132px;
+      }
+      .beat-badge {
+        padding: 7px 10px;
+        font-size: 0.75rem;
       }
     }
 
@@ -734,6 +814,26 @@
               <span>动作结论</span>
               <strong id="matchLabel">待机中</strong>
             </div>
+            <div class="info-row">
+              <span>节奏分析</span>
+              <strong id="beatStatus">等待音频</strong>
+            </div>
+            <div class="info-row">
+              <span>下一拍提示</span>
+              <strong id="beatPrompt">--</strong>
+            </div>
+            <div class="info-row">
+              <span>拍点命中率</span>
+              <strong id="beatHitRate">--</strong>
+            </div>
+            <div class="info-row">
+              <span>拍点击分</span>
+              <strong id="beatCompositeScore">--</strong>
+            </div>
+            <div class="info-row">
+              <span>拍点统计</span>
+              <strong id="beatHitStats">0 / 0</strong>
+            </div>
           </div>
         </div>
       </aside>
@@ -775,6 +875,16 @@
             <div class="stage-labels">
               <strong id="stageLabel">准备开始</strong>
               <span id="stageSubLabel">先选择一个标准动作，或点右上角「一键开始跟练」</span>
+            </div>
+            <div class="beat-cluster">
+              <div class="beat-badge" id="beatBadge">节拍未就绪</div>
+              <div class="beat-strip" id="beatStrip">
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+                <span class="beat-dot"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -857,6 +967,15 @@
       weak: 'D · 手臂偏差较大',
     };
 
+    const RHYTHM_EVAL_WINDOW = 0.16;
+    const RHYTHM_PERFECT_WINDOW = 0.09;
+    const RHYTHM_GOOD_WINDOW = 0.14;
+    const RHYTHM_PREP_WINDOW = 0.36;
+    const RHYTHM_HIT_SCORE = 75;
+    const RHYTHM_GOOD_SCORE = 60;
+    const RHYTHM_COMPOSITE_PERFECT = 82;
+    const RHYTHM_COMPOSITE_GOOD = 68;
+
     // 人体实体（半透明 + 描边）调色板——填充克制，描边清晰，不压住视频画面
     const BODY_PALETTES = {
       target: { fill: 'rgba(255, 184, 59, 0.28)', stroke: 'rgba(255, 214, 122, 0.98)', glow: 'rgba(255, 184, 59, 0.5)' },
@@ -916,6 +1035,18 @@
       jsonAspectRatio: null,
       audioSource: null,
       audioReady: false,
+      audioBeatAnalysisId: 0,
+      audioBeatContext: null,
+      beatTimes: [],
+      beatSummary: null,
+      beatStatus: '等待音频',
+      beatPrompt: '--',
+      beatWindow: null,
+      rhythmSamples: [],
+      beatEvaluations: [],
+      beatCursor: 0,
+      beatHitRate: null,
+      beatCompositeScore: null,
     };
 
     const elements = {
@@ -934,6 +1065,11 @@
       finalAverageScore: document.querySelector('#finalAverageScore'),
       finalConclusion: document.querySelector('#finalConclusion'),
       matchLabel: document.querySelector('#matchLabel'),
+      beatStatus: document.querySelector('#beatStatus'),
+      beatPrompt: document.querySelector('#beatPrompt'),
+      beatHitRate: document.querySelector('#beatHitRate'),
+      beatCompositeScore: document.querySelector('#beatCompositeScore'),
+      beatHitStats: document.querySelector('#beatHitStats'),
       jsonPreview: document.querySelector('#jsonPreview'),
       hudText: document.querySelector('#hudText'),
       frameSlider: document.querySelector('#frameSlider'),
@@ -952,6 +1088,9 @@
       scoreDialValue: document.querySelector('#scoreDialValue'),
       stageLabel: document.querySelector('#stageLabel'),
       stageSubLabel: document.querySelector('#stageSubLabel'),
+      stageHud: document.querySelector('.stage-hud'),
+      beatBadge: document.querySelector('#beatBadge'),
+      beatStrip: document.querySelector('#beatStrip'),
       quickStart: document.querySelector('#quickStart'),
       bgmAudio: document.querySelector('#bgmAudio'),
     };
@@ -1336,6 +1475,291 @@
       return typeof score === 'number' ? `${score}%` : '--';
     }
 
+    function formatPercent(score) {
+      return typeof score === 'number' ? `${score}%` : '--';
+    }
+
+    function resetRhythmSummary() {
+      state.rhythmSamples = [];
+      state.beatEvaluations = [];
+      state.beatCursor = 0;
+      state.beatHitRate = null;
+      state.beatCompositeScore = null;
+      state.beatPrompt = state.beatTimes.length ? '等待开始播放' : '--';
+      state.beatWindow = null;
+    }
+
+    function resetBeatAnalysis(status = '等待音频') {
+      state.beatTimes = [];
+      state.beatSummary = null;
+      state.beatStatus = status;
+      resetRhythmSummary();
+    }
+
+    function getPlaybackClockTime() {
+      const frame = state.poseData?.frames?.[state.currentFrame];
+      if (!frame) return null;
+      if (state.audioSource && elements.bgmAudio && Number.isFinite(elements.bgmAudio.currentTime)) {
+        return elements.bgmAudio.currentTime;
+      }
+      return typeof frame.time === 'number' ? frame.time : null;
+    }
+
+    function getUpcomingBeatWindow(currentTime) {
+      if (!state.beatTimes.length || typeof currentTime !== 'number') return null;
+      let nextIndex = state.beatCursor;
+      while (nextIndex < state.beatTimes.length - 1 && state.beatTimes[nextIndex] < currentTime - RHYTHM_EVAL_WINDOW) {
+        nextIndex += 1;
+      }
+      const nextTime = state.beatTimes[nextIndex];
+      if (typeof nextTime !== 'number') return null;
+      const delta = nextTime - currentTime;
+      return {
+        nextIndex,
+        nextTime,
+        delta,
+        isHot: Math.abs(delta) <= RHYTHM_GOOD_WINDOW,
+        beatType: getBeatType(nextIndex),
+      };
+    }
+
+    function getBeatType(index) {
+      const accentEvery = state.beatSummary?.accentEvery || 4;
+      return index % accentEvery === 0 ? 'downbeat' : 'beat';
+    }
+
+    function getBeatTypeLabel(beatType) {
+      return beatType === 'downbeat' ? '重拍' : '拍点';
+    }
+
+    function getTimingScore(delta) {
+      if (typeof delta !== 'number' || !Number.isFinite(delta)) return 0;
+      return Math.max(0, Math.round((1 - Math.min(1, delta / RHYTHM_EVAL_WINDOW)) * 100));
+    }
+
+    function summarizeBeatEvaluations(evaluations) {
+      if (!Array.isArray(evaluations) || !evaluations.length) return null;
+      const hits = evaluations.filter((item) => item.result === 'perfect' || item.result === 'good').length;
+      const timingScores = evaluations.map((item) => item.timingScore).filter((value) => typeof value === 'number');
+      const poseScores = evaluations.map((item) => item.poseScore).filter((value) => typeof value === 'number');
+      const compositeScores = evaluations.map((item) => item.compositeScore).filter((value) => typeof value === 'number');
+      return {
+        total: evaluations.length,
+        hits,
+        perfect: evaluations.filter((item) => item.result === 'perfect').length,
+        good: evaluations.filter((item) => item.result === 'good').length,
+        miss: evaluations.filter((item) => item.result === 'miss').length,
+        rate: Math.round((hits / evaluations.length) * 100),
+        timingAverage: timingScores.length ? Math.round(timingScores.reduce((sum, value) => sum + value, 0) / timingScores.length) : null,
+        poseAverage: poseScores.length ? Math.round(poseScores.reduce((sum, value) => sum + value, 0) / poseScores.length) : null,
+        compositeAverage: compositeScores.length ? Math.round(compositeScores.reduce((sum, value) => sum + value, 0) / compositeScores.length) : null,
+      };
+    }
+
+    function updateRhythmPrompt(currentTime) {
+      if (!state.beatTimes.length) {
+        state.beatPrompt = '--';
+        state.beatWindow = null;
+        return;
+      }
+      if (typeof currentTime !== 'number') {
+        state.beatPrompt = state.isPlaying ? '节拍等待同步' : '等待开始播放';
+        state.beatWindow = null;
+        return;
+      }
+
+      const window = getUpcomingBeatWindow(currentTime);
+      state.beatWindow = window;
+      if (!window) {
+        state.beatPrompt = '节拍结束';
+        return;
+      }
+      const delta = window.delta;
+      const beatLabel = getBeatTypeLabel(window.beatType);
+      if (Math.abs(delta) <= RHYTHM_PERFECT_WINDOW) {
+        state.beatPrompt = `${beatLabel}，落点`;
+      } else if (delta > 0 && delta <= RHYTHM_PREP_WINDOW) {
+        state.beatPrompt = `预备${beatLabel} ${delta.toFixed(2)}s`;
+      } else if (delta > 0) {
+        state.beatPrompt = `下一${beatLabel} ${delta.toFixed(2)}s`;
+      } else {
+        state.beatPrompt = `${beatLabel}已过 ${Math.abs(delta).toFixed(2)}s`;
+      }
+    }
+
+    function collectRhythmSample(frameTime, score) {
+      if (!state.isPlaying || typeof frameTime !== 'number' || typeof score !== 'number') return;
+      const last = state.rhythmSamples[state.rhythmSamples.length - 1];
+      if (last && Math.abs(last.time - frameTime) < 0.01) {
+        last.score = score;
+        last.frameIndex = state.currentFrame;
+        return;
+      }
+      state.rhythmSamples.push({
+        time: frameTime,
+        score,
+        frameIndex: state.currentFrame,
+      });
+      if (state.rhythmSamples.length > 600) {
+        state.rhythmSamples.splice(0, state.rhythmSamples.length - 600);
+      }
+    }
+
+    function classifyBeatHit(bestSample, beatTime) {
+      if (!bestSample || typeof bestSample.score !== 'number') {
+        return { result: 'miss', score: null, delta: null, timingScore: 0, poseScore: null, compositeScore: 0 };
+      }
+      const delta = Math.abs(bestSample.time - beatTime);
+      const timingScore = getTimingScore(delta);
+      const poseScore = bestSample.score;
+      const compositeScore = Math.round(poseScore * 0.55 + timingScore * 0.45);
+      if (
+        delta <= RHYTHM_PERFECT_WINDOW &&
+        poseScore >= RHYTHM_HIT_SCORE &&
+        compositeScore >= RHYTHM_COMPOSITE_PERFECT
+      ) {
+        return { result: 'perfect', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+      }
+      if (
+        delta <= RHYTHM_GOOD_WINDOW &&
+        poseScore >= RHYTHM_GOOD_SCORE &&
+        compositeScore >= RHYTHM_COMPOSITE_GOOD
+      ) {
+        return { result: 'good', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+      }
+      return { result: 'miss', score: bestSample.score, delta, timingScore, poseScore, compositeScore };
+    }
+
+    function evaluateRhythmProgress(currentTime) {
+      if (!state.beatTimes.length || typeof currentTime !== 'number') return;
+      while (state.beatCursor < state.beatTimes.length) {
+        const beatTime = state.beatTimes[state.beatCursor];
+        if (currentTime < beatTime + RHYTHM_EVAL_WINDOW) break;
+
+        const candidates = state.rhythmSamples.filter((sample) => Math.abs(sample.time - beatTime) <= RHYTHM_EVAL_WINDOW);
+        const bestSample = candidates.reduce((best, sample) => {
+          if (!best) return sample;
+          const bestDelta = Math.abs(best.time - beatTime);
+          const sampleDelta = Math.abs(sample.time - beatTime);
+          if (sampleDelta !== bestDelta) return sampleDelta < bestDelta ? sample : best;
+          return sample.score > best.score ? sample : best;
+        }, null);
+
+        const result = classifyBeatHit(bestSample, beatTime);
+        state.beatEvaluations.push({
+          beatIndex: state.beatCursor,
+          time: beatTime,
+          beatType: getBeatType(state.beatCursor),
+          ...result,
+        });
+        const summary = summarizeBeatEvaluations(state.beatEvaluations);
+        state.beatHitRate = summary?.rate ?? null;
+        state.beatCompositeScore = summary?.compositeAverage ?? null;
+        state.beatCursor += 1;
+      }
+    }
+
+    async function analyzeAudioBeats(source) {
+      if (!source) {
+        resetBeatAnalysis('无背景音');
+        return;
+      }
+
+      const requestId = state.audioBeatAnalysisId + 1;
+      state.audioBeatAnalysisId = requestId;
+      state.beatStatus = '分析拍点中';
+      resetRhythmSummary();
+
+      try {
+        if (!state.audioBeatContext) {
+          state.audioBeatContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const context = state.audioBeatContext;
+        if (context.state === 'suspended') {
+          await context.resume().catch(() => {});
+        }
+
+        const response = await fetch(source);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await context.decodeAudioData(arrayBuffer.slice(0));
+        if (requestId !== state.audioBeatAnalysisId) return;
+
+        const channelData = [];
+        for (let i = 0; i < audioBuffer.numberOfChannels; i += 1) {
+          channelData.push(audioBuffer.getChannelData(i));
+        }
+        const mono = new Float32Array(audioBuffer.length);
+        for (let i = 0; i < audioBuffer.length; i += 1) {
+          let sum = 0;
+          for (let c = 0; c < channelData.length; c += 1) sum += channelData[c][i] || 0;
+          mono[i] = sum / Math.max(1, channelData.length);
+        }
+
+        const windowSize = 1024;
+        const hopSize = 512;
+        const energies = [];
+        for (let offset = 0; offset + windowSize < mono.length; offset += hopSize) {
+          let sum = 0;
+          for (let i = 0; i < windowSize; i += 1) {
+            const value = mono[offset + i];
+            sum += value * value;
+          }
+          energies.push({
+            time: offset / audioBuffer.sampleRate,
+            value: Math.sqrt(sum / windowSize),
+          });
+        }
+
+        if (!energies.length) throw new Error('音频能量为空');
+        const averageEnergy = energies.reduce((sum, item) => sum + item.value, 0) / energies.length;
+        const threshold = averageEnergy * 1.35;
+        const beats = [];
+        let lastBeatTime = -Infinity;
+        for (let i = 1; i < energies.length - 1; i += 1) {
+          const prev = energies[i - 1];
+          const current = energies[i];
+          const next = energies[i + 1];
+          if (
+            current.value > threshold &&
+            current.value >= prev.value &&
+            current.value > next.value &&
+            current.time - lastBeatTime >= 0.28
+          ) {
+            beats.push(current.time);
+            lastBeatTime = current.time;
+          }
+        }
+
+        const limitedBeats = beats.filter((time) => time <= audioBuffer.duration + 0.01);
+        if (limitedBeats.length < 2) {
+          resetBeatAnalysis('拍点不足');
+          return;
+        }
+
+        const intervals = [];
+        for (let i = 1; i < limitedBeats.length; i += 1) {
+          intervals.push(limitedBeats[i] - limitedBeats[i - 1]);
+        }
+        const sortedIntervals = intervals.slice().sort((a, b) => a - b);
+        const medianInterval = sortedIntervals[Math.floor(sortedIntervals.length / 2)] || 0;
+        const bpm = medianInterval ? Math.round(60 / medianInterval) : null;
+
+        state.beatTimes = limitedBeats;
+        state.beatSummary = {
+          bpm,
+          total: limitedBeats.length,
+          accentEvery: 4,
+        };
+        state.beatStatus = bpm ? `已识别 ${limitedBeats.length} 个拍点 · ${bpm} BPM` : `已识别 ${limitedBeats.length} 个拍点`;
+        resetRhythmSummary();
+      } catch (error) {
+        if (requestId !== state.audioBeatAnalysisId) return;
+        console.error('[beat analysis failed]', error);
+        resetBeatAnalysis(`拍点分析失败: ${error.message}`);
+      }
+    }
+
     function getFinalConclusion(score) {
       if (typeof score !== 'number') return '待结算';
       if (score >= 85) return FINAL_CONCLUSION_LABELS.excellent;
@@ -1372,6 +1796,7 @@
       state.finalScores = null;
       state.playbackScoreSamples = [];
       state.lastSampledFrameIndex = -1;
+      resetRhythmSummary();
     }
 
     function recordPlaybackSample(armScores) {
@@ -1387,6 +1812,9 @@
     }
 
     function finalizePlaybackSummary() {
+      evaluateRhythmProgress(Number.POSITIVE_INFINITY);
+      const rhythmSummary = summarizeBeatEvaluations(state.beatEvaluations);
+      state.beatHitRate = rhythmSummary?.rate ?? null;
       state.finalScores = summarizePlaybackScores(state.playbackScoreSamples);
     }
 
@@ -1849,6 +2277,12 @@
       const rightArmText = formatScoreValue(state.finalScores?.rightAverage ?? state.armScores?.right?.score);
       const finalAverageText = formatScoreValue(state.finalScores?.average);
       const finalConclusionText = state.finalScores?.conclusion || '待结算';
+      const rhythmSummary = summarizeBeatEvaluations(state.beatEvaluations);
+      const beatHitRateText = formatPercent(state.beatHitRate);
+      const beatCompositeText = formatPercent(state.beatCompositeScore);
+      const beatStatsText = rhythmSummary
+        ? `${rhythmSummary.hits} / ${rhythmSummary.total}`
+        : '0 / 0';
       const userCenter = state.lastPose ? getPoseCenter(state.lastPose) : null;
       const userPositionText = userCenter
         ? `用户位置: x=${(userCenter.x * 100).toFixed(1)}%, y=${(userCenter.y * 100).toFixed(1)}%`
@@ -1865,6 +2299,11 @@
       elements.finalAverageScore.textContent = finalAverageText;
       elements.finalConclusion.textContent = finalConclusionText;
       elements.matchLabel.textContent = state.matchLabel;
+      elements.beatStatus.textContent = state.beatStatus;
+      elements.beatPrompt.textContent = state.beatPrompt;
+      elements.beatHitRate.textContent = beatHitRateText;
+      elements.beatCompositeScore.textContent = beatCompositeText;
+      elements.beatHitStats.textContent = beatStatsText;
       elements.speedLabel.textContent = `${state.playSpeed.toFixed(2)}x`;
       elements.heroCamera.textContent = state.cameraRunning ? '已启动' : '未启动';
       elements.heroJson.textContent = state.jsonName || '未加载';
@@ -1880,6 +2319,9 @@
         `匹配状态: ${state.matchDisabledReason ? `降级(${state.matchDisabledReason})` : '正常'}`,
         `左臂: ${leftArmText} / 右臂: ${rightArmText}`,
         `比对: ${state.matchLabel} (${scoreText})`,
+        `节拍: ${state.beatStatus}`,
+        `拍点命中: ${beatHitRateText} (${beatStatsText})`,
+        `拍点击分: ${beatCompositeText} / 时序 ${formatPercent(rhythmSummary?.timingAverage)} / 动作 ${formatPercent(rhythmSummary?.poseAverage)}`,
         `结算: ${finalAverageText} / ${finalConclusionText}`,
         `帧: ${totalFrames ? `${state.currentFrame + 1}/${totalFrames}` : '--'}`,
       ].join('\n');
@@ -1906,6 +2348,41 @@
         elements.matchRing.setAttribute('stroke', ringColor);
         elements.scoreDialValue.textContent = hasScore ? String(state.matchScore) : '--';
       }
+
+      if (elements.beatBadge) {
+        const hot = Boolean(state.beatWindow?.isHot);
+        const nextBeatLabel = state.beatWindow ? getBeatTypeLabel(state.beatWindow.beatType) : '';
+        const summaryText = typeof rhythmSummary?.compositeAverage === 'number'
+          ? `${nextBeatLabel || '节拍'}评分 ${rhythmSummary.compositeAverage}%`
+          : '拍点击分待统计';
+        elements.beatBadge.classList.toggle('hot', hot);
+        elements.beatBadge.innerHTML = state.beatWindow
+          ? `<strong>${state.beatPrompt}</strong><span>${summaryText}</span>`
+          : state.beatStatus;
+      }
+
+      if (elements.stageHud) {
+        elements.stageHud.classList.toggle('beat-hot', Boolean(state.beatWindow?.isHot));
+      }
+
+      if (elements.beatStrip) {
+        const dots = Array.from(elements.beatStrip.children);
+        const recentResults = state.beatEvaluations.slice(-dots.length);
+        dots.forEach((dot, index) => {
+          const globalIndex = state.beatCursor - recentResults.length + index;
+          const item = recentResults[index];
+          dot.className = 'beat-dot';
+          if (item) {
+            if (item.beatType === 'downbeat') dot.classList.add('downbeat');
+            if (item.result === 'perfect' || item.result === 'good') dot.classList.add('hit');
+            if (item.result === 'miss') dot.classList.add('miss');
+          }
+          if (state.beatWindow && globalIndex === state.beatWindow.nextIndex) {
+            if (state.beatWindow.beatType === 'downbeat') dot.classList.add('downbeat');
+            dot.classList.add('active');
+          }
+        });
+      }
     }
 
     function render() {
@@ -1916,6 +2393,9 @@
       const userPose = Array.isArray(state.lastPose) ? state.lastPose : null;
       const frame = getCurrentTargetFrame();
       const alignedFrame = frame ? safeGetAlignedFrameData(frame, state.lastPose) : null;
+      const playbackTime = getPlaybackClockTime();
+      updateRhythmPrompt(playbackTime);
+      evaluateRhythmProgress(playbackTime);
 
       const mirror = state.mirrorEnabled;
       const maybeMirrorPose = (pose) => (mirror ? mirrorLandmarksX(pose) : pose);
@@ -1969,11 +2449,11 @@
           ? (alignedFrame?.alignedToUser ? '跟上了！动作贴合中' : '播放中')
           : '标准动作播放中';
         stageSub = state.personVisible
-          ? `${buildArmScoreSummary(state.armScores)} · 总分 ${formatScoreValue(state.matchScore)}`
-          : '可随时入镜跟练';
+          ? `${buildArmScoreSummary(state.armScores)} · ${state.beatPrompt}`
+          : `可随时入镜跟练 · ${state.beatPrompt}`;
       } else if (state.poseData && state.finalScores) {
         stageMain = '本轮评分已结算';
-        stageSub = `过程均分 ${formatScoreValue(state.finalScores.average)} · ${state.finalScores.conclusion}`;
+        stageSub = `过程均分 ${formatScoreValue(state.finalScores.average)} · 拍点命中 ${formatPercent(state.beatHitRate)} · 拍点击分 ${formatPercent(state.beatCompositeScore)}`;
       } else if (state.poseData && !state.cameraRunning) {
         stageMain = '动作已就绪';
         stageSub = '点击 ▶ 开始播放，或再打开摄像头';
@@ -2037,6 +2517,9 @@
       state.armScores = armScores;
       state.matchScore = armScores?.total ?? null;
       recordPlaybackSample(armScores);
+      if (typeof frame?.time === 'number' && typeof armScores?.total === 'number') {
+        collectRhythmSample(frame.time, armScores.total);
+      }
       state.matchDisabledReason = null;
       state.matchLabel = typeof state.matchScore === 'number'
         ? scoreLabelFromValue(state.matchScore)
@@ -2293,6 +2776,7 @@
       state.isPlaying = false;
       elements.playbackState.textContent = '暂停';
       setStatus('标准动作 JSON 已加载');
+      resetRhythmSummary();
     }
 
     // 推断同名 mp4 做背景音：wudao/angel_pose.json → wudao/angel.mp4
@@ -2334,13 +2818,18 @@
         audio.removeAttribute('src');
         audio.load();
         state.audioSource = null;
+        resetBeatAnalysis('无背景音');
         return;
       }
-      if (state.audioSource === source) return; // 已是同一首
+      if (state.audioSource === source) {
+        resetRhythmSummary();
+        return; // 已是同一首
+      }
       state.audioSource = source;
       audio.src = source;
       applyAudioPlaybackSettings();
       audio.load();
+      analyzeAudioBeats(source);
     }
 
     async function loadBundledJson(path, label) {
