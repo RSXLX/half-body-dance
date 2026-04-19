@@ -621,6 +621,24 @@
         linear-gradient(180deg, #071019 0%, #03050b 100%);
     }
 
+    .stage-media {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .stage-media.is-rotated {
+      inset: auto;
+      top: 50%;
+      left: 50%;
+      width: 100vh;
+      width: 100svh;
+      width: 100dvh;
+      height: 100vw;
+      transform: translate(-50%, -50%) rotate(90deg);
+      transform-origin: center;
+    }
+
     video,
     canvas {
       position: absolute;
@@ -637,6 +655,11 @@
 
     .mirrored {
       transform: scaleX(-1);
+      transform-origin: center;
+    }
+
+    .mirrored-rotated {
+      transform: scaleY(-1);
       transform-origin: center;
     }
 
@@ -1596,8 +1619,10 @@
       <section class="view practice-view" data-view="practice">
         <div class="practice-stage-shell">
           <div class="stage">
-            <video id="cameraVideo" playsinline autoplay muted></video>
-            <canvas id="overlayCanvas" width="720" height="1280"></canvas>
+            <div id="stageMedia" class="stage-media">
+              <video id="cameraVideo" playsinline autoplay muted></video>
+              <canvas id="overlayCanvas" width="720" height="1280"></canvas>
+            </div>
             <audio id="bgmAudio" preload="metadata"></audio>
 
             <div class="practice-topbar">
@@ -1938,6 +1963,7 @@
       lastSampledFrameIndex: -1,
       matchLabel: '待机中',
       cameraRunning: false,
+      cameraRotateCompat: false,
       stream: null,
       pose: null,
       hands: null,
@@ -2000,6 +2026,7 @@
       setupView: document.querySelector('[data-view="setup"]'),
       practiceView: document.querySelector('[data-view="practice"]'),
       resultView: document.querySelector('[data-view="result"]'),
+      stageMedia: document.querySelector('#stageMedia'),
       video: document.querySelector('#cameraVideo'),
       canvas: document.querySelector('#overlayCanvas'),
       ctx: document.querySelector('#overlayCanvas').getContext('2d'),
@@ -2398,6 +2425,17 @@
       return result;
     }
 
+    function mirrorLandmarksY(points) {
+      if (!Array.isArray(points)) return points;
+      const flipped = points.map((p) => (p ? { ...p, y: 1 - p.y } : p));
+      const result = flipped.slice();
+      POSE_MIRROR_PAIRS.forEach(([a, b]) => {
+        result[a] = flipped[b];
+        result[b] = flipped[a];
+      });
+      return result;
+    }
+
     function mirrorHandsX(hands) {
       if (!Array.isArray(hands)) return hands;
       return hands.map((hand) => ({
@@ -2410,9 +2448,22 @@
       }));
     }
 
+    function mirrorHandsY(hands) {
+      if (!Array.isArray(hands)) return hands;
+      return hands.map((hand) => ({
+        ...hand,
+        handedness:
+          hand.handedness === 'Left' ? 'Right'
+          : hand.handedness === 'Right' ? 'Left'
+          : hand.handedness,
+        landmarks: (hand.landmarks || []).map((p) => (p ? { ...p, y: 1 - p.y } : p)),
+      }));
+    }
+
     function applyMirrorState() {
       // video 继续靠 CSS 翻转画面；canvas 由 JS 绘制时按 mirror 翻转数据，保持原坐标系不变
-      elements.video.classList.toggle('mirrored', state.mirrorEnabled);
+      elements.video.classList.toggle('mirrored', state.mirrorEnabled && !state.cameraRotateCompat);
+      elements.video.classList.toggle('mirrored-rotated', state.mirrorEnabled && state.cameraRotateCompat);
       elements.canvas.classList.remove('mirrored');
       elements.toggleMirror.textContent = `镜像: ${state.mirrorEnabled ? '开' : '关'}`;
     }
@@ -3153,14 +3204,37 @@
     }
 
     function resizeCanvas() {
-      const rect = elements.canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      const width = Math.max(1, Math.round(rect.width * dpr));
-      const height = Math.max(1, Math.round(rect.height * dpr));
+      const media = elements.stageMedia || elements.canvas;
+      const width = Math.max(1, Math.round(((media.offsetWidth || media.clientWidth || 0) || 1) * dpr));
+      const height = Math.max(1, Math.round(((media.offsetHeight || media.clientHeight || 0) || 1) * dpr));
       if (elements.canvas.width !== width || elements.canvas.height !== height) {
         elements.canvas.width = width;
         elements.canvas.height = height;
       }
+    }
+
+    function isPortraitViewport() {
+      return window.innerHeight > window.innerWidth;
+    }
+
+    function shouldRotateCompactUserCamera() {
+      if (!state.cameraRunning || !state.stream || !isPortraitViewport()) return false;
+      const video = elements.video;
+      const track = state.stream.getVideoTracks?.()[0];
+      const settings = track?.getSettings?.() || {};
+      const width = video?.videoWidth || settings.width || 0;
+      const height = video?.videoHeight || settings.height || 0;
+      return width > height && height > 0;
+    }
+
+    function updateCameraPresentation() {
+      state.cameraRotateCompat = shouldRotateCompactUserCamera();
+      if (elements.stageMedia) {
+        elements.stageMedia.classList.toggle('is-rotated', state.cameraRotateCompat);
+      }
+      applyMirrorState();
+      resizeCanvas();
     }
 
     function getStageContentAspectRatio() {
@@ -3959,8 +4033,14 @@
       evaluateRhythmProgress(playbackTime);
 
       const mirror = state.mirrorEnabled;
-      const maybeMirrorPose = (pose) => (mirror ? mirrorLandmarksX(pose) : pose);
-      const maybeMirrorHands = (hands) => (mirror ? mirrorHandsX(hands) : hands);
+      const maybeMirrorPose = (pose) => {
+        if (!mirror) return pose;
+        return state.cameraRotateCompat ? mirrorLandmarksY(pose) : mirrorLandmarksX(pose);
+      };
+      const maybeMirrorHands = (hands) => {
+        if (!mirror) return hands;
+        return state.cameraRotateCompat ? mirrorHandsY(hands) : mirrorHandsX(hands);
+      };
 
       // 先画标准动作（底层），再画用户（叠在上方），方便观察重合度
       if (frame) {
@@ -4220,18 +4300,32 @@
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
-            facingMode: 'user',
-            // 紧凑视口按舞台比例取流，避免 cover 在手机窗口里额外裁切放大。
+            facingMode: { ideal: 'user' },
+            // 优先取竖屏前置流；如果浏览器仍返回横向流，再由显示层做旋转兼容。
             width: { ideal: preferredWidth },
             height: { ideal: preferredHeight },
             aspectRatio: { ideal: preferredAspectRatio },
           },
         });
 
+        const videoTrack = stream.getVideoTracks?.()[0];
+        if (videoTrack?.applyConstraints) {
+          try {
+            await videoTrack.applyConstraints({
+              width: { ideal: preferredWidth },
+              height: { ideal: preferredHeight },
+              aspectRatio: { ideal: preferredAspectRatio },
+            });
+          } catch (_) {
+            // 某些移动端会拒绝二次约束，显示层兼容兜底。
+          }
+        }
+
         elements.video.srcObject = stream;
         await elements.video.play();
         state.stream = stream;
         state.cameraRunning = true;
+        updateCameraPresentation();
         setStatus('摄像头已连接，开始识别人像');
         if (!state.loopRunning) {
           state.loopRunning = true;
@@ -4255,6 +4349,11 @@
       elements.video.srcObject = null;
       state.stream = null;
       state.cameraRunning = false;
+      state.cameraRotateCompat = false;
+      if (elements.stageMedia) {
+        elements.stageMedia.classList.remove('is-rotated');
+      }
+      applyMirrorState();
       state.loopRunning = false;
       state.isPlaying = false;
       state.lastPose = null;
@@ -4706,7 +4805,13 @@
       });
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', () => {
+      updateCameraPresentation();
+    });
+    if (elements.video) {
+      elements.video.addEventListener('loadedmetadata', updateCameraPresentation);
+      elements.video.addEventListener('resize', updateCameraPresentation);
+    }
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && state.isPlaying) {
         void requestScreenWakeLock();
