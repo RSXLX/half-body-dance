@@ -448,6 +448,37 @@
       gap: 10px;
     }
 
+    .sticker-slider-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .sticker-slider-grid strong {
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+
+    .sticker-source-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .sticker-text-input {
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+    }
+
+    .sticker-action-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+      gap: 10px;
+    }
+
     .fine-print {
       color: var(--muted);
       font-size: 0.82rem;
@@ -1534,6 +1565,36 @@
           <article class="app-card">
             <div class="speed-panel">
               <h2 class="panel-title"><span class="step-badge">3</span>练习设置</h2>
+              <input id="stickerFileInput" class="file-input" type="file" accept="image/png,image/webp,image/jpeg,image/*" />
+              <div class="video-extract-card">
+                <div class="video-extract-copy">
+                  <strong>上传头部贴图或输入 emoji</strong>
+                  <span>支持透明背景 PNG / WebP，也支持直接输入一个 emoji 或短文本。贴图会按识别到的人头大小自动缩放，并跟随头部旋转。</span>
+                </div>
+                <div class="sticker-source-actions">
+                  <div class="sticker-action-row">
+                    <input id="stickerEmojiInput" class="sticker-text-input" type="text" maxlength="12" placeholder="输入 emoji，例如 😎 或 👑" />
+                    <button id="applyEmojiSticker" class="secondary" type="button">✨ 使用 emoji</button>
+                  </div>
+                  <div class="video-extract-actions">
+                    <button id="stickerFileTrigger" class="secondary" type="button">🖼️ 上传头部贴图</button>
+                    <button id="clearSticker" class="ghost" type="button" disabled>移除贴图</button>
+                  </div>
+                </div>
+                <span id="stickerStatus" class="fine-print">未加载贴图，将只显示骨架叠层。</span>
+              </div>
+              <div class="sticker-slider-grid">
+                <label>
+                  贴图大小微调
+                  <input id="stickerScale" type="range" min="0.7" max="1.6" step="0.05" value="1" />
+                  <strong id="stickerScaleLabel">100%</strong>
+                </label>
+                <label>
+                  上下位置微调
+                  <input id="stickerOffsetY" type="range" min="-0.35" max="0.2" step="0.01" value="-0.08" />
+                  <strong id="stickerOffsetYLabel">上移 8%</strong>
+                </label>
+              </div>
               <div class="speed-header">
                 <div class="speed-copy">
                   <span class="dock-kicker">播放速度</span>
@@ -1619,6 +1680,7 @@
                 <div class="practice-menu-anchor">
                   <button id="practiceMenuToggle" class="nav-icon ghost" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="更多操作">⋯</button>
                   <div id="practiceMenu" class="practice-menu" role="menu">
+                    <button id="toggleHeadSticker" class="menu-action" type="button" disabled>头部贴图未加载</button>
                     <button id="openResult" class="menu-action" type="button">查看结果</button>
                   </div>
                 </div>
@@ -1995,6 +2057,16 @@
       uploadedVideoObjectUrl: null,
       generatedJsonBlobUrl: null,
       generatedJsonName: '',
+      stickerEnabled: true,
+      stickerObjectUrl: null,
+      stickerName: '',
+      stickerSourceKind: '',
+      stickerEmoji: '',
+      stickerImage: null,
+      stickerReady: false,
+      stickerScale: 1,
+      stickerOffsetY: -0.08,
+      stickerHeadTransform: null,
     };
 
     const elements = {
@@ -2018,6 +2090,16 @@
       videoExtractHint: document.querySelector('#videoExtractHint'),
       videoExtractStatus: document.querySelector('#videoExtractStatus'),
       downloadGeneratedJson: document.querySelector('#downloadGeneratedJson'),
+      stickerFileInput: document.querySelector('#stickerFileInput'),
+      stickerFileTrigger: document.querySelector('#stickerFileTrigger'),
+      stickerEmojiInput: document.querySelector('#stickerEmojiInput'),
+      applyEmojiSticker: document.querySelector('#applyEmojiSticker'),
+      clearSticker: document.querySelector('#clearSticker'),
+      stickerStatus: document.querySelector('#stickerStatus'),
+      stickerScaleInput: document.querySelector('#stickerScale'),
+      stickerScaleLabel: document.querySelector('#stickerScaleLabel'),
+      stickerOffsetYInput: document.querySelector('#stickerOffsetY'),
+      stickerOffsetYLabel: document.querySelector('#stickerOffsetYLabel'),
       enterPractice: document.querySelector('#enterPractice'),
       setupReadyTitle: document.querySelector('#setupReadyTitle'),
       setupReadyCopy: document.querySelector('#setupReadyCopy'),
@@ -2067,6 +2149,7 @@
       practiceDebugToggle: document.querySelector('#practiceDebugToggle'),
       practiceMenuToggle: document.querySelector('#practiceMenuToggle'),
       practiceMenu: document.querySelector('#practiceMenu'),
+      toggleHeadSticker: document.querySelector('#toggleHeadSticker'),
       openResult: document.querySelector('#openResult'),
       stageBack: document.querySelector('#stageBack'),
       toggleMirror: document.querySelector('#toggleMirror'),
@@ -2130,6 +2213,111 @@
         elements.downloadGeneratedJson.hidden = true;
         elements.downloadGeneratedJson.disabled = true;
         elements.downloadGeneratedJson.textContent = '下载生成 JSON';
+      }
+    }
+
+    function hasActiveHeadSticker() {
+      return Boolean(state.stickerEnabled && state.stickerReady && state.stickerImage);
+    }
+
+    function formatStickerOffsetLabel(value) {
+      const percent = Math.round(Math.abs(value) * 100);
+      if (!percent) return '居中';
+      return value < 0 ? `上移 ${percent}%` : `下移 ${percent}%`;
+    }
+
+    function clearHeadSticker({ preserveInput = false } = {}) {
+      revokeObjectUrl(state.stickerObjectUrl);
+      state.stickerObjectUrl = null;
+      state.stickerName = '';
+      state.stickerSourceKind = '';
+      state.stickerEmoji = '';
+      state.stickerImage = null;
+      state.stickerReady = false;
+      state.stickerEnabled = true;
+      state.stickerHeadTransform = null;
+      if (!preserveInput && elements.stickerFileInput) {
+        elements.stickerFileInput.value = '';
+      }
+      if (!preserveInput && elements.stickerEmojiInput) {
+        elements.stickerEmojiInput.value = '';
+      }
+    }
+
+    function createEmojiStickerCanvas(text) {
+      const value = String(text || '').trim();
+      if (!value) return null;
+
+      const canvas = document.createElement('canvas');
+      const size = 1024;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      const charCount = Array.from(value).length;
+      const fontSize = charCount <= 2 ? 760 : charCount <= 4 ? 620 : 500;
+      ctx.clearRect(0, 0, size, size);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `700 ${fontSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "PingFang SC", sans-serif`;
+      ctx.fillText(value, size / 2, size / 2 + fontSize * 0.04);
+
+      return canvas;
+    }
+
+    function applyEmojiStickerText(rawText) {
+      const value = String(rawText || '').trim();
+      if (!value) {
+        setStatus('请先输入一个 emoji 或短文本');
+        return;
+      }
+
+      const canvas = createEmojiStickerCanvas(value);
+      if (!canvas) {
+        setStatus('emoji 贴图生成失败，请更换内容后重试');
+        return;
+      }
+
+      clearHeadSticker({ preserveInput: true });
+      state.stickerName = value;
+      state.stickerSourceKind = 'emoji';
+      state.stickerEmoji = value;
+      state.stickerImage = canvas;
+      state.stickerReady = true;
+      state.stickerEnabled = true;
+      setStatus(`emoji 贴图已载入: ${value}`);
+    }
+
+    async function loadHeadStickerFile(file) {
+      if (!file) return;
+
+      const nextUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.decoding = 'async';
+
+      try {
+        await new Promise((resolve, reject) => {
+          image.onload = resolve;
+          image.onerror = () => reject(new Error('贴图文件无法读取，请更换图片后重试。'));
+          image.src = nextUrl;
+        });
+
+        clearHeadSticker({ preserveInput: true });
+        state.stickerObjectUrl = nextUrl;
+        state.stickerName = file.name;
+        state.stickerSourceKind = 'image';
+        state.stickerImage = image;
+        state.stickerReady = true;
+        state.stickerEnabled = true;
+        setStatus(`头部贴图已载入: ${file.name}`);
+      } catch (error) {
+        revokeObjectUrl(nextUrl);
+        clearHeadSticker({ preserveInput: true });
+        if (elements.stickerFileInput) {
+          elements.stickerFileInput.value = '';
+        }
+        setStatus(`头部贴图加载失败: ${error.message}`);
       }
     }
 
@@ -2424,6 +2612,14 @@
       elements.video.classList.toggle('mirrored', state.mirrorEnabled);
       elements.canvas.classList.remove('mirrored');
       elements.toggleMirror.textContent = `镜像: ${state.mirrorEnabled ? '开' : '关'}`;
+    }
+
+    function midpoint(pointA, pointB) {
+      if (!pointA || !pointB) return null;
+      return {
+        x: (pointA.x + pointB.x) / 2,
+        y: (pointA.y + pointB.y) / 2,
+      };
     }
 
     function distance(p1, p2) {
@@ -3416,6 +3612,140 @@
       ctx.restore();
     }
 
+    function normalizeAngleDelta(angle) {
+      let normalized = angle;
+      while (normalized > Math.PI) normalized -= Math.PI * 2;
+      while (normalized < -Math.PI) normalized += Math.PI * 2;
+      return normalized;
+    }
+
+    function smoothHeadStickerTransform(nextTransform) {
+      if (!nextTransform) {
+        state.stickerHeadTransform = null;
+        return null;
+      }
+
+      const previous = state.stickerHeadTransform;
+      if (!previous) {
+        state.stickerHeadTransform = nextTransform;
+        return nextTransform;
+      }
+
+      const blend = 0.38;
+      const smoothed = {
+        center: {
+          x: previous.center.x + (nextTransform.center.x - previous.center.x) * blend,
+          y: previous.center.y + (nextTransform.center.y - previous.center.y) * blend,
+        },
+        width: previous.width + (nextTransform.width - previous.width) * blend,
+        height: previous.height + (nextTransform.height - previous.height) * blend,
+        rotation: previous.rotation + normalizeAngleDelta(nextTransform.rotation - previous.rotation) * blend,
+      };
+      state.stickerHeadTransform = smoothed;
+      return smoothed;
+    }
+
+    function getHeadStickerTransform(points, image) {
+      if (!Array.isArray(points) || points.length < 13 || !image) return null;
+
+      const rect = getStageContentRect();
+      const mapVisiblePoint = (index, minVisibility = 0.2) => {
+        const point = points[index];
+        if (!point || getVisibility(point) < minVisibility) return null;
+        return mapPointToStage(point, rect);
+      };
+
+      const nose = mapVisiblePoint(0, 0.2);
+      const leftShoulder = mapVisiblePoint(11, 0.18);
+      const rightShoulder = mapVisiblePoint(12, 0.18);
+      if (!nose || !leftShoulder || !rightShoulder) return null;
+
+      const leftEar = mapVisiblePoint(7, 0.12);
+      const rightEar = mapVisiblePoint(8, 0.12);
+      const leftEye = mapVisiblePoint(2, 0.12);
+      const rightEye = mapVisiblePoint(5, 0.12);
+
+      const shoulderMid = midpoint(leftShoulder, rightShoulder);
+      const earMid = midpoint(leftEar, rightEar);
+      const eyeMid = midpoint(leftEye, rightEye);
+
+      const shoulderWidth = distance(leftShoulder, rightShoulder);
+      const earDistance = leftEar && rightEar ? distance(leftEar, rightEar) : 0;
+      const noseToShoulder = distance(nose, shoulderMid);
+      const headAxis = normalizeVector({
+        x: nose.x - shoulderMid.x,
+        y: nose.y - shoulderMid.y,
+      }) || { x: 0, y: -1 };
+
+      const baseWidth = Math.max(earDistance * 1.45, shoulderWidth * 0.64, 72) * state.stickerScale;
+      const baseHeight = Math.max(noseToShoulder * 1.55, baseWidth * 1.18, 88) * state.stickerScale;
+      const imageAspect = Math.max(image.naturalWidth || image.width || 1, 1) / Math.max(image.naturalHeight || image.height || 1, 1);
+
+      let drawWidth = baseWidth;
+      let drawHeight = drawWidth / imageAspect;
+      if (drawHeight < baseHeight) {
+        drawHeight = baseHeight;
+        drawWidth = drawHeight * imageAspect;
+      }
+
+      const anchor = eyeMid || earMid || nose;
+      const autoLift = baseHeight * 0.16;
+      const manualLift = baseHeight * state.stickerOffsetY;
+      const center = {
+        x: anchor.x + headAxis.x * (autoLift + manualLift),
+        y: anchor.y + headAxis.y * (autoLift + manualLift),
+      };
+
+      let rotation = Math.atan2(rightShoulder.y - leftShoulder.y, rightShoulder.x - leftShoulder.x);
+      if (leftEar && rightEar) {
+        rotation = Math.atan2(rightEar.y - leftEar.y, rightEar.x - leftEar.x);
+      } else if (leftEye && rightEye) {
+        rotation = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
+      }
+
+      // 左右耳/眼连线只能确定倾斜角，无法区分正立还是倒立。
+      // 用“肩中点 -> 鼻子”的朝上方向做消歧，避免贴图被翻转 180 度。
+      const stickerUpVector = {
+        x: Math.sin(rotation),
+        y: -Math.cos(rotation),
+      };
+      const upAlignment = stickerUpVector.x * headAxis.x + stickerUpVector.y * headAxis.y;
+      if (upAlignment < 0) {
+        rotation += Math.PI;
+      }
+
+      return {
+        center,
+        width: drawWidth,
+        height: drawHeight,
+        rotation,
+      };
+    }
+
+    function drawHeadSticker(points) {
+      if (!hasActiveHeadSticker()) {
+        state.stickerHeadTransform = null;
+        return;
+      }
+
+      const nextTransform = getHeadStickerTransform(points, state.stickerImage);
+      const transform = smoothHeadStickerTransform(nextTransform);
+      if (!transform) return;
+
+      const { ctx } = elements;
+      ctx.save();
+      ctx.translate(transform.center.x, transform.center.y);
+      ctx.rotate(transform.rotation);
+      ctx.drawImage(
+        state.stickerImage,
+        -transform.width / 2,
+        -transform.height / 2,
+        transform.width,
+        transform.height
+      );
+      ctx.restore();
+    }
+
     function getPoseCenter(points) {
       if (!Array.isArray(points) || !points.length) return null;
       const indices = [11, 12, 23, 24];
@@ -3773,6 +4103,29 @@
       if (elements.videoExtractStatus && !state.videoExtracting && !state.poseData && state.extractionChecked && !state.serverExtractionAvailable) {
         elements.videoExtractStatus.textContent = '视频转 JSON 功能当前不可用。请使用 ./.venv/bin/python dev_server.py 或 npm start 启动。';
       }
+      if (elements.stickerStatus) {
+        elements.stickerStatus.textContent = state.stickerReady
+          ? `已加载${state.stickerSourceKind === 'emoji' ? ' emoji' : '贴图'}: ${state.stickerName}${state.stickerEnabled ? '，练习页会自动贴合头部。' : '，当前已关闭叠加。'}`
+          : '未加载贴图，将只显示骨架叠层。';
+      }
+      if (elements.clearSticker) {
+        elements.clearSticker.disabled = !state.stickerReady;
+      }
+      if (elements.applyEmojiSticker) {
+        elements.applyEmojiSticker.disabled = !String(elements.stickerEmojiInput?.value || '').trim();
+      }
+      if (elements.stickerScaleInput) {
+        elements.stickerScaleInput.value = String(state.stickerScale);
+      }
+      if (elements.stickerScaleLabel) {
+        elements.stickerScaleLabel.textContent = `${Math.round(state.stickerScale * 100)}%`;
+      }
+      if (elements.stickerOffsetYInput) {
+        elements.stickerOffsetYInput.value = String(state.stickerOffsetY);
+      }
+      if (elements.stickerOffsetYLabel) {
+        elements.stickerOffsetYLabel.textContent = formatStickerOffsetLabel(state.stickerOffsetY);
+      }
 
       if (elements.setupReadyTitle) {
         elements.setupReadyTitle.textContent = state.poseData
@@ -3811,6 +4164,12 @@
       if (elements.practiceReplay) elements.practiceReplay.disabled = !state.poseData;
       if (elements.practiceCameraAction) {
         elements.practiceCameraAction.textContent = state.cameraRunning ? '关闭摄像头' : '打开摄像头';
+      }
+      if (elements.toggleHeadSticker) {
+        elements.toggleHeadSticker.disabled = !state.stickerReady;
+        elements.toggleHeadSticker.textContent = !state.stickerReady
+          ? '头部贴图未加载'
+          : (state.stickerEnabled ? '关闭头部贴图' : '开启头部贴图');
       }
       if (elements.openResult) elements.openResult.disabled = !snapshot.canOpenResult;
       if (elements.practiceDock) {
@@ -3991,6 +4350,12 @@
           else if (state.matchScore >= 85) userPalette = BODY_PALETTES.userPerfect;
         }
         drawHumanBody(maybeMirrorPose(userPose), userPalette, CAPSULE_ONLY_BODY_DRAW);
+      }
+
+      if (userPose && hasActiveHeadSticker()) {
+        drawHeadSticker(maybeMirrorPose(userPose));
+      } else {
+        state.stickerHeadTransform = null;
       }
 
       if (state.lastHands.length) {
@@ -4444,6 +4809,7 @@
 
     function toggleMirror() {
       state.mirrorEnabled = !state.mirrorEnabled;
+      state.stickerHeadTransform = null;
       applyMirrorState();
     }
 
@@ -4473,6 +4839,53 @@
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
+      });
+    }
+    if (elements.stickerFileTrigger) {
+      elements.stickerFileTrigger.addEventListener('click', () => {
+        elements.stickerFileInput?.click();
+      });
+    }
+    if (elements.stickerEmojiInput) {
+      elements.stickerEmojiInput.addEventListener('input', () => {
+        if (elements.applyEmojiSticker) {
+          elements.applyEmojiSticker.disabled = !elements.stickerEmojiInput.value.trim();
+        }
+      });
+      elements.stickerEmojiInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applyEmojiStickerText(elements.stickerEmojiInput.value);
+        }
+      });
+    }
+    if (elements.applyEmojiSticker) {
+      elements.applyEmojiSticker.addEventListener('click', () => {
+        applyEmojiStickerText(elements.stickerEmojiInput?.value || '');
+      });
+    }
+    if (elements.stickerFileInput) {
+      elements.stickerFileInput.addEventListener('change', (event) => {
+        const file = event.target.files?.[0];
+        void loadHeadStickerFile(file);
+      });
+    }
+    if (elements.clearSticker) {
+      elements.clearSticker.addEventListener('click', () => {
+        clearHeadSticker();
+        setStatus('头部贴图已移除');
+      });
+    }
+    if (elements.stickerScaleInput) {
+      elements.stickerScaleInput.addEventListener('input', (event) => {
+        state.stickerScale = Number(event.target.value);
+        state.stickerHeadTransform = null;
+      });
+    }
+    if (elements.stickerOffsetYInput) {
+      elements.stickerOffsetYInput.addEventListener('input', (event) => {
+        state.stickerOffsetY = Number(event.target.value);
+        state.stickerHeadTransform = null;
       });
     }
 
@@ -4623,6 +5036,14 @@
         event.stopPropagation();
       });
     }
+    if (elements.toggleHeadSticker) {
+      elements.toggleHeadSticker.addEventListener('click', () => {
+        if (!state.stickerReady) return;
+        state.stickerEnabled = !state.stickerEnabled;
+        state.stickerHeadTransform = null;
+        setStatus(state.stickerEnabled ? '头部贴图已开启' : '头部贴图已关闭');
+      });
+    }
     [elements.debugToggle, elements.practiceDebugToggle].forEach((button) => {
       if (!button) return;
       button.addEventListener('click', () => {
@@ -4717,6 +5138,7 @@
       stopCamera();
       clearUploadedVideoAudio();
       clearGeneratedJsonDownload();
+      clearHeadSticker();
     });
 
     setSetupStatusExpanded(false);
