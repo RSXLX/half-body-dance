@@ -58,10 +58,6 @@
       background: #010205;
     }
 
-    body.immersive-lock {
-      overflow: hidden;
-    }
-
     button,
     input,
     textarea,
@@ -631,11 +627,12 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
     }
 
     video {
       background: #010205;
+      object-fit: contain;
+      object-position: center;
     }
 
     .mirrored {
@@ -1138,10 +1135,6 @@
       width: fit-content;
     }
 
-    .practice-view.is-immersive .stage {
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-    }
-
     .debug-panel {
       position: fixed;
       inset: 0;
@@ -1619,7 +1612,6 @@
                   <button id="practiceMenuToggle" class="nav-icon ghost" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="更多操作">⋯</button>
                   <div id="practiceMenu" class="practice-menu" role="menu">
                     <button id="openResult" class="menu-action" type="button">查看结果</button>
-                    <button id="toggleImmersive" class="menu-action" type="button">进入全屏练习</button>
                   </div>
                 </div>
               </div>
@@ -1647,7 +1639,6 @@
 
             <div class="stage-primary">
               <button id="stageBack" class="control-backup" type="button" aria-hidden="true" tabindex="-1" hidden>返回</button>
-              <button id="stageImmersive" class="nav-icon chip-icon ghost" type="button" aria-label="进入全屏">⛶</button>
             </div>
           </div>
         </div>
@@ -1981,7 +1972,6 @@
       beatCompositeScore: null,
       playbackCompleted: false,
       currentView: 'setup',
-      isImmersive: false,
       debugEnabled: urlParams.get('debug') === '1',
       setupStatusExpanded: false,
       practiceSheetExpanded: false,
@@ -2069,9 +2059,7 @@
       practiceMenuToggle: document.querySelector('#practiceMenuToggle'),
       practiceMenu: document.querySelector('#practiceMenu'),
       openResult: document.querySelector('#openResult'),
-      toggleImmersive: document.querySelector('#toggleImmersive'),
       stageBack: document.querySelector('#stageBack'),
-      stageImmersive: document.querySelector('#stageImmersive'),
       toggleMirror: document.querySelector('#toggleMirror'),
       openCamera: document.querySelector('#openCamera'),
       stopCamera: document.querySelector('#stopCamera'),
@@ -2105,10 +2093,6 @@
         elements.navStatus.textContent = text;
         elements.navStatus.title = text;
       }
-    }
-
-    function isCompactViewport() {
-      return window.innerWidth < 768;
     }
 
     function clamp(value, min, max) {
@@ -2355,42 +2339,11 @@
       }
     }
 
-    async function setImmersiveMode(nextValue) {
-      const shouldEnable = Boolean(nextValue);
-      if (state.isImmersive === shouldEnable) return;
-      state.isImmersive = shouldEnable;
-      document.body.classList.toggle('immersive-lock', shouldEnable);
-      if (elements.practiceView) {
-        elements.practiceView.classList.toggle('is-immersive', shouldEnable);
-      }
-
-      if (shouldEnable) {
-        const fullscreenTarget = elements.practiceView;
-        if (fullscreenTarget?.requestFullscreen && !document.fullscreenElement) {
-          try {
-            await fullscreenTarget.requestFullscreen();
-          } catch (_) {
-            // Fullscreen API 作为增强能力，失败时保留 CSS 沉浸态
-          }
-        }
-      } else if (document.fullscreenElement && document.exitFullscreen) {
-        try {
-          await document.exitFullscreen();
-        } catch (_) {
-          // 忽略退出失败，CSS 状态仍然可控
-        }
-      }
-      resizeCanvas();
-    }
-
     async function setView(nextView) {
       state.currentView = nextView;
       setPracticeMenuOpen(false);
       if (nextView !== 'practice') {
         setPracticeSheetExpanded(false);
-      }
-      if (nextView !== 'practice' && state.isImmersive) {
-        await setImmersiveMode(false);
       }
       if (nextView !== 'practice') {
         await releaseScreenWakeLock();
@@ -2403,9 +2356,6 @@
       if (!state.poseData) return;
       await setView('practice');
       setPracticeSheetExpanded(false);
-      if (isCompactViewport()) {
-        await setImmersiveMode(true);
-      }
       if (autoplay && !state.isPlaying) {
         togglePlayback();
       }
@@ -2425,9 +2375,6 @@
       }
       await setView('practice');
       setPracticeSheetExpanded(false);
-      if (isCompactViewport()) {
-        await setImmersiveMode(true);
-      }
       if (autoplay) {
         togglePlayback();
       }
@@ -3216,8 +3163,54 @@
       }
     }
 
+    function getStageContentAspectRatio() {
+      const video = elements.video;
+      if (video?.readyState >= 1 && video.videoWidth && video.videoHeight) {
+        return video.videoWidth / video.videoHeight;
+      }
+      const poseWidth = Number(state.poseData?.video_width) || 0;
+      const poseHeight = Number(state.poseData?.video_height) || 0;
+      if (poseWidth > 0 && poseHeight > 0) {
+        return poseWidth / poseHeight;
+      }
+      return 9 / 16;
+    }
+
+    function getStageContentRect() {
+      const { canvas } = elements;
+      const canvasWidth = canvas.width || 0;
+      const canvasHeight = canvas.height || 0;
+      if (!canvasWidth || !canvasHeight) {
+        return { x: 0, y: 0, width: canvasWidth, height: canvasHeight };
+      }
+
+      const aspectRatio = getStageContentAspectRatio();
+      const widthFromHeight = canvasHeight * aspectRatio;
+      let width = canvasWidth;
+      let height = canvasHeight;
+      if (widthFromHeight <= canvasWidth) {
+        width = widthFromHeight;
+      } else {
+        height = canvasWidth / aspectRatio;
+      }
+
+      return {
+        x: (canvasWidth - width) / 2,
+        y: (canvasHeight - height) / 2,
+        width,
+        height,
+      };
+    }
+
+    function mapPointToStage(point, rect) {
+      if (!point || !rect) return null;
+      return {
+        x: rect.x + point.x * rect.width,
+        y: rect.y + point.y * rect.height,
+      };
+    }
+
     function getPreferredCameraAspectRatio() {
-      if (!isCompactViewport()) return 9 / 16;
       const stageRect = elements.video?.getBoundingClientRect?.();
       const width = stageRect?.width || window.innerWidth || 720;
       const height = stageRect?.height || window.innerHeight || 1280;
@@ -3228,8 +3221,9 @@
     function drawPose(points, strokeStyle, fillStyle, lineWidth, dashed = false) {
       if (!Array.isArray(points) || !points.length) return;
       const { ctx, canvas } = elements;
-      const width = canvas.width;
-      const height = canvas.height;
+      const rect = getStageContentRect();
+      const width = rect.width || canvas.width;
+      const height = rect.height || canvas.height;
 
       ctx.save();
       ctx.strokeStyle = strokeStyle;
@@ -3243,28 +3237,33 @@
         const p1 = points[a];
         const p2 = points[b];
         if (!p1 || !p2 || getVisibility(p1) < 0.2 || getVisibility(p2) < 0.2) return;
+        const m1 = mapPointToStage(p1, rect);
+        const m2 = mapPointToStage(p2, rect);
         ctx.beginPath();
-        ctx.moveTo(p1.x * width, p1.y * height);
-        ctx.lineTo(p2.x * width, p2.y * height);
+        ctx.moveTo(m1.x, m1.y);
+        ctx.lineTo(m2.x, m2.y);
         ctx.stroke();
       });
 
       points.forEach((point) => {
         if (!point || getVisibility(point) < 0.2) return;
+        const mapped = mapPointToStage(point, rect);
         ctx.beginPath();
-        ctx.arc(point.x * width, point.y * height, Math.max(2, width * 0.004), 0, Math.PI * 2);
+        ctx.arc(mapped.x, mapped.y, Math.max(2, width * 0.004), 0, Math.PI * 2);
         ctx.fill();
       });
       ctx.restore();
     }
 
     // 在两点间绘制胶囊（两端圆头 + 中间矩形），用于四肢
-    function drawCapsule(ctx, p1, p2, radius, canvasW, canvasH) {
+    function drawCapsule(ctx, p1, p2, radius, rect) {
       if (!p1 || !p2) return;
-      const x1 = p1.x * canvasW;
-      const y1 = p1.y * canvasH;
-      const x2 = p2.x * canvasW;
-      const y2 = p2.y * canvasH;
+      const m1 = mapPointToStage(p1, rect);
+      const m2 = mapPointToStage(p2, rect);
+      const x1 = m1.x;
+      const y1 = m1.y;
+      const x2 = m2.x;
+      const y2 = m2.y;
       const dx = x2 - x1;
       const dy = y2 - y1;
       const len = Math.hypot(dx, dy);
@@ -3286,9 +3285,10 @@
     // 人体实体绘制：躯干多边形 + 头部椭圆 + 四肢胶囊，所有部位半透明
     function drawHumanBody(points, palette, options = {}) {
       if (!Array.isArray(points) || points.length < 29 || !palette) return;
-      const { ctx, canvas } = elements;
-      const W = canvas.width;
-      const H = canvas.height;
+      const { ctx } = elements;
+      const rect = getStageContentRect();
+      const W = rect.width;
+      const H = rect.height;
       const vis = (p) => p && getVisibility(p) >= 0.25;
       const drawOptions = { ...BODY_DRAW_DEFAULTS, ...options };
 
@@ -3325,8 +3325,9 @@
       if (drawOptions.showTorso && torsoPts.every(vis)) {
         ctx.beginPath();
         torsoPts.forEach((p, i) => {
-          const x = p.x * W;
-          const y = p.y * H;
+          const mapped = mapPointToStage(p, rect);
+          const x = mapped.x;
+          const y = mapped.y;
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
@@ -3342,13 +3343,14 @@
           y: (points[11].y + points[12].y) / 2,
         };
         // 用鼻子和肩中点连线的中点再下移少许，避免脖子太长
-        drawCapsule(ctx, shoulderMid, points[0], upperArmR * 0.85, W, H);
+        drawCapsule(ctx, shoulderMid, points[0], upperArmR * 0.85, rect);
       }
 
       // === 头部椭圆（按两耳估算朝向与尺寸）===
       if (drawOptions.showHead && vis(points[0])) {
-        const cx = points[0].x * W;
-        const cy = points[0].y * H;
+        const center = mapPointToStage(points[0], rect);
+        const cx = center.x;
+        const cy = center.y;
         let rx = headBaseR;
         let ry = headBaseR * 1.2;
         let rot = 0;
@@ -3381,7 +3383,7 @@
       if (drawOptions.showLimbs) {
         limbs.forEach(([a, b, r]) => {
           if (vis(points[a]) && vis(points[b])) {
-            drawCapsule(ctx, points[a], points[b], r, W, H);
+            drawCapsule(ctx, points[a], points[b], r, rect);
           }
         });
       }
@@ -3394,8 +3396,9 @@
       extremities.forEach(([idx, r]) => {
         const p = points[idx];
         if (!vis(p)) return;
+        const mapped = mapPointToStage(p, rect);
         ctx.beginPath();
-        ctx.arc(p.x * W, p.y * H, r, 0, Math.PI * 2);
+        ctx.arc(mapped.x, mapped.y, r, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -3424,8 +3427,9 @@
     function drawHands(hands, options = {}) {
       if (!Array.isArray(hands) || !hands.length) return;
       const { ctx, canvas } = elements;
-      const width = canvas.width;
-      const height = canvas.height;
+      const rect = getStageContentRect();
+      const width = rect.width || canvas.width;
+      const height = rect.height || canvas.height;
       const monochrome = options.monochrome || null;
 
       hands.forEach((hand) => {
@@ -3457,9 +3461,11 @@
             const p1 = points[a];
             const p2 = points[b];
             if (p1 && p2) {
+              const m1 = mapPointToStage(p1, rect);
+              const m2 = mapPointToStage(p2, rect);
               ctx.beginPath();
-              ctx.moveTo(p1.x * width, p1.y * height);
-              ctx.lineTo(p2.x * width, p2.y * height);
+              ctx.moveTo(m1.x, m1.y);
+              ctx.lineTo(m2.x, m2.y);
               ctx.stroke();
             }
           }
@@ -3479,9 +3485,11 @@
           const p1 = points[a];
           const p2 = points[b];
           if (p1 && p2) {
+            const m1 = mapPointToStage(p1, rect);
+            const m2 = mapPointToStage(p2, rect);
             ctx.beginPath();
-            ctx.moveTo(p1.x * width, p1.y * height);
-            ctx.lineTo(p2.x * width, p2.y * height);
+            ctx.moveTo(m1.x, m1.y);
+            ctx.lineTo(m2.x, m2.y);
             ctx.stroke();
           }
         });
@@ -3510,9 +3518,10 @@
 
           ctx.save();
           ctx.fillStyle = color.fill;
+          const mapped = mapPointToStage(point, rect);
           ctx.beginPath();
           const radius = index === 0 ? 6 : (index % 4 === 0 ? 5 : 4); // 指尖稍大
-          ctx.arc(point.x * width, point.y * height, radius, 0, Math.PI * 2);
+          ctx.arc(mapped.x, mapped.y, radius, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         });
@@ -3522,15 +3531,15 @@
           const label = hand.handedness.slice(0, 1).toUpperCase();
           const root = points[0];
           if (root) {
+            const mappedRoot = mapPointToStage(root, rect);
             ctx.save();
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = baseColor.stroke;
             ctx.lineWidth = 2;
             ctx.font = 'bold 16px "SF Pro Display", "PingFang SC", sans-serif';
             const text = `${label}手`;
-            const textWidth = ctx.measureText(text).width;
-            ctx.strokeText(text, root.x * width + 8, root.y * height - 12);
-            ctx.fillText(text, root.x * width + 8, root.y * height - 12);
+            ctx.strokeText(text, mappedRoot.x + 8, mappedRoot.y - 12);
+            ctx.fillText(text, mappedRoot.x + 8, mappedRoot.y - 12);
             ctx.restore();
           }
         }
@@ -3805,13 +3814,6 @@
         elements.practiceSheetToggle.setAttribute('aria-expanded', String(state.practiceSheetExpanded));
         const copy = elements.practiceSheetToggle.querySelector('.sheet-handle-copy');
         if (copy) copy.textContent = state.practiceSheetExpanded ? '收起练习详情' : '展开练习详情';
-      }
-
-      const immersiveText = state.isImmersive ? '退出全屏' : '进入全屏练习';
-      if (elements.toggleImmersive) elements.toggleImmersive.textContent = immersiveText;
-      if (elements.stageImmersive) {
-        elements.stageImmersive.textContent = state.isImmersive ? '⤡' : '⛶';
-        elements.stageImmersive.setAttribute('aria-label', immersiveText);
       }
 
       if (elements.matchRing && elements.scoreDialValue) {
@@ -4569,9 +4571,6 @@
         void (async () => {
           await setView('practice');
           setPracticeSheetExpanded(false);
-          if (isCompactViewport()) {
-            await setImmersiveMode(true);
-          }
         })();
       });
     }
@@ -4593,20 +4592,6 @@
         void setView('setup');
       });
     });
-    [elements.toggleImmersive, elements.stageImmersive].forEach((button) => {
-      if (!button) return;
-      button.addEventListener('click', () => {
-        setPracticeMenuOpen(false);
-        if (state.currentView !== 'practice') {
-          void (async () => {
-            await setView('practice');
-            await setImmersiveMode(!state.isImmersive);
-          })();
-          return;
-        }
-        void setImmersiveMode(!state.isImmersive);
-      });
-    });
     if (elements.openResult) {
       elements.openResult.addEventListener('click', () => {
         if (!(state.finalScores || state.playbackCompleted)) return;
@@ -4624,9 +4609,6 @@
         if (!state.poseData) return;
         void (async () => {
           await setView('practice');
-          if (isCompactViewport()) {
-            await setImmersiveMode(true);
-          }
         })();
       });
     }
@@ -4729,15 +4711,6 @@
       if (document.visibilityState === 'visible' && state.isPlaying) {
         void requestScreenWakeLock();
       }
-    });
-    document.addEventListener('fullscreenchange', () => {
-      const fullscreenActive = Boolean(document.fullscreenElement);
-      state.isImmersive = fullscreenActive;
-      document.body.classList.toggle('immersive-lock', fullscreenActive);
-      if (elements.practiceView) {
-        elements.practiceView.classList.toggle('is-immersive', fullscreenActive);
-      }
-      resizeCanvas();
     });
     window.addEventListener('beforeunload', () => {
       if (state.rafId) cancelAnimationFrame(state.rafId);
