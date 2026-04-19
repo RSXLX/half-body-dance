@@ -1481,11 +1481,7 @@
 
     <main class="app-main">
       <section class="view setup-view is-active" data-view="setup">
-        <article class="intro-card">
-          <span class="eyebrow">动作跟练</span>
-          <h1>选择标准动作后即可打开摄像头开始练习</h1>
-          <p>单手完成动作、设备和速度设置，再进入全屏舞台跟练，主流程只保留必要反馈。</p>
-        </article>
+        <article class="intro-card"></article>
 
         <div class="setup-flow">
           <article class="app-card">
@@ -1493,17 +1489,15 @@
               <h2 class="panel-title"><span class="step-badge">1</span>选择标准动作</h2>
               <input id="jsonFile" class="file-input" type="file" accept="application/json" />
               <input id="videoFileInput" class="file-input" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/*" />
-              <button id="jsonFileTrigger" class="primary upload-trigger" type="button">📤 上传自定义 JSON</button>
               <div class="video-extract-card">
                 <div class="video-extract-copy">
-                  <strong>上传短视频自动生成 JSON</strong>
-                  <span id="videoExtractHint">通过本地识别服务提取姿态关键点，生成后会直接载入当前练习流程。</span>
+                  <strong>上传短视频自动生成动作结构</strong>
                 </div>
                 <div class="video-extract-actions">
                   <button id="videoFileTrigger" class="secondary" type="button">🎬 上传短视频并识别</button>
                   <button id="downloadGeneratedJson" class="ghost" type="button" hidden>下载生成 JSON</button>
                 </div>
-                <span id="videoExtractStatus" class="fine-print">支持短视频文件；识别时间取决于视频长度和设备性能。</span>
+                <span id="videoExtractStatus" class="fine-print"></span>
               </div>
               <div class="action-carousel" role="list" aria-label="示例动作选择">
                 <button id="loadHongmen" class="action-card secondary" type="button" role="listitem">
@@ -1522,7 +1516,7 @@
                   <small>默认示例之一，手势更集中，适合看手部和节奏提示。</small>
                 </button>
               </div>
-              <p class="fine-print">默认示例来自项目 <code>wudao/</code>，会自动挂载同名视频作为背景音乐；自定义 JSON 需符合 <code>{ frames: [{ time, pose_landmarks[], hands[] }] }</code>。</p>
+              <p class="fine-print"></p>
             </div>
           </article>
 
@@ -1534,7 +1528,7 @@
                 <button id="stopCamera" class="danger" type="button">关闭摄像头</button>
                 <button id="toggleMirror" class="ghost" type="button">镜像: 开</button>
               </div>
-              <p class="fine-print">摄像头需要 <code>http://localhost</code> 或 HTTPS 下访问，直接双击 HTML 文件通常拿不到权限。</p>
+              <p class="fine-print"></p>
             </div>
           </article>
 
@@ -4306,7 +4300,7 @@
       state.matchLabel = state.cameraRunning ? '用户待机中' : '待机中';
       state.isPlaying = false;
       elements.playbackState.textContent = '暂停';
-      setStatus('标准动作 JSON 已加载');
+      setStatus('动作已加载，准备就绪');
       resetRhythmSummary();
     }
 
