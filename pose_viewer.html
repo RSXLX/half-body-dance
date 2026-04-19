@@ -3216,6 +3216,15 @@
       }
     }
 
+    function getPreferredCameraAspectRatio() {
+      if (!isCompactViewport()) return 9 / 16;
+      const stageRect = elements.video?.getBoundingClientRect?.();
+      const width = stageRect?.width || window.innerWidth || 720;
+      const height = stageRect?.height || window.innerHeight || 1280;
+      if (!width || !height) return 9 / 16;
+      return width / height;
+    }
+
     function drawPose(points, strokeStyle, fillStyle, lineWidth, dashed = false) {
       if (!Array.isArray(points) || !points.length) return;
       const { ctx, canvas } = elements;
@@ -4203,14 +4212,17 @@
           stopCamera();
         }
 
+        const preferredAspectRatio = getPreferredCameraAspectRatio();
+        const preferredHeight = 1280;
+        const preferredWidth = Math.round(preferredHeight * preferredAspectRatio);
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
             facingMode: 'user',
-            // 9:16 竖屏（短视频舞蹈常见比例）
-            width: { ideal: 720 },
-            height: { ideal: 1280 },
-            aspectRatio: { ideal: 9 / 16 },
+            // 紧凑视口按舞台比例取流，避免 cover 在手机窗口里额外裁切放大。
+            width: { ideal: preferredWidth },
+            height: { ideal: preferredHeight },
+            aspectRatio: { ideal: preferredAspectRatio },
           },
         });
 
