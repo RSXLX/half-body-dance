@@ -2536,13 +2536,46 @@
       }
     }
 
-    async function setView(nextView) {
+    async function stopPracticePlayback({
+      syncFrameToAudio = true,
+      resetRhythm = true,
+      playbackStateText = null,
+      statusText = null,
+    } = {}) {
+      state.isPlaying = false;
+      const audio = elements.bgmAudio;
+      if (audio && !audio.paused) {
+        audio.pause();
+      }
+      if (syncFrameToAudio) {
+        syncAudioToFrame();
+      }
+      if (resetRhythm) {
+        resetRhythmSummary();
+      }
+      await releaseScreenWakeLock();
+      if (elements.playbackState && playbackStateText) {
+        elements.playbackState.textContent = playbackStateText;
+      }
+      if (statusText) {
+        setStatus(statusText);
+      }
+    }
+
+    async function setView(nextView, { stopPlaybackOnLeave = true } = {}) {
+      const leavingPractice = state.currentView === 'practice' && nextView !== 'practice';
+      if (leavingPractice && stopPlaybackOnLeave) {
+        await stopPracticePlayback({
+          playbackStateText: state.poseData && isPlaybackAtEnd() ? '已结束' : '暂停',
+          statusText: null,
+        });
+      }
       state.currentView = nextView;
       setPracticeMenuOpen(false);
       if (nextView !== 'practice') {
         setPracticeSheetExpanded(false);
       }
-      if (nextView !== 'practice') {
+      if (nextView !== 'practice' && (!leavingPractice || !stopPlaybackOnLeave)) {
         await releaseScreenWakeLock();
       }
       syncViewClasses();
@@ -3918,7 +3951,7 @@
           const audio = elements.bgmAudio;
           if (audio && !audio.paused) audio.pause();
           if (state.currentView !== 'result') {
-            void setView('result');
+            void setView('result', { stopPlaybackOnLeave: false });
           }
         } else {
           let nearest = 0;
@@ -5121,6 +5154,15 @@
       elements.bgmAudio.addEventListener('loadedmetadata', () => {
         state.audioReady = true;
         applyAudioPlaybackSettings();
+      });
+      elements.bgmAudio.addEventListener('ended', () => {
+        if (!state.isPlaying) return;
+        void stopPracticePlayback({
+          syncFrameToAudio: false,
+          resetRhythm: false,
+          playbackStateText: '已结束',
+          statusText: '背景音乐播放完成',
+        });
       });
       elements.bgmAudio.addEventListener('emptied', () => {
         state.audioReady = false;
