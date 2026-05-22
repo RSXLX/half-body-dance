@@ -235,8 +235,7 @@
     }
 
     .nav-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
       gap: 8px;
       padding: 4px;
       border-radius: 16px;
@@ -245,10 +244,16 @@
     }
 
     .nav-tab {
+      flex: 1 1 0;
       min-height: 40px;
       padding: 10px 12px;
       background: rgba(255, 255, 255, 0.02);
       color: var(--muted);
+      transition: flex-basis 0.2s ease, opacity 0.2s ease;
+    }
+
+    .nav-tab[hidden] {
+      display: none;
     }
 
     .nav-tab.is-active {
@@ -308,15 +313,107 @@
     }
 
     .intro-card {
+      position: relative;
       display: grid;
-      gap: 12px;
-      padding: 4px 2px 6px;
+      gap: 14px;
+      padding: 28px 22px 26px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(0, 194, 255, 0.32), transparent 55%),
+        radial-gradient(circle at 92% 18%, rgba(84, 243, 168, 0.22), transparent 60%),
+        linear-gradient(155deg, rgba(13, 24, 40, 0.9) 0%, rgba(7, 12, 22, 0.92) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: var(--shadow-strong);
+    }
+
+    .intro-card::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(110, 231, 255, 0.18), transparent 35%, rgba(84, 243, 168, 0.12));
+      pointer-events: none;
+      mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      padding: 1px;
+      opacity: 0.6;
+    }
+
+    .intro-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(110, 231, 255, 0.86);
+    }
+
+    .intro-eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(110, 231, 255, 0.8);
     }
 
     .intro-card h1 {
-      font-size: clamp(1.6rem, 7vw, 2.4rem);
-      line-height: 0.98;
-      letter-spacing: -0.06em;
+      margin: 0;
+      font-size: clamp(1.7rem, 7.4vw, 2.55rem);
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+    }
+
+    .intro-card h1 em {
+      font-style: normal;
+      background: linear-gradient(120deg, #6ee7ff 0%, #4ef2cf 60%, #f5f8ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .intro-card .intro-copy {
+      margin: 0;
+      max-width: 32em;
+      color: rgba(245, 248, 255, 0.78);
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+
+    .intro-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .intro-steps span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.82rem;
+      color: rgba(245, 248, 255, 0.78);
+    }
+
+    .intro-steps span b {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
+      color: #041019;
+      font-size: 0.72rem;
+      font-weight: 700;
     }
 
     .setup-flow {
@@ -363,45 +460,128 @@
       gap: 12px;
     }
 
-    .action-carousel {
+    .preset-grid {
       display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(180px, 78%);
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 12px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scroll-snap-type: x mandatory;
     }
 
-    .action-carousel::-webkit-scrollbar {
-      display: none;
-    }
-
-    .action-card {
-      scroll-snap-align: start;
+    .preset-card {
+      position: relative;
       display: grid;
-      gap: 8px;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
       align-content: start;
-      min-height: 124px;
-      padding: 16px;
+      min-height: 168px;
+      padding: 0;
       text-align: left;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(10, 16, 26, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      color: var(--text);
+      overflow: hidden;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .action-card strong {
-      font-size: 1.04rem;
+    .preset-card .preset-cover {
+      position: relative;
+      display: grid;
+      place-items: center;
+      height: 84px;
+      font-size: 2.4rem;
+      line-height: 1;
+      background:
+        radial-gradient(circle at 30% 20%, var(--cover-a, rgba(0, 194, 255, 0.45)), transparent 60%),
+        radial-gradient(circle at 80% 80%, var(--cover-b, rgba(78, 242, 207, 0.4)), transparent 65%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+    }
+
+    .preset-card .preset-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 55%, rgba(5, 8, 14, 0.55));
+    }
+
+    .preset-card .preset-emoji {
+      position: relative;
+      z-index: 1;
+      font-size: 2.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+    }
+
+    .preset-card .preset-body {
+      display: grid;
+      gap: 4px;
+      padding: 4px 14px 14px;
+    }
+
+    .preset-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(110, 231, 255, 0.3);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .preset-card.is-selected {
+      border-color: rgba(110, 231, 255, 0.65);
+      box-shadow: 0 14px 32px rgba(0, 194, 255, 0.22), inset 0 0 0 1px rgba(110, 231, 255, 0.35);
+    }
+
+    .preset-card.is-selected .preset-cover::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 14px;
+      border: 1px solid rgba(110, 231, 255, 0.4);
+      pointer-events: none;
+    }
+
+    .preset-card.is-loading {
+      pointer-events: none;
+    }
+
+    .preset-card.is-loading::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      background-size: 200% 100%;
+      animation: preset-loading 1.2s linear infinite;
+      border-radius: 0 0 16px 16px;
+    }
+
+    @keyframes preset-loading {
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+
+    .preset-card strong {
+      font-size: 1rem;
       letter-spacing: -0.02em;
     }
 
-    .action-card small {
+    .preset-card small {
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.45;
+      font-size: 0.8rem;
     }
 
-    .action-emoji {
-      font-size: 1.7rem;
-      line-height: 1;
+    .preset-card .preset-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(84, 243, 168, 0.22);
+      color: var(--success);
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      z-index: 2;
     }
 
     .file-input {
@@ -562,6 +742,54 @@
       display: none;
     }
 
+    .setup-advanced {
+      display: grid;
+      gap: 14px;
+      border-radius: 18px;
+    }
+
+    .setup-advanced > summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      color: var(--text);
+    }
+
+    .setup-advanced > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .setup-advanced > summary > span:first-child {
+      display: grid;
+      gap: 4px;
+    }
+
+    .setup-advanced > summary strong {
+      font-size: 0.98rem;
+      letter-spacing: -0.02em;
+    }
+
+    .setup-advanced > summary small {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .setup-advanced > summary .chevron {
+      color: var(--muted);
+      transition: transform 0.18s ease;
+    }
+
+    .setup-advanced[open] > summary .chevron {
+      transform: rotate(180deg);
+    }
+
     .info-list {
       display: grid;
       gap: 10px;
@@ -583,6 +811,53 @@
       color: var(--text);
       text-align: right;
       font-size: 0.94rem;
+    }
+
+    .setup-cta {
+      position: sticky;
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      z-index: 6;
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+      background: rgba(8, 14, 24, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(16px);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .setup-cta:has(.setup-cta-title:not([hidden])) {
+      border-color: rgba(110, 231, 255, 0.32);
+      box-shadow: 0 24px 60px rgba(0, 194, 255, 0.18), var(--shadow-strong);
+    }
+
+    .setup-cta .primary {
+      width: 100%;
+      min-height: 52px;
+      font-size: 1.05rem;
+      background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
+      color: #041019;
+      box-shadow: 0 14px 34px rgba(0, 194, 255, 0.28);
+    }
+
+    .setup-cta .primary:disabled {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .setup-cta-title {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+
+    .setup-cta-copy {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
     }
 
     .setup-footer {
@@ -656,6 +931,10 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(110, 231, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 50% 78%, rgba(84, 243, 168, 0.1), transparent 38%),
+        linear-gradient(180deg, #060b13 0%, #020409 100%);
     }
 
     video,
@@ -670,6 +949,12 @@
       background: #010205;
       object-fit: contain;
       object-position: center;
+    }
+
+    #cameraVideo {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
 
     .mirrored {
@@ -1266,6 +1551,38 @@
       display: grid;
     }
 
+    .debug-palette-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(6, 9, 15, 0.58);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .debug-swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .debug-swatch i {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .debug-perf-badge {
+      margin-left: auto;
+      color: var(--text);
+    }
+
     .debug-pre {
       margin: 0;
       padding: 16px;
@@ -1286,28 +1603,99 @@
     }
 
     .result-hero {
+      position: relative;
       display: grid;
-      gap: 12px;
-      padding: 22px 18px 20px;
+      gap: 14px;
+      padding: 24px 20px 22px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(0, 194, 255, 0.28), transparent 55%),
+        radial-gradient(circle at 90% 30%, rgba(84, 243, 168, 0.2), transparent 60%),
+        linear-gradient(155deg, rgba(13, 24, 40, 0.95) 0%, rgba(7, 12, 22, 0.95) 100%);
+      border-radius: var(--radius-lg);
     }
 
     .result-hero h2 {
-      font-size: clamp(2rem, 8vw, 3rem);
-      letter-spacing: -0.06em;
+      margin: 0;
+      font-size: clamp(1.5rem, 5.5vw, 2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .result-hero .eyebrow {
+      font-size: 0.74rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(110, 231, 255, 0.86);
     }
 
     .result-banner {
       display: grid;
-      gap: 12px;
-      margin-top: 8px;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 18px;
+      margin-top: 6px;
     }
 
-    #finalAverageScore {
-      font-size: clamp(3rem, 14vw, 5rem);
-      line-height: 0.88;
-      letter-spacing: -0.08em;
+    .score-ring {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      flex-shrink: 0;
+    }
+
+    .score-ring svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .score-ring .ring-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 9;
+    }
+
+    .score-ring .ring-progress {
+      fill: none;
+      stroke: url(#ringGradient);
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 339.292;
+      stroke-dashoffset: 339.292;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      filter: drop-shadow(0 0 12px rgba(110, 231, 255, 0.45));
+    }
+
+    .score-ring .ring-value {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      pointer-events: none;
+    }
+
+    .score-ring .ring-value strong {
+      font-size: clamp(2.4rem, 9vw, 3rem);
+      line-height: 0.9;
+      letter-spacing: -0.05em;
       color: var(--text);
     }
+
+    .score-ring .ring-value span {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .result-banner-body {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    #finalAverageScore { display: none; }
 
     #finalConclusion {
       display: inline-flex;
@@ -1316,10 +1704,50 @@
       gap: 8px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(110, 231, 255, 0.12);
-      color: #dff8ff;
+      background: linear-gradient(135deg, rgba(0, 194, 255, 0.22), rgba(84, 243, 168, 0.18));
+      color: #eaf6ff;
       font-size: 0.92rem;
       letter-spacing: -0.02em;
+      border: 1px solid rgba(110, 231, 255, 0.25);
+    }
+
+    .arm-bar {
+      display: grid;
+      gap: 6px;
+    }
+
+    .arm-bar .arm-bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .arm-bar .arm-bar-head strong {
+      color: var(--text);
+      font-size: 0.96rem;
+      letter-spacing: -0.02em;
+    }
+
+    .arm-bar .arm-bar-track {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .arm-bar .arm-bar-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent-strong), #4ef2cf);
+      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .arm-bar.is-low .arm-bar-fill {
+      background: linear-gradient(90deg, #ffd36e, #ff7b8a);
     }
 
     .result-grid {
@@ -1355,6 +1783,14 @@
       min-height: 52px;
     }
 
+    .result-footer .secondary {
+      width: 100%;
+      min-height: 48px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
     .result-inline-links {
       display: flex;
       align-items: center;
@@ -1380,10 +1816,6 @@
       .view {
         padding-left: 24px;
         padding-right: 24px;
-      }
-
-      .action-carousel {
-        grid-auto-columns: 220px;
       }
 
       .practice-topbar,
@@ -1421,10 +1853,6 @@
     @media (max-width: 420px) {
       .practice-heading span {
         white-space: normal;
-      }
-
-      .action-carousel {
-        grid-auto-columns: minmax(168px, 84%);
       }
 
       .camera-secondary {
@@ -1485,6 +1913,209 @@
       width: 100%;
       min-height: 48px;
     }
+
+    /* ====== 舞台状态条（模型加载/授权/入镜/异常 统一表达） ====== */
+    .stage-status {
+      position: absolute;
+      left: 50%;
+      top: calc(env(safe-area-inset-top) + 88px);
+      transform: translateX(-50%);
+      z-index: 13;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 16px 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(8, 14, 24, 0.78), rgba(14, 22, 38, 0.62));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      max-width: min(86vw, 540px);
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -8px);
+      transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+    .stage-status.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    .stage-status[hidden] { display: none; }
+    .stage-status-dot {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .stage-status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 999px;
+      background: inherit;
+      opacity: 0.35;
+      animation: stageStatusPulse 1.4s ease-in-out infinite;
+    }
+    .stage-status[data-kind="ok"] .stage-status-dot { background: var(--success); }
+    .stage-status[data-kind="warn"] .stage-status-dot { background: var(--warning); }
+    .stage-status[data-kind="error"] .stage-status-dot { background: var(--danger); }
+    .stage-status[data-kind="error"] .stage-status-dot::after { animation: none; opacity: 0.6; }
+    .stage-status-body {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .stage-status-title {
+      font-size: 0.92rem;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      line-height: 1.15;
+    }
+    .stage-status-hint {
+      font-size: 0.76rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: min(70vw, 460px);
+    }
+    .stage-status-progress {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 4px;
+      height: 2px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .stage-status-progress::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 38%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: stageStatusProgress 1.4s linear infinite;
+    }
+    .stage-status:not([data-kind="loading"]) .stage-status-progress { display: none; }
+    @keyframes stageStatusPulse {
+      0%, 100% { transform: scale(1); opacity: 0.45; }
+      50% { transform: scale(1.6); opacity: 0; }
+    }
+    @keyframes stageStatusProgress {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(280%); }
+    }
+
+    /* ====== 入镜引导框：未检测到人体时显示 ====== */
+    .stage-reticle {
+      position: absolute;
+      inset: 0;
+      z-index: 11;
+      pointer-events: none;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .stage-reticle.is-visible { opacity: 1; }
+    .stage-reticle[hidden] { display: none; }
+    .stage-reticle-frame {
+      width: min(58vw, 360px);
+      aspect-ratio: 3 / 4;
+      border-radius: 24px;
+      position: relative;
+      animation: reticleBreathe 2.6s ease-in-out infinite;
+    }
+    .stage-reticle-frame::before,
+    .stage-reticle-frame::after,
+    .stage-reticle-frame > i,
+    .stage-reticle-frame > i::after {
+      content: '';
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border: 2px solid rgba(110, 231, 255, 0.85);
+      filter: drop-shadow(0 0 6px rgba(110, 231, 255, 0.55));
+    }
+    .stage-reticle-frame::before { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 18px; }
+    .stage-reticle-frame::after  { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 18px; }
+    .stage-reticle-frame > i { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 18px; display: block; }
+    .stage-reticle-frame > i::after { bottom: 0; right: 0; left: auto; top: auto; border-left: 0; border-top: 0; border-bottom-right-radius: 18px; transform: translate(calc(100% + (min(58vw, 360px) - 64px)), 0); }
+    .stage-reticle-copy {
+      position: absolute;
+      bottom: -52px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.86rem;
+      color: rgba(245, 248, 255, 0.92);
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+    }
+    @keyframes reticleBreathe {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.03); opacity: 0.7; }
+    }
+
+    /* ====== 评分表盘升级：发光 + 状态色环 ====== */
+    .score-dial {
+      transition: filter 0.25s ease;
+    }
+    .score-dial::before {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(0, 194, 255, 0.18), transparent 70%);
+      opacity: 0.7;
+      pointer-events: none;
+      transition: background 0.3s ease, opacity 0.3s ease;
+    }
+    .score-dial.is-perfect::before { background: radial-gradient(closest-side, rgba(84, 243, 168, 0.32), transparent 70%); }
+    .score-dial.is-miss::before    { background: radial-gradient(closest-side, rgba(255, 123, 138, 0.28), transparent 70%); }
+    .match-ring {
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+    .score-dial.is-perfect { filter: drop-shadow(0 0 8px rgba(84, 243, 168, 0.45)); }
+    .score-dial.score-dial-bump .score-dial-value strong {
+      animation: scoreBump 0.45s cubic-bezier(.2,.8,.3,1.2);
+    }
+    @keyframes scoreBump {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
+    /* ====== HUD 容器整体微调，提升科技感 ====== */
+    .stage-score-hud {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(8, 14, 24, 0.62), rgba(14, 22, 38, 0.42));
+      border-color: rgba(110, 231, 255, 0.18);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .practice-heading {
+      background: linear-gradient(135deg, rgba(8, 14, 24, 0.7), rgba(14, 22, 38, 0.5));
+      border-color: rgba(110, 231, 255, 0.16);
+      position: relative;
+      overflow: hidden;
+    }
+    .practice-heading::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+      opacity: 0.78;
+      box-shadow: 0 0 12px rgba(0, 194, 255, 0.45);
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469246/hands.js"></script>
@@ -1511,7 +2142,16 @@
 
     <main class="app-main">
       <section class="view setup-view is-active" data-view="setup">
-        <article class="intro-card"></article>
+        <article class="intro-card">
+          <span class="intro-eyebrow">动作匹配工作台</span>
+          <h1>对着镜头跳，<em>实时看到自己跟没跟上</em></h1>
+          <p class="intro-copy">选一段标准动作，打开摄像头，骨架会自动贴合到你身上，逐拍给出手臂、节奏与动作结论。</p>
+          <div class="intro-steps">
+            <span><b>1</b>选动作</span>
+            <span><b>2</b>开摄像头</span>
+            <span><b>3</b>跟练评分</span>
+          </div>
+        </article>
 
         <div class="setup-flow">
           <article class="app-card">
@@ -1529,24 +2169,7 @@
                 </div>
                 <span id="videoExtractStatus" class="fine-print"></span>
               </div>
-              <div class="action-carousel" role="list" aria-label="示例动作选择">
-                <button id="loadHongmen" class="action-card secondary" type="button" role="listitem">
-                  <span class="action-emoji">🥁</span>
-                  <strong>鸿门旋律</strong>
-                  <small>默认示例之一，节拍感强，进入练习时会同步背景音乐。</small>
-                </button>
-                <button id="loadTimoteam" class="action-card secondary" type="button" role="listitem">
-                  <span class="action-emoji">🎖️</span>
-                  <strong>提莫队长</strong>
-                  <small>默认示例之一，动作切换清晰，适合观察对拍和衔接。</small>
-                </button>
-                <button id="loadShoushi" class="action-card secondary" type="button" role="listitem">
-                  <span class="action-emoji">🫶</span>
-                  <strong>shoushi</strong>
-                  <small>默认示例之一，手势更集中，适合看手部和节奏提示。</small>
-                </button>
-              </div>
-              <p class="fine-print"></p>
+              <div id="presetGrid" class="preset-grid" role="list" aria-label="示例动作选择"></div>
             </div>
           </article>
 
@@ -1558,11 +2181,16 @@
                 <button id="stopCamera" class="danger" type="button">关闭摄像头</button>
                 <button id="toggleMirror" class="ghost" type="button">镜像: 开</button>
               </div>
-              <p class="fine-print"></p>
             </div>
           </article>
 
-          <article class="app-card">
+          <details class="setup-advanced">
+            <summary>
+              <span><strong>更多设置</strong><small>头部贴图、播放速度、准备状态</small></span>
+              <span class="chevron" aria-hidden="true">▾</span>
+            </summary>
+
+            <article class="app-card">
             <div class="speed-panel">
               <h2 class="panel-title"><span class="step-badge">3</span>练习设置</h2>
               <input id="stickerFileInput" class="file-input" type="file" accept="image/png,image/webp,image/jpeg,image/*" />
@@ -1649,15 +2277,14 @@
               </div>
             </div>
           </article>
+          </details>
         </div>
 
-        <article class="setup-footer">
-          <div class="setup-footer-copy">
-            <strong id="setupReadyTitle">先完成动作和摄像头准备</strong>
-            <span id="setupReadyCopy">选择标准动作后进入练习页，练习页内会以全屏舞台和底部 Sheet 呈现控制与反馈。</span>
-          </div>
-          <button id="enterPractice" class="primary" type="button">开始练习</button>
-        </article>
+        <div class="setup-cta">
+          <button id="enterPractice" class="primary" type="button" disabled>先选择一个标准动作</button>
+          <span id="setupReadyTitle" class="setup-cta-title" hidden>动作已就绪</span>
+          <span id="setupReadyCopy" class="setup-cta-copy" hidden></span>
+        </div>
       </section>
 
       <section class="view practice-view" data-view="practice">
@@ -1669,11 +2296,25 @@
             </div>
             <audio id="bgmAudio" preload="metadata"></audio>
 
+            <div id="stageReticle" class="stage-reticle" hidden aria-hidden="true">
+              <div class="stage-reticle-frame"><i></i></div>
+              <div class="stage-reticle-copy" id="stageReticleCopy">请站到画面中央</div>
+            </div>
+
+            <div id="stageStatusBanner" class="stage-status" data-kind="loading" hidden role="status" aria-live="polite">
+              <span class="stage-status-dot"></span>
+              <div class="stage-status-body">
+                <strong class="stage-status-title" id="stageStatusTitle">正在准备</strong>
+                <span class="stage-status-hint" id="stageStatusHint">加载识别模型与摄像头</span>
+              </div>
+              <div class="stage-status-progress" aria-hidden="true"></div>
+            </div>
+
             <div class="practice-topbar">
               <button id="backToSetup" class="nav-icon ghost" type="button" aria-label="返回准备页">←</button>
               <div class="practice-heading">
                 <strong id="practiceHeaderTitle">练习中</strong>
-                <span id="practiceHeaderSubtitle">舞台和练习反馈只保留必要信息。</span>
+                <span id="practiceHeaderSubtitle"></span>
               </div>
               <div class="practice-header-actions">
                 <button id="practiceDebugToggle" class="nav-icon ghost" type="button" hidden aria-label="打开调试">🐛</button>
@@ -1717,7 +2358,7 @@
           <div class="sheet-shell">
             <button id="practiceSheetToggle" class="sheet-handle" type="button" aria-expanded="false">
               <span class="sheet-handle-bar"></span>
-              <span class="sheet-handle-copy">展开练习详情</span>
+              <span class="sheet-handle-copy">查看详情</span>
             </button>
 
             <div class="sheet-peek">
@@ -1735,18 +2376,9 @@
 
             <div class="sheet-expand-content">
               <div class="dock-panel">
-                <span class="dock-kicker">当前状态</span>
+                <span class="dock-kicker">状态 · 节拍</span>
                 <strong id="stageLabel">准备开始</strong>
                 <span id="stageSubLabel">先选择一个标准动作，然后进入练习。</span>
-                <div class="legend-row">
-                  <span><i class="dot dot-target"></i>标准动作</span>
-                  <span><i class="dot dot-user"></i>你</span>
-                  <span><i class="dot dot-miss"></i>姿态偏差</span>
-                </div>
-              </div>
-
-              <div class="dock-panel">
-                <span class="dock-kicker">节拍详情</span>
                 <div class="beat-strip beat-strip-secondary" id="beatStripMirror">
                   <span class="beat-dot"></span>
                   <span class="beat-dot"></span>
@@ -1754,11 +2386,14 @@
                   <span class="beat-dot"></span>
                   <span class="beat-dot"></span>
                 </div>
-                <span>下一拍提示、命中结果和节奏热区会在这里持续同步。</span>
+                <div class="legend-row">
+                  <span><i class="dot dot-target"></i>标准动作</span>
+                  <span><i class="dot dot-user"></i>实时评分</span>
+                  <span><i class="dot dot-miss"></i>偏差提示</span>
+                </div>
               </div>
 
               <div class="dock-panel practice-actions">
-                <span class="dock-kicker">练习控制</span>
                 <button id="practiceReplay" class="ghost" type="button">重新播放</button>
                 <button id="practiceCameraAction" class="ghost" type="button">关闭摄像头</button>
                 <span class="pill" id="playbackState">暂停</span>
@@ -1822,6 +2457,11 @@
 }</pre>
               </div>
               <div id="debugHudPanel" class="debug-tab-panel">
+                <div class="debug-palette-row" aria-label="教师颜色调试">
+                  <span class="debug-swatch"><i id="debugClothingSwatch"></i>衣着</span>
+                  <span class="debug-swatch"><i id="debugTeacherSwatch"></i>教师</span>
+                  <span id="debugPerfBadge" class="debug-perf-badge">--</span>
+                </div>
                 <pre id="hudText" class="debug-pre">摄像头未打开</pre>
               </div>
             </div>
@@ -1835,22 +2475,48 @@
           <h2 id="resultTitle">等待练习完成</h2>
           <p id="resultSubtitle">完成一轮播放后，这里会展示过程均分、节奏命中和动作结论。</p>
           <div class="result-banner">
-            <strong id="finalAverageScore">--</strong>
-            <strong id="finalConclusion">待结算</strong>
+            <div class="score-ring" id="resultScoreRing">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6ee7ff"/>
+                    <stop offset="100%" stop-color="#4ef2cf"/>
+                  </linearGradient>
+                </defs>
+                <circle class="ring-track" cx="60" cy="60" r="54"/>
+                <circle id="resultRingProgress" class="ring-progress" cx="60" cy="60" r="54"/>
+              </svg>
+              <div class="ring-value">
+                <strong id="resultRingValue">--</strong>
+                <span id="resultRingCaption">本轮均分</span>
+              </div>
+            </div>
+            <div class="result-banner-body">
+              <strong id="finalAverageScore">--</strong>
+              <strong id="finalConclusion">待结算</strong>
+            </div>
           </div>
         </article>
 
         <div class="result-grid">
           <article class="app-card result-score-card">
+            <div class="stack">
+              <div class="arm-bar" id="leftArmBar">
+                <div class="arm-bar-head">
+                  <span>左臂最终分</span>
+                  <strong id="leftArmScore">--</strong>
+                </div>
+                <div class="arm-bar-track"><div class="arm-bar-fill" id="leftArmFill"></div></div>
+              </div>
+              <div class="arm-bar" id="rightArmBar">
+                <div class="arm-bar-head">
+                  <span>右臂最终分</span>
+                  <strong id="rightArmScore">--</strong>
+                </div>
+                <div class="arm-bar-track"><div class="arm-bar-fill" id="rightArmFill"></div></div>
+              </div>
+            </div>
             <div class="info-list">
-              <div class="info-row">
-                <span>左臂最终分</span>
-                <strong id="leftArmScore">--</strong>
-              </div>
-              <div class="info-row">
-                <span>右臂最终分</span>
-                <strong id="rightArmScore">--</strong>
-              </div>
               <div class="info-row">
                 <span>拍点命中率</span>
                 <strong id="beatHitRate">--</strong>
@@ -1872,11 +2538,10 @@
         </div>
 
         <article class="result-footer">
-          <button id="resultReplay" class="primary" type="button">重新练习</button>
+          <button id="resultReplay" class="primary" type="button">再来一遍</button>
+          <button id="resultToSetup" class="secondary" type="button">换一个动作</button>
           <div class="result-inline-links">
             <button id="resultToPractice" class="text-link" type="button">回到练习页</button>
-            <span>·</span>
-            <button id="resultToSetup" class="text-link" type="button">返回准备页</button>
           </div>
         </article>
       </section>
@@ -1963,12 +2628,15 @@
 
     // 人体实体（半透明 + 描边）调色板——填充克制，描边清晰，不压住视频画面
     const BODY_PALETTES = {
-      target: { fill: 'rgba(255, 184, 59, 0.28)', stroke: 'rgba(255, 214, 122, 0.98)', glow: 'rgba(255, 184, 59, 0.5)' },
-      targetStrong: { fill: 'rgba(255, 184, 59, 0.38)', stroke: 'rgba(255, 238, 196, 1)', glow: 'rgba(255, 184, 59, 0.66)' },
-      user: { fill: 'rgba(84, 243, 168, 0.14)', stroke: 'rgba(84, 243, 168, 0.9)', glow: 'rgba(84, 243, 168, 0.4)' },
-      userPerfect: { fill: 'rgba(84, 243, 168, 0.22)', stroke: 'rgba(84, 243, 168, 0.98)', glow: 'rgba(84, 243, 168, 0.55)' },
-      miss: { fill: 'rgba(255, 123, 138, 0.16)', stroke: 'rgba(255, 123, 138, 0.95)', glow: 'rgba(255, 123, 138, 0.4)' },
+      target: { fill: 'rgba(255, 184, 59, 0.28)', stroke: 'rgba(255, 214, 122, 0.98)', glow: 'rgba(255, 184, 59, 0.5)', accent: 'rgba(255, 245, 200, 1)' },
+      targetStrong: { fill: 'rgba(255, 184, 59, 0.38)', stroke: 'rgba(255, 238, 196, 1)', glow: 'rgba(255, 184, 59, 0.66)', accent: 'rgba(255, 250, 220, 1)' },
+      user: { fill: 'rgba(84, 243, 168, 0.14)', stroke: 'rgba(84, 243, 168, 0.9)', glow: 'rgba(84, 243, 168, 0.45)', accent: 'rgba(110, 231, 255, 1)' },
+      userPerfect: { fill: 'rgba(84, 243, 168, 0.22)', stroke: 'rgba(84, 243, 168, 0.98)', glow: 'rgba(84, 243, 168, 0.6)', accent: 'rgba(180, 255, 220, 1)' },
+      miss: { fill: 'rgba(255, 123, 138, 0.16)', stroke: 'rgba(255, 123, 138, 0.95)', glow: 'rgba(255, 123, 138, 0.45)', accent: 'rgba(255, 200, 210, 1)' },
     };
+
+    const DEFAULT_TEACHER_PALETTE = BODY_PALETTES.targetStrong;
+    const CLOTHING_SAMPLE_INTERVAL_MS = 650;
 
     const BODY_DRAW_DEFAULTS = {
       showTorso: true,
@@ -1986,10 +2654,17 @@
     };
 
     const urlParams = new URLSearchParams(window.location.search);
+    // 示例动作清单。后续可改成从 wudao/index.json 拉取（见 docs/refactor-roadmap.md Phase 1）。
     const BUNDLED_POSE_PRESETS = [
-      { buttonId: 'loadHongmen', path: 'wudao/鸿门旋律_pose.json', label: '鸿门旋律_pose.json' },
-      { buttonId: 'loadTimoteam', path: 'wudao/提莫队长_pose.json', label: '提莫队长_pose.json' },
-      { buttonId: 'loadShoushi', path: 'wudao/shoushi_pose.json', label: 'shoushi_pose.json' },
+      { id: 'hongmen',    name: '鸿门旋律',  emoji: '🥁', tagline: '节拍鲜明，可同步背景音乐',     path: 'wudao/鸿门旋律_pose.json',   label: '鸿门旋律_pose.json',   featured: true },
+      { id: 'timoteam',   name: '提莫队长',  emoji: '🎖️', tagline: '动作切换清晰，看对拍衔接',      path: 'wudao/提莫队长_pose.json',   label: '提莫队长_pose.json' },
+      { id: 'shoushi',    name: '手势舞',    emoji: '🫶', tagline: '手势集中，看手部和节奏提示',    path: 'wudao/shoushi_pose.json',    label: 'shoushi_pose.json' },
+      { id: 'angel',      name: 'Angel',     emoji: '👼', tagline: '半身舞默认示例，节奏稳',         path: 'wudao/angel_pose.json',      label: 'angel_pose.json' },
+      { id: 'ladada',     name: '啦哒哒',    emoji: '🎵', tagline: '上身律动，热身友好',           path: 'wudao/ladada_pose.json',     label: 'ladada_pose.json' },
+      { id: 'xingqiyao',  name: '星奇摇 2.0', emoji: '✨', tagline: '幅度较大，适合体验评分',       path: 'wudao/星奇摇2.0_pose.json',  label: '星奇摇2.0_pose.json' },
+      { id: 'migaoyao',   name: '米糕摇',    emoji: '🍡', tagline: '小臂摆动，看左右臂分项',       path: 'wudao/米糕摇_pose.json',     label: '米糕摇_pose.json' },
+      { id: 'huajiliao',  name: '花寂寥',    emoji: '🌸', tagline: '动作轻缓，跟练门槛低',         path: 'wudao/花寂寥_pose.json',     label: '花寂寥_pose.json' },
+      { id: 'mofa',       name: '魔法城堡',  emoji: '🏰', tagline: '段落分明，看节拍命中',         path: 'wudao/魔法城堡_pose.json',   label: '魔法城堡_pose.json' },
     ];
     const DEFAULT_BUNDLED_POSE = BUNDLED_POSE_PRESETS[0];
 
@@ -2025,6 +2700,12 @@
       personVisible: false,
       status: '等待初始化',
       rafId: 0,
+      smoothedUserPose: null,
+      lastDisplayedScore: null,
+      lastScoreBumpAt: 0,
+      stageStatus: { kind: 'loading', title: '正在准备', hint: '加载识别模型', visible: false },
+      stageStatusOkSince: 0,
+      cameraError: null,
       jsonAspectRatio: null,
       audioSource: null,
       audioReady: false,
@@ -2045,6 +2726,9 @@
       debugEnabled: urlParams.get('debug') === '1',
       setupStatusExpanded: false,
       practiceSheetExpanded: false,
+      selectedPresetId: null,
+      presetLoadingId: null,
+      autoCameraRequested: false,
       practiceMenuOpen: false,
       debugDrawerOpen: false,
       debugTab: 'json',
@@ -2067,6 +2751,13 @@
       stickerScale: 1,
       stickerOffsetY: -0.08,
       stickerHeadTransform: null,
+      clothingSampleCanvas: null,
+      clothingColor: null,
+      lastClothingSampleAt: 0,
+      teacherPalette: DEFAULT_TEACHER_PALETTE,
+      teacherFrameAvgMs: null,
+      lastTeacherFrameAt: 0,
+      teacherHighDetail: true,
     };
 
     const elements = {
@@ -2120,6 +2811,13 @@
       scoreSystem: document.querySelector('#scoreSystem'),
       leftArmScore: document.querySelector('#leftArmScore'),
       rightArmScore: document.querySelector('#rightArmScore'),
+      leftArmFill: document.querySelector('#leftArmFill'),
+      rightArmFill: document.querySelector('#rightArmFill'),
+      leftArmBar: document.querySelector('#leftArmBar'),
+      rightArmBar: document.querySelector('#rightArmBar'),
+      resultRingProgress: document.querySelector('#resultRingProgress'),
+      resultRingValue: document.querySelector('#resultRingValue'),
+      resultRingCaption: document.querySelector('#resultRingCaption'),
       finalAverageScore: document.querySelector('#finalAverageScore'),
       finalConclusion: document.querySelector('#finalConclusion'),
       matchLabel: document.querySelector('#matchLabel'),
@@ -2176,6 +2874,15 @@
       debugTabHud: document.querySelector('#debugTabHud'),
       debugJsonPanel: document.querySelector('#debugJsonPanel'),
       debugHudPanel: document.querySelector('#debugHudPanel'),
+      debugClothingSwatch: document.querySelector('#debugClothingSwatch'),
+      debugTeacherSwatch: document.querySelector('#debugTeacherSwatch'),
+      debugPerfBadge: document.querySelector('#debugPerfBadge'),
+      stageStatusBanner: document.querySelector('#stageStatusBanner'),
+      stageStatusTitle: document.querySelector('#stageStatusTitle'),
+      stageStatusHint: document.querySelector('#stageStatusHint'),
+      stageReticle: document.querySelector('#stageReticle'),
+      stageReticleCopy: document.querySelector('#stageReticleCopy'),
+      scoreDial: document.querySelector('.score-dial'),
     };
 
     function setStatus(text) {
@@ -2189,6 +2896,220 @@
 
     function clamp(value, min, max) {
       return Math.min(max, Math.max(min, value));
+    }
+
+    function rgbToHsl(color) {
+      const r = clamp(color.r, 0, 255) / 255;
+      const g = clamp(color.g, 0, 255) / 255;
+      const b = clamp(color.b, 0, 255) / 255;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      if (max === min) return { h: 0, s: 0, l };
+      const d = max - min;
+      const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      let h;
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      return { h: h * 60, s, l };
+    }
+
+    function hslToRgb(h, s, l) {
+      const hue = ((h % 360) + 360) % 360;
+      const sat = clamp(s, 0, 1);
+      const light = clamp(l, 0, 1);
+      const c = (1 - Math.abs(2 * light - 1)) * sat;
+      const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+      const m = light - c / 2;
+      let r1 = 0;
+      let g1 = 0;
+      let b1 = 0;
+      if (hue < 60) [r1, g1, b1] = [c, x, 0];
+      else if (hue < 120) [r1, g1, b1] = [x, c, 0];
+      else if (hue < 180) [r1, g1, b1] = [0, c, x];
+      else if (hue < 240) [r1, g1, b1] = [0, x, c];
+      else if (hue < 300) [r1, g1, b1] = [x, 0, c];
+      else [r1, g1, b1] = [c, 0, x];
+      return {
+        r: Math.round((r1 + m) * 255),
+        g: Math.round((g1 + m) * 255),
+        b: Math.round((b1 + m) * 255),
+      };
+    }
+
+    function rgbToCss(color, alpha = 1) {
+      return `rgba(${Math.round(clamp(color.r, 0, 255))}, ${Math.round(clamp(color.g, 0, 255))}, ${Math.round(clamp(color.b, 0, 255))}, ${alpha})`;
+    }
+
+    function srgbToLinear(value) {
+      const v = clamp(value, 0, 255) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    }
+
+    function relativeLuminance(color) {
+      return 0.2126 * srgbToLinear(color.r) + 0.7152 * srgbToLinear(color.g) + 0.0722 * srgbToLinear(color.b);
+    }
+
+    function contrastRatio(a, b) {
+      const l1 = relativeLuminance(a);
+      const l2 = relativeLuminance(b);
+      const lighter = Math.max(l1, l2);
+      const darker = Math.min(l1, l2);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    function deriveContrastColor(sourceColor) {
+      const hsl = rgbToHsl(sourceColor);
+      const darkStage = { r: 3, g: 6, b: 12 };
+      const candidates = [];
+      [180, 150, 210, 120, 240, 300].forEach((delta) => {
+        [0.42, 0.5, 0.58, 0.66, 0.74, 0.82].forEach((lightness) => {
+          candidates.push(hslToRgb(
+            hsl.h + delta,
+            Math.max(0.72, Math.min(0.96, hsl.s + 0.28)),
+            lightness
+          ));
+        });
+      });
+      return candidates
+        .map((color) => ({
+          color,
+          score:
+            contrastRatio(color, sourceColor) * 0.78 +
+            Math.min(contrastRatio(color, darkStage), 8) * 0.22 -
+            Math.max(0, 4.5 - contrastRatio(color, darkStage)) * 2,
+        }))
+        .sort((a, b) => b.score - a.score)[0]?.color || hslToRgb(hsl.h + 180, 0.86, 0.66);
+    }
+
+    function deriveTeacherPaletteFromClothing(sourceColor) {
+      const stroke = deriveContrastColor(sourceColor);
+      const hsl = rgbToHsl(stroke);
+      const accent = hslToRgb(hsl.h, Math.min(1, hsl.s + 0.08), 0.84);
+      const fill = hslToRgb(hsl.h, Math.max(0.62, hsl.s), 0.58);
+      return {
+        fill: rgbToCss(fill, 0.24),
+        stroke: rgbToCss(stroke, 0.98),
+        glow: rgbToCss(stroke, 0.58),
+        accent: rgbToCss(accent, 1),
+      };
+    }
+
+    function blendRgbColor(previous, next, alpha = 0.28) {
+      if (!previous) return next;
+      return {
+        r: previous.r + (next.r - previous.r) * alpha,
+        g: previous.g + (next.g - previous.g) * alpha,
+        b: previous.b + (next.b - previous.b) * alpha,
+      };
+    }
+
+    function getClothingSampleBounds(points) {
+      if (!Array.isArray(points)) return null;
+      const visiblePoint = (index, minVisibility = 0.18) => {
+        const point = points[index];
+        return point && getVisibility(point) >= minVisibility ? point : null;
+      };
+      const leftShoulder = visiblePoint(11);
+      const rightShoulder = visiblePoint(12);
+      if (!leftShoulder || !rightShoulder) return null;
+
+      const leftHip = visiblePoint(23, 0.12);
+      const rightHip = visiblePoint(24, 0.12);
+      const shoulderMid = midpoint(leftShoulder, rightShoulder);
+      const shoulderWidth = Math.max(0.12, Math.abs(leftShoulder.x - rightShoulder.x));
+      const hipY = leftHip && rightHip ? (leftHip.y + rightHip.y) / 2 : shoulderMid.y + shoulderWidth * 1.45;
+      const minX = Math.min(leftShoulder.x, rightShoulder.x, leftHip?.x ?? leftShoulder.x, rightHip?.x ?? rightShoulder.x);
+      const maxX = Math.max(leftShoulder.x, rightShoulder.x, leftHip?.x ?? leftShoulder.x, rightHip?.x ?? rightShoulder.x);
+      const minY = Math.min(leftShoulder.y, rightShoulder.y);
+      const maxY = Math.max(hipY, minY + shoulderWidth * 1.2);
+      const expandX = Math.max(0.035, (maxX - minX) * 0.18);
+      const expandY = Math.max(0.035, (maxY - minY) * 0.12);
+      return {
+        x: clamp(minX - expandX, 0, 1),
+        y: clamp(minY - expandY, 0, 1),
+        width: clamp((maxX - minX) + expandX * 2, 0.08, 0.7),
+        height: clamp((maxY - minY) + expandY * 2, 0.08, 0.7),
+      };
+    }
+
+    function getDominantColorFromImageData(imageData) {
+      const bins = new Map();
+      const { data, width, height } = imageData;
+      for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          const offset = (y * width + x) * 4;
+          const r = data[offset];
+          const g = data[offset + 1];
+          const b = data[offset + 2];
+          const alpha = data[offset + 3];
+          if (alpha < 180) continue;
+          const hsl = rgbToHsl({ r, g, b });
+          if (hsl.l < 0.08 || hsl.l > 0.94) continue;
+          const distanceFromCenter = Math.hypot((x + 0.5) / width - 0.5, (y + 0.5) / height - 0.5);
+          const centerWeight = 1 - Math.min(0.62, distanceFromCenter);
+          const colorWeight = 0.28 + hsl.s * 1.2 + (1 - Math.abs(hsl.l - 0.5)) * 0.35;
+          const weight = centerWeight * colorWeight;
+          const key = `${r >> 4}-${g >> 4}-${b >> 4}`;
+          const item = bins.get(key) || { r: 0, g: 0, b: 0, weight: 0 };
+          item.r += r * weight;
+          item.g += g * weight;
+          item.b += b * weight;
+          item.weight += weight;
+          bins.set(key, item);
+        }
+      }
+      let best = null;
+      bins.forEach((item) => {
+        if (!best || item.weight > best.weight) best = item;
+      });
+      if (!best || best.weight <= 0) return null;
+      return {
+        r: best.r / best.weight,
+        g: best.g / best.weight,
+        b: best.b / best.weight,
+      };
+    }
+
+    function sampleClothingColorFromCamera(userPose) {
+      const video = elements.video;
+      if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight) return null;
+      const bounds = getClothingSampleBounds(userPose);
+      if (!bounds) return null;
+
+      const sampleSize = 48;
+      if (!state.clothingSampleCanvas) {
+        state.clothingSampleCanvas = document.createElement('canvas');
+        state.clothingSampleCanvas.width = sampleSize;
+        state.clothingSampleCanvas.height = sampleSize;
+      }
+      const canvas = state.clothingSampleCanvas;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return null;
+      const sx = bounds.x * video.videoWidth;
+      const sy = bounds.y * video.videoHeight;
+      const sw = Math.max(1, bounds.width * video.videoWidth);
+      const sh = Math.max(1, bounds.height * video.videoHeight);
+      ctx.clearRect(0, 0, sampleSize, sampleSize);
+      try {
+        ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sampleSize, sampleSize);
+        return getDominantColorFromImageData(ctx.getImageData(0, 0, sampleSize, sampleSize));
+      } catch (error) {
+        console.warn('[clothing color sample failed]', error);
+        return null;
+      }
+    }
+
+    function refreshTeacherPalette(userPose) {
+      if (!Array.isArray(userPose) || !userPose.length) return;
+      const now = performance.now();
+      if (now - state.lastClothingSampleAt < CLOTHING_SAMPLE_INTERVAL_MS) return;
+      state.lastClothingSampleAt = now;
+      const color = sampleClothingColorFromCamera(userPose);
+      if (!color) return;
+      state.clothingColor = blendRgbColor(state.clothingColor, color);
+      state.teacherPalette = deriveTeacherPaletteFromClothing(state.clothingColor);
     }
 
     function revokeObjectUrl(url) {
@@ -2582,12 +3503,20 @@
       resizeCanvas();
     }
 
-    async function enterPracticeFlow({ autoplay = true } = {}) {
+    async function enterPracticeFlow({ autoplay = true, requestCamera = true } = {}) {
       if (!state.poseData) return;
+      const shouldRequestCamera = requestCamera && !state.cameraRunning && !state.autoCameraRequested;
       await setView('practice');
       setPracticeSheetExpanded(false);
       if (autoplay && !state.isPlaying) {
         togglePlayback();
+      }
+      // 练习页先进入标准动作舞台；摄像头只做识别输入，授权过程不阻塞观看。
+      if (shouldRequestCamera) {
+        state.autoCameraRequested = true;
+        void openCamera().catch(() => {
+          // openCamera 自身已把错误写入 status，这里继续只观看流程
+        });
       }
     }
 
@@ -3344,6 +4273,8 @@
       state.beatCompositeScore = rhythmSummary?.compositeAverage ?? null;
       state.finalScores = summarizePlaybackScores(state.playbackScoreSamples);
       state.playbackCompleted = true;
+      // 结算轻触震动，引导用户注意 Result 页结果
+      if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
     }
 
     function captureFinalPlaybackFrame(frame) {
@@ -3402,10 +4333,6 @@
     }
 
     function getStageContentAspectRatio() {
-      const video = elements.video;
-      if (video?.readyState >= 1 && video.videoWidth && video.videoHeight) {
-        return video.videoWidth / video.videoHeight;
-      }
       const poseWidth = Number(state.poseData?.video_width) || 0;
       const poseHeight = Number(state.poseData?.video_height) || 0;
       if (poseWidth > 0 && poseHeight > 0) {
@@ -3454,6 +4381,125 @@
         width: { ideal: 1280 },
         height: { ideal: 720 },
       };
+    }
+
+    function describeCameraError(error) {
+      const name = error?.name || '';
+      const message = error?.message || String(error || '');
+      switch (name) {
+        case 'NotAllowedError':
+        case 'PermissionDeniedError':
+          return '摄像头权限被拒绝，请在浏览器地址栏或系统隐私设置中允许摄像头访问';
+        case 'NotFoundError':
+        case 'DevicesNotFoundError':
+          return '没有检测到摄像头，请确认设备已连接';
+        case 'NotReadableError':
+        case 'TrackStartError':
+          return '摄像头正在被其他应用占用，请关闭占用摄像头的软件后重试';
+        case 'OverconstrainedError':
+        case 'ConstraintNotSatisfiedError':
+          return '当前摄像头不支持请求的分辨率或前置摄像头约束，请切换摄像头或降低分辨率';
+        case 'SecurityError':
+          return '当前页面环境不允许访问摄像头，请使用 localhost 或 127.0.0.1 打开页面';
+        default:
+          return message || '摄像头授权失败';
+      }
+    }
+
+    // EMA 平滑：对瞬时姿态降噪后用于"展示层"，不替换匹配评分用的 lastPose。
+    function smoothLandmarks(prev, next, alpha = 0.45) {
+      if (!Array.isArray(next)) return prev || null;
+      if (!Array.isArray(prev) || prev.length !== next.length) {
+        return next.map((p) => (p ? { ...p } : null));
+      }
+      const out = new Array(next.length);
+      for (let i = 0; i < next.length; i += 1) {
+        const p = next[i];
+        const q = prev[i];
+        if (!p && !q) { out[i] = null; continue; }
+        if (!p) { out[i] = q; continue; }
+        if (!q) { out[i] = { ...p }; continue; }
+        const vp = getVisibility(p);
+        // 低置信度时减小 alpha，更倾向保留旧位置；高置信度时跟随当前帧
+        const a = Math.max(0.18, Math.min(0.7, alpha * (0.4 + vp * 0.7)));
+        out[i] = {
+          x: q.x + (p.x - q.x) * a,
+          y: q.y + (p.y - q.y) * a,
+          z: (q.z ?? 0) + ((p.z ?? 0) - (q.z ?? 0)) * a,
+          visibility: q.visibility != null
+            ? q.visibility * 0.55 + (p.visibility ?? q.visibility) * 0.45
+            : (p.visibility ?? 1),
+        };
+      }
+      return out;
+    }
+
+    // 渐变发光骨架：在已有躯干胶囊之上叠加，提升科技感与置信度反馈
+    function drawSkeletonAccents(points, palette) {
+      if (!Array.isArray(points) || !points.length || !palette) return;
+      const { ctx } = elements;
+      const rect = getStageContentRect();
+      const baseW = Math.min(rect.width, rect.height) || 720;
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // 1. 发光底层 - 一遍宽柔光
+      ctx.shadowColor = palette.glow || palette.stroke;
+      ctx.shadowBlur = Math.max(8, baseW * 0.018);
+      CONNECTIONS.forEach(([a, b]) => {
+        const p1 = points[a]; const p2 = points[b];
+        if (!p1 || !p2) return;
+        const v1 = getVisibility(p1); const v2 = getVisibility(p2);
+        if (v1 < 0.2 || v2 < 0.2) return;
+        const m1 = mapPointToStage(p1, rect);
+        const m2 = mapPointToStage(p2, rect);
+        const conf = Math.min(v1, v2);
+        const grad = ctx.createLinearGradient(m1.x, m1.y, m2.x, m2.y);
+        grad.addColorStop(0, palette.stroke);
+        grad.addColorStop(0.5, palette.accent || palette.stroke);
+        grad.addColorStop(1, palette.stroke);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = Math.max(2, baseW * 0.0036) + conf * Math.max(1.5, baseW * 0.0024);
+        ctx.globalAlpha = 0.35 + conf * 0.55;
+        ctx.beginPath();
+        ctx.moveTo(m1.x, m1.y);
+        ctx.lineTo(m2.x, m2.y);
+        ctx.stroke();
+      });
+
+      // 2. 关节发光球
+      ctx.shadowBlur = 0;
+      points.forEach((p) => {
+        if (!p) return;
+        const v = getVisibility(p);
+        if (v < 0.25) return;
+        const mapped = mapPointToStage(p, rect);
+        const r = Math.max(2.5, baseW * 0.0045) + v * Math.max(1.5, baseW * 0.0028);
+        // halo
+        const halo = ctx.createRadialGradient(mapped.x, mapped.y, 0, mapped.x, mapped.y, r * 3.4);
+        halo.addColorStop(0, palette.glow || palette.stroke);
+        halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = halo;
+        ctx.globalAlpha = 0.42 * v;
+        ctx.beginPath();
+        ctx.arc(mapped.x, mapped.y, r * 3.4, 0, Math.PI * 2);
+        ctx.fill();
+        // core
+        ctx.globalAlpha = 0.85 + 0.15 * v;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(mapped.x, mapped.y, r * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        // 外环：用 palette 描边强化质感
+        ctx.globalAlpha = 0.55 + 0.4 * v;
+        ctx.strokeStyle = palette.accent || palette.stroke;
+        ctx.lineWidth = Math.max(1, baseW * 0.0014);
+        ctx.beginPath();
+        ctx.arc(mapped.x, mapped.y, r * 0.95, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      ctx.restore();
     }
 
     function drawPose(points, strokeStyle, fillStyle, lineWidth, dashed = false) {
@@ -3520,7 +4566,181 @@
       ctx.restore();
     }
 
-    // 人体实体绘制：躯干多边形 + 头部椭圆 + 四肢胶囊，所有部位半透明
+    function lerpStagePoint(a, b, t) {
+      return {
+        x: a.x + (b.x - a.x) * t,
+        y: a.y + (b.y - a.y) * t,
+      };
+    }
+
+    function moveStagePointToward(point, target, amount) {
+      return {
+        x: point.x + (target.x - point.x) * amount,
+        y: point.y + (target.y - point.y) * amount,
+      };
+    }
+
+    function buildTeacherAvatarMaterial(palette) {
+      return {
+        resinFill: 'rgba(243, 234, 220, 0.74)',
+        resinLight: 'rgba(255, 248, 236, 0.88)',
+        resinShadow: 'rgba(216, 195, 168, 0.82)',
+        shadowColor: 'rgba(64, 42, 32, 0.28)',
+        highlightColor: 'rgba(255, 255, 255, 0.42)',
+        jointStroke: 'rgba(90, 58, 42, 0.34)',
+        teacherStroke: palette.stroke,
+        teacherGlow: palette.glow || palette.stroke,
+        teacherAccent: palette.accent || palette.stroke,
+      };
+    }
+
+    function strokeLimbCurve(ctx, p1, p2, control, offsetX, offsetY) {
+      ctx.beginPath();
+      ctx.moveTo(p1.x + offsetX, p1.y + offsetY);
+      ctx.quadraticCurveTo(control.x + offsetX, control.y + offsetY, p2.x + offsetX, p2.y + offsetY);
+      ctx.stroke();
+    }
+
+    function drawOrganicLimb(ctx, p1, p2, startRadius, endRadius, rect, curvature = 0, material = null, highDetail = true) {
+      if (!p1 || !p2) return;
+      const m1 = mapPointToStage(p1, rect);
+      const m2 = mapPointToStage(p2, rect);
+      if (!m1 || !m2) return;
+      const dx = m2.x - m1.x;
+      const dy = m2.y - m1.y;
+      const len = Math.hypot(dx, dy);
+      if (!len) return;
+      const ux = dx / len;
+      const uy = dy / len;
+      const nx = -uy;
+      const ny = ux;
+      const maxRadius = Math.max(startRadius, endRadius);
+      const control = {
+        x: (m1.x + m2.x) / 2 + nx * len * curvature,
+        y: (m1.y + m2.y) / 2 + ny * len * curvature,
+      };
+
+      const tracePath = () => {
+        ctx.beginPath();
+        ctx.moveTo(m1.x + nx * startRadius, m1.y + ny * startRadius);
+        ctx.quadraticCurveTo(
+          control.x + nx * maxRadius * 0.82,
+          control.y + ny * maxRadius * 0.82,
+          m2.x + nx * endRadius,
+          m2.y + ny * endRadius
+        );
+        ctx.quadraticCurveTo(
+          m2.x + ux * endRadius * 0.95,
+          m2.y + uy * endRadius * 0.95,
+          m2.x - nx * endRadius,
+          m2.y - ny * endRadius
+        );
+        ctx.quadraticCurveTo(
+          control.x - nx * maxRadius * 0.82,
+          control.y - ny * maxRadius * 0.82,
+          m1.x - nx * startRadius,
+          m1.y - ny * startRadius
+        );
+        ctx.quadraticCurveTo(
+          m1.x - ux * startRadius * 0.95,
+          m1.y - uy * startRadius * 0.95,
+          m1.x + nx * startRadius,
+          m1.y + ny * startRadius
+        );
+        ctx.closePath();
+      };
+
+      tracePath();
+      if (!material) {
+        ctx.fill();
+        if (ctx.lineWidth > 0) ctx.stroke();
+        return;
+      }
+
+      const fill = ctx.createLinearGradient(m1.x, m1.y, m2.x, m2.y);
+      fill.addColorStop(0, material.resinLight);
+      fill.addColorStop(0.52, material.resinFill);
+      fill.addColorStop(1, material.resinShadow);
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = material.shadowColor;
+      ctx.lineWidth = Math.max(1, Math.min(startRadius, endRadius) * 0.18);
+      ctx.fill();
+      ctx.stroke();
+
+      if (highDetail) {
+        const side = Math.max(1, Math.min(startRadius, endRadius) * 0.42);
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = material.shadowColor;
+        ctx.lineWidth = Math.max(1, side * 0.72);
+        strokeLimbCurve(ctx, m1, m2, control, -nx * side, -ny * side);
+        ctx.strokeStyle = material.highlightColor;
+        ctx.lineWidth = Math.max(1, side * 0.48);
+        strokeLimbCurve(ctx, m1, m2, control, nx * side * 0.9, ny * side * 0.9);
+      }
+
+      ctx.strokeStyle = material.teacherStroke;
+      ctx.lineWidth = Math.max(1.15, Math.min(startRadius, endRadius) * 0.2);
+      ctx.globalAlpha = 0.72;
+      strokeLimbCurve(ctx, m1, m2, control, 0, 0);
+      ctx.globalAlpha = 1;
+    }
+
+    function drawJointSeam(ctx, point, radius, material) {
+      ctx.save();
+      ctx.translate(point.x, point.y);
+      ctx.strokeStyle = material.jointStroke;
+      ctx.lineWidth = Math.max(1, radius * 0.12);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.72, radius * 0.34, 0, 0.12 * Math.PI, 0.88 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.72, radius * 0.34, 0, 1.12 * Math.PI, 1.88 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawJointOrb(ctx, point, radius, rect, material = null, highDetail = true) {
+      const mapped = mapPointToStage(point, rect);
+      if (!mapped) return;
+      if (material) {
+        const fill = ctx.createRadialGradient(
+          mapped.x - radius * 0.32,
+          mapped.y - radius * 0.38,
+          radius * 0.1,
+          mapped.x,
+          mapped.y,
+          radius * 1.14
+        );
+        fill.addColorStop(0, material.highlightColor);
+        fill.addColorStop(0.38, material.resinLight);
+        fill.addColorStop(0.72, material.resinFill);
+        fill.addColorStop(1, material.resinShadow);
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = material.jointStroke;
+        ctx.lineWidth = Math.max(1, radius * 0.15);
+        ctx.beginPath();
+        ctx.arc(mapped.x, mapped.y, radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        if (highDetail) drawJointSeam(ctx, mapped, radius, material);
+        ctx.strokeStyle = material.teacherStroke;
+        ctx.lineWidth = Math.max(1, radius * 0.12);
+        ctx.globalAlpha = 0.84;
+        ctx.beginPath();
+        ctx.arc(mapped.x, mapped.y, radius * 1.08, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        return;
+      }
+      ctx.beginPath();
+      ctx.arc(mapped.x, mapped.y, radius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 人体实体绘制：曲线躯干 + 肌肉感四肢 + BJD 关节球，隐藏用户画面后作为唯一标准动作层
     function drawHumanBody(points, palette, options = {}) {
       if (!Array.isArray(points) || points.length < 29 || !palette) return;
       const { ctx } = elements;
@@ -3542,13 +4762,16 @@
       const calfR = Math.max(4, scalePx * 0.1);
       const handR = forearmR * 0.95;
       const footR = calfR * 0.9;
+      const jointR = Math.max(3.5, scalePx * 0.075);
       const headBaseR = Math.max(12, scalePx * 0.22);
+      const material = buildTeacherAvatarMaterial(palette);
+      const highDetail = Math.min(W, H) >= 420 && drawOptions.highDetail !== false;
 
       ctx.save();
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
-      ctx.fillStyle = palette.fill;
-      ctx.strokeStyle = palette.stroke;
+      ctx.fillStyle = material.resinFill;
+      ctx.strokeStyle = material.teacherStroke;
       ctx.lineWidth = Math.max(1.2, scalePx * 0.012);
 
       // 发光效果保留但弱化，避免糊住视频
@@ -3557,21 +4780,70 @@
         ctx.shadowBlur = Math.max(4, scalePx * 0.08);
       }
 
-      // === 躯干（四点多边形：左右肩、右左髋）===
+      // === 躯干（肩、腰、髋之间用贝塞尔曲线收腰，避免直板多边形）===
       const torsoIndices = [11, 12, 24, 23];
       const torsoPts = torsoIndices.map((i) => points[i]);
       if (drawOptions.showTorso && torsoPts.every(vis)) {
+        const ls = mapPointToStage(points[11], rect);
+        const rs = mapPointToStage(points[12], rect);
+        const rh = mapPointToStage(points[24], rect);
+        const lh = mapPointToStage(points[23], rect);
+        const shoulderMid = midpoint(ls, rs);
+        const hipMid = midpoint(lh, rh);
+        const leftWaist = moveStagePointToward(lerpStagePoint(ls, lh, 0.58), lerpStagePoint(shoulderMid, hipMid, 0.58), 0.18);
+        const rightWaist = moveStagePointToward(lerpStagePoint(rs, rh, 0.58), lerpStagePoint(shoulderMid, hipMid, 0.58), 0.18);
+        const leftChest = lerpStagePoint(ls, leftWaist, 0.52);
+        const rightChest = lerpStagePoint(rs, rightWaist, 0.52);
+        const leftPelvis = lerpStagePoint(leftWaist, lh, 0.58);
+        const rightPelvis = lerpStagePoint(rightWaist, rh, 0.58);
+        const drawTorsoBlock = (pts) => {
+          const top = midpoint(pts[0], pts[1]);
+          const bottom = midpoint(pts[2], pts[3]);
+          const grad = ctx.createLinearGradient(top.x, top.y, bottom.x, bottom.y);
+          grad.addColorStop(0, material.resinLight);
+          grad.addColorStop(0.55, material.resinFill);
+          grad.addColorStop(1, material.resinShadow);
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          ctx.quadraticCurveTo(top.x, top.y - scalePx * 0.035, pts[1].x, pts[1].y);
+          ctx.quadraticCurveTo(pts[2].x, pts[2].y, pts[2].x, pts[2].y);
+          ctx.quadraticCurveTo(bottom.x, bottom.y + scalePx * 0.025, pts[3].x, pts[3].y);
+          ctx.quadraticCurveTo(pts[0].x, pts[0].y, pts[0].x, pts[0].y);
+          ctx.closePath();
+          ctx.fill();
+          if (drawOptions.strokeTorso) {
+            ctx.strokeStyle = material.jointStroke;
+            ctx.lineWidth = Math.max(1, scalePx * 0.006);
+            ctx.stroke();
+          }
+        };
+        drawTorsoBlock([ls, rs, rightChest, leftChest]);
+        drawTorsoBlock([leftChest, rightChest, rightPelvis, leftPelvis]);
+        drawTorsoBlock([leftPelvis, rightPelvis, rh, lh]);
+        if (highDetail) {
+          ctx.strokeStyle = material.shadowColor;
+          ctx.lineWidth = Math.max(1, scalePx * 0.01);
+          ctx.beginPath();
+          ctx.moveTo(leftChest.x, leftChest.y);
+          ctx.quadraticCurveTo(shoulderMid.x, shoulderMid.y + scalePx * 0.52, rightChest.x, rightChest.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(leftPelvis.x, leftPelvis.y);
+          ctx.quadraticCurveTo(hipMid.x, hipMid.y - scalePx * 0.18, rightPelvis.x, rightPelvis.y);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = material.teacherStroke;
+        ctx.lineWidth = Math.max(1.2, scalePx * 0.012);
+        ctx.globalAlpha = 0.78;
         ctx.beginPath();
-        torsoPts.forEach((p, i) => {
-          const mapped = mapPointToStage(p, rect);
-          const x = mapped.x;
-          const y = mapped.y;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.closePath();
-        ctx.fill();
-        if (drawOptions.strokeTorso) ctx.stroke();
+        ctx.moveTo(ls.x, ls.y);
+        ctx.quadraticCurveTo(shoulderMid.x, shoulderMid.y - scalePx * 0.06, rs.x, rs.y);
+        ctx.quadraticCurveTo(rightWaist.x, rightWaist.y, rh.x, rh.y);
+        ctx.quadraticCurveTo(hipMid.x, hipMid.y + scalePx * 0.05, lh.x, lh.y);
+        ctx.quadraticCurveTo(leftWaist.x, leftWaist.y, ls.x, ls.y);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
       }
 
       // === 颈部（肩中点 → 鼻）===
@@ -3600,6 +4872,12 @@
           rx = Math.max(headBaseR * 0.8, earDist * 0.6);
           ry = rx * 1.25;
         }
+        const headFill = ctx.createRadialGradient(cx - rx * 0.25, cy - ry * 0.3, rx * 0.15, cx, cy, ry);
+        headFill.addColorStop(0, material.highlightColor);
+        headFill.addColorStop(0.44, material.resinLight);
+        headFill.addColorStop(1, material.resinShadow);
+        ctx.fillStyle = headFill;
+        ctx.strokeStyle = material.jointStroke;
         ctx.beginPath();
         ctx.ellipse(cx, cy, rx, ry, rot, 0, Math.PI * 2);
         ctx.closePath();
@@ -3609,22 +4887,32 @@
 
       // === 四肢胶囊 ===
       const limbs = [
-        [11, 13, upperArmR],
-        [13, 15, forearmR],
-        [12, 14, upperArmR],
-        [14, 16, forearmR],
-        [23, 25, thighR],
-        [25, 27, calfR],
-        [24, 26, thighR],
-        [26, 28, calfR],
+        [11, 13, upperArmR * 1.08, upperArmR * 0.9, -0.035],
+        [13, 15, forearmR * 1.04, forearmR * 0.82, 0.032],
+        [12, 14, upperArmR * 1.08, upperArmR * 0.9, 0.035],
+        [14, 16, forearmR * 1.04, forearmR * 0.82, -0.032],
+        [23, 25, thighR * 1.08, thighR * 0.86, 0.022],
+        [25, 27, calfR * 1.04, calfR * 0.78, -0.025],
+        [24, 26, thighR * 1.08, thighR * 0.86, -0.022],
+        [26, 28, calfR * 1.04, calfR * 0.78, 0.025],
       ];
       if (drawOptions.showLimbs) {
-        limbs.forEach(([a, b, r]) => {
+        limbs.forEach(([a, b, r1, r2, curve]) => {
           if (vis(points[a]) && vis(points[b])) {
-            drawCapsule(ctx, points[a], points[b], r, rect);
+            drawOrganicLimb(ctx, points[a], points[b], r1, r2, rect, curve, material, highDetail);
           }
         });
       }
+
+      // === BJD 式关节球：只保留标准动作层，弱化机械折线感 ===
+      [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].forEach((idx) => {
+        if (!vis(points[idx])) return;
+        const radius =
+          idx === 15 || idx === 16 || idx === 27 || idx === 28
+            ? jointR * 0.62
+            : (idx === 13 || idx === 14 || idx === 25 || idx === 26 ? jointR : jointR * 1.14);
+        drawJointOrb(ctx, points[idx], radius, rect, material, highDetail);
+      });
 
       // === 手/脚端点圆 ===
       const extremities = [
@@ -3635,6 +4923,9 @@
         const p = points[idx];
         if (!vis(p)) return;
         const mapped = mapPointToStage(p, rect);
+        ctx.fillStyle = material.resinFill;
+        ctx.strokeStyle = material.teacherStroke;
+        ctx.lineWidth = Math.max(1, r * 0.14);
         ctx.beginPath();
         ctx.arc(mapped.x, mapped.y, r, 0, Math.PI * 2);
         ctx.closePath();
@@ -3968,6 +5259,24 @@
       return state.poseData.frames[state.currentFrame];
     }
 
+    function getNearestRenderableFrame(index = state.currentFrame) {
+      const frames = state.poseData?.frames || [];
+      if (!frames.length) return null;
+      const hasPose = (item) => {
+        const pose = getFramePoseLandmarks(item);
+        return Array.isArray(pose) && pose.length >= 29;
+      };
+      const start = clamp(index, 0, frames.length - 1);
+      if (hasPose(frames[start])) return frames[start];
+      for (let offset = 1; offset < frames.length; offset += 1) {
+        const forward = start + offset;
+        if (forward < frames.length && hasPose(frames[forward])) return frames[forward];
+        const backward = start - offset;
+        if (backward >= 0 && hasPose(frames[backward])) return frames[backward];
+      }
+      return frames[start] || null;
+    }
+
     function updateJsonPreview(frame) {
       if (!frame) {
         elements.jsonPreview.textContent = '{\n  "status": "请先加载 JSON"\n}';
@@ -4097,8 +5406,15 @@
 
     function renderNavigation(snapshot) {
       if (elements.navStatus) elements.navStatus.textContent = state.status;
-      if (elements.navPractice) elements.navPractice.disabled = !snapshot.canEnterPractice;
-      if (elements.navResult) elements.navResult.disabled = !snapshot.canOpenResult;
+      if (elements.navPractice) {
+        elements.navPractice.disabled = !snapshot.canEnterPractice;
+        // setup 阶段未就绪时把 tab 彻底隐藏，减少视觉占位
+        elements.navPractice.hidden = !snapshot.canEnterPractice && state.currentView === 'setup';
+      }
+      if (elements.navResult) {
+        elements.navResult.disabled = !snapshot.canOpenResult;
+        elements.navResult.hidden = !snapshot.canOpenResult && state.currentView === 'setup';
+      }
       if (elements.enterPractice) elements.enterPractice.disabled = !snapshot.canEnterPractice;
       if (elements.navBack) {
         elements.navBack.hidden = state.currentView === 'setup';
@@ -4121,9 +5437,6 @@
       if (elements.cameraSecondaryActions) elements.cameraSecondaryActions.hidden = !state.cameraRunning;
       if (elements.setupStatusSummary) {
         elements.setupStatusSummary.textContent = `已完成 ${completedCount} / 6`;
-      }
-      if (elements.enterPractice) {
-        elements.enterPractice.textContent = state.poseData ? '开始练习' : '先加载标准动作';
       }
       if (elements.videoFileTrigger) {
         elements.videoFileTrigger.disabled = !state.serverExtractionAvailable || state.videoExtracting;
@@ -4161,19 +5474,108 @@
       }
 
       if (elements.setupReadyTitle) {
-        elements.setupReadyTitle.textContent = state.poseData
-          ? (state.cameraRunning ? '动作与设备已就绪' : '动作已就绪，可以进入练习页')
-          : '先完成动作和摄像头准备';
+        elements.setupReadyTitle.hidden = !state.poseData;
+        elements.setupReadyTitle.textContent = state.cameraRunning
+          ? '动作与摄像头已就绪'
+          : '动作已就绪';
       }
       if (elements.setupReadyCopy) {
-        elements.setupReadyCopy.textContent = state.poseData
-          ? (state.cameraRunning ? '进入练习页后会直接开始播放，你也可以再切到全屏沉浸练习。' : '你可以先进入练习页观看标准动作，或先打开摄像头。')
-          : '先选择标准动作；进入练习页后会提供播放控制和全屏入口。';
+        elements.setupReadyCopy.hidden = !state.poseData;
+        elements.setupReadyCopy.textContent = state.cameraRunning
+          ? '点击开始练习会直接进入全屏舞台并自动播放。'
+          : '点击开始练习会尝试打开摄像头；允许权限后自动进入练习。';
       }
       if (elements.setupReadyHint) {
-        elements.setupReadyHint.textContent = state.poseData
-          ? `当前 ${state.playSpeed.toFixed(2)}x，可在进入练习前继续调整速度。`
-          : '请先加载标准动作 JSON；全屏舞台会在练习页里自动接管视口。';
+        // 小提示只在高级设置展开时保留，日常流程下隐藏以减少噪音
+        elements.setupReadyHint.hidden = true;
+      }
+      if (elements.enterPractice) {
+        elements.enterPractice.textContent = state.poseData
+          ? (state.cameraRunning ? '开始练习' : '开始练习（自动开启摄像头）')
+          : '先选择一个标准动作';
+      }
+    }
+
+    function computeStageStatus() {
+      // 优先级：模型加载 → 摄像头错误 → 摄像头未开 → 入镜 → 降级 → ok
+      if (!state.mediapipeReady && !state.poseReady) {
+        return { kind: 'loading', title: '识别模型加载中', hint: '首次进入需要加载 MediaPipe，仅几秒钟…' };
+      }
+      if (!state.poseReady) {
+        return { kind: 'loading', title: '初始化姿态识别', hint: '正在挂载 PoseLandmarker' };
+      }
+      if (state.cameraError) {
+        return { kind: 'error', title: '摄像头无法打开', hint: state.cameraError + ' · 请检查浏览器授权' };
+      }
+      if (!state.cameraRunning) {
+        if (state.poseData) return { kind: 'warn', title: '摄像头未开启', hint: '可在右下角切换到练习并开启摄像头' };
+        return { kind: 'idle', title: '准备就绪', hint: '加载一个标准动作即可开始' };
+      }
+      if (!state.personVisible) {
+        return { kind: 'warn', title: '搜索人体中', hint: '请退后半步、保持上半身完全入镜' };
+      }
+      if (state.matchDisabledReason) {
+        return { kind: 'warn', title: '评分已降级', hint: state.matchDisabledReason };
+      }
+      if (state.handsDisabledReason) {
+        return { kind: 'warn', title: '手部识别已降级', hint: state.handsDisabledReason + ' · 仍按躯干评分' };
+      }
+      return { kind: 'ok', title: '人像已锁定', hint: state.isPlaying ? '继续保持节拍' : '随时点击开始播放' };
+    }
+
+    function applyStageStatus() {
+      const banner = elements.stageStatusBanner;
+      if (!banner) return;
+      const inPractice = document.body.dataset.view === 'practice';
+      if (!inPractice) {
+        banner.hidden = true;
+        banner.classList.remove('is-visible');
+        return;
+      }
+      const next = computeStageStatus();
+      // ok 状态：保持 2.4s 后淡出
+      let visible = true;
+      if (next.kind === 'ok') {
+        const now = performance.now();
+        if (state.stageStatus.kind !== 'ok') state.stageStatusOkSince = now;
+        if (now - state.stageStatusOkSince > 2400) visible = false;
+      } else {
+        state.stageStatusOkSince = 0;
+      }
+      state.stageStatus = { ...next, visible };
+      if (!visible) {
+        banner.classList.remove('is-visible');
+        // 让动画完成后再 hidden，避免布局跳动
+        setTimeout(() => {
+          if (state.stageStatus.kind === 'ok' && !state.stageStatus.visible) banner.hidden = true;
+        }, 260);
+        return;
+      }
+      banner.hidden = false;
+      banner.dataset.kind = next.kind;
+      banner.classList.add('is-visible');
+      if (elements.stageStatusTitle) elements.stageStatusTitle.textContent = next.title;
+      if (elements.stageStatusHint) elements.stageStatusHint.textContent = next.hint;
+    }
+
+    function applyStageReticle() {
+      const reticle = elements.stageReticle;
+      if (!reticle) return;
+      const inPractice = document.body.dataset.view === 'practice';
+      const show = inPractice && state.cameraRunning && !state.personVisible && !state.cameraError && state.poseReady;
+      if (show) {
+        reticle.hidden = false;
+        reticle.classList.add('is-visible');
+        if (elements.stageReticleCopy) {
+          elements.stageReticleCopy.textContent = state.poseData
+            ? '请站到画面中央，保持上半身完全入镜'
+            : '请站到画面中央';
+        }
+      } else {
+        reticle.classList.remove('is-visible');
+        setTimeout(() => {
+          if (!reticle.classList.contains('is-visible')) reticle.hidden = true;
+        }, 320);
       }
     }
 
@@ -4233,6 +5635,26 @@
         elements.scoreDialValue.textContent = hasScore ? String(state.matchScore) : '--';
       }
 
+      if (elements.scoreDial) {
+        elements.scoreDial.classList.toggle('is-perfect', typeof state.matchScore === 'number' && state.matchScore >= 85);
+        elements.scoreDial.classList.toggle('is-miss', typeof state.matchScore === 'number' && state.matchScore < 55);
+        // 分数跳变动画：跨 5 分以上才触发，避免每帧抖动
+        if (typeof state.matchScore === 'number') {
+          const prev = state.lastDisplayedScore;
+          if (prev == null || Math.abs(state.matchScore - prev) >= 5) {
+            const now = performance.now();
+            if (now - state.lastScoreBumpAt > 400) {
+              elements.scoreDial.classList.remove('score-dial-bump');
+              // 强制重排以重启动画
+              void elements.scoreDial.offsetWidth;
+              elements.scoreDial.classList.add('score-dial-bump');
+              state.lastScoreBumpAt = now;
+            }
+          }
+          state.lastDisplayedScore = state.matchScore;
+        }
+      }
+
       if (elements.beatBadge) {
         const hot = Boolean(state.beatWindow?.isHot);
         const nextBeatLabel = state.beatWindow ? getBeatTypeLabel(state.beatWindow.beatType) : '';
@@ -4265,19 +5687,79 @@
       }
 
       syncBeatStripMirror();
+      applyStageStatus();
+      applyStageReticle();
+    }
+
+    function animateScoreText(el, targetText) {
+      if (!el) return;
+      const n = Number.parseFloat(String(targetText).replace(/[^\d.+-]/g, ''));
+      if (!Number.isFinite(n)) {
+        el.textContent = targetText;
+        return;
+      }
+      const suffix = String(targetText).replace(/[\d.+-]+/, '').trim();
+      const duration = 700;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const v = n * eased;
+        el.textContent = suffix ? `${Math.round(v)}${suffix}` : (n % 1 ? v.toFixed(1) : String(Math.round(v)));
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = targetText;
+      }
+      requestAnimationFrame(step);
+    }
+
+    function setArmBarFill(fillEl, barEl, scoreText) {
+      if (!fillEl) return;
+      const num = Number(String(scoreText).replace('%', ''));
+      const pct = Number.isFinite(num) ? Math.max(0, Math.min(100, num)) : 0;
+      fillEl.style.width = `${pct}%`;
+      if (barEl) barEl.classList.toggle('is-low', pct < 60 && Number.isFinite(num));
+    }
+
+    const RING_CIRCUMFERENCE = 2 * Math.PI * 54;
+
+    function setResultRing(scoreText, captionText) {
+      const ring = elements.resultRingProgress;
+      const value = elements.resultRingValue;
+      const caption = elements.resultRingCaption;
+      if (!ring || !value) return;
+      const num = Number(String(scoreText).replace('%', ''));
+      const pct = Number.isFinite(num) ? Math.max(0, Math.min(100, num)) : 0;
+      const offset = RING_CIRCUMFERENCE * (1 - pct / 100);
+      ring.style.strokeDasharray = `${RING_CIRCUMFERENCE.toFixed(3)}`;
+      ring.style.strokeDashoffset = Number.isFinite(num) ? offset.toFixed(3) : RING_CIRCUMFERENCE.toFixed(3);
+      ring.style.stroke = !Number.isFinite(num)
+        ? 'url(#ringGradient)'
+        : (pct >= 80 ? 'url(#ringGradient)' : (pct >= 60 ? '#ffd36e' : '#ff7b8a'));
+      value.textContent = Number.isFinite(num) ? String(Math.round(num)) : '--';
+      if (caption) caption.textContent = captionText || '本轮均分';
     }
 
     function renderResultView(snapshot) {
       elements.leftArmScore.textContent = snapshot.leftArmText;
       elements.rightArmScore.textContent = snapshot.rightArmText;
+      setArmBarFill(elements.leftArmFill, elements.leftArmBar, snapshot.leftArmText);
+      setArmBarFill(elements.rightArmFill, elements.rightArmBar, snapshot.rightArmText);
       elements.beatHitRate.textContent = snapshot.beatHitRateText;
       elements.beatCompositeScore.textContent = snapshot.beatCompositeText;
+
+      const prevFinalText = elements.finalAverageScore?.textContent;
 
       if (state.finalScores) {
         elements.resultTitle.textContent = '本轮评分已结算';
         elements.resultSubtitle.textContent = `过程均分 ${snapshot.finalAverageText} · 拍点命中 ${snapshot.beatHitRateText} · 拍点击分 ${snapshot.beatCompositeText}`;
-        elements.finalAverageScore.textContent = snapshot.finalAverageText;
+        // 首次进入 Result 显示最终分时做一次数字滚动
+        if (prevFinalText === '--' || prevFinalText === undefined) {
+          animateScoreText(elements.finalAverageScore, snapshot.finalAverageText);
+        } else {
+          elements.finalAverageScore.textContent = snapshot.finalAverageText;
+        }
         elements.finalConclusion.textContent = snapshot.finalConclusionText;
+        setResultRing(snapshot.finalAverageText, '本轮均分');
         elements.resultReviewTitle.textContent = state.finalScores.conclusion || '已完成结算';
         elements.resultReviewText.textContent = `左右臂结果 ${snapshot.leftArmText} / ${snapshot.rightArmText}，动作结论 ${state.matchLabel}，节奏统计 ${snapshot.beatStatsText}。`;
       } else if (state.playbackCompleted) {
@@ -4285,6 +5767,7 @@
         elements.resultSubtitle.textContent = '标准动作已完整播放，但本轮没有生成有效评分。通常是因为未打开摄像头或人体未稳定入镜。';
         elements.finalAverageScore.textContent = '--';
         elements.finalConclusion.textContent = '未产生有效评分';
+        setResultRing('--', '未产生评分');
         elements.resultReviewTitle.textContent = '未产生有效评分';
         elements.resultReviewText.textContent = `拍点命中 ${snapshot.beatHitRateText}，拍点击分 ${snapshot.beatCompositeText}。如需动作评分，请返回准备页打开摄像头后再练一轮。`;
       } else {
@@ -4292,6 +5775,7 @@
         elements.resultSubtitle.textContent = '完成一轮播放后，这里会展示过程均分、节奏命中和动作结论。';
         elements.finalAverageScore.textContent = '--';
         elements.finalConclusion.textContent = '待结算';
+        setResultRing('--', '本轮均分');
         elements.resultReviewTitle.textContent = '还没有结算结果';
         elements.resultReviewText.textContent = '进入练习页并完成一轮播放后，这里会输出动作和节奏复盘摘要。';
       }
@@ -4320,11 +5804,26 @@
       elements.frameSlider.disabled = !state.poseData;
       elements.frameSlider.max = Math.max(0, snapshot.totalFrames - 1);
       elements.frameSlider.value = snapshot.totalFrames ? state.currentFrame : 0;
+      if (elements.debugClothingSwatch) {
+        elements.debugClothingSwatch.style.background = state.clothingColor
+          ? rgbToCss(state.clothingColor, 1)
+          : 'rgba(255, 255, 255, 0.18)';
+      }
+      if (elements.debugTeacherSwatch) {
+        elements.debugTeacherSwatch.style.background = state.teacherPalette?.stroke || DEFAULT_TEACHER_PALETTE.stroke;
+      }
+      if (elements.debugPerfBadge) {
+        elements.debugPerfBadge.textContent = state.teacherFrameAvgMs
+          ? `${state.teacherHighDetail ? '高细节' : '降级'} ${Math.round(1000 / Math.max(1, state.teacherFrameAvgMs))}fps`
+          : '--';
+      }
       elements.hudText.textContent = [
         `状态: ${state.status}`,
         `人体: ${snapshot.personText}`,
         `镜像: ${state.mirrorEnabled ? '开启' : '关闭'}`,
         `${snapshot.userPositionText}`,
+        `教师颜色: 衣着 ${state.clothingColor ? rgbToCss(state.clothingColor, 1) : '--'} / 教师 ${state.teacherPalette?.stroke || DEFAULT_TEACHER_PALETTE.stroke}`,
+        `教师细节: ${state.teacherFrameAvgMs ? `${state.teacherHighDetail ? '高细节' : '降级'} ${Math.round(1000 / Math.max(1, state.teacherFrameAvgMs))}fps` : '--'}`,
         `评分范围: 仅双臂（肩/肘/腕）`,
         `手部可视化: 用户 ${snapshot.userHandText} / JSON ${snapshot.targetHandCount}`,
         `匹配状态: ${state.matchDisabledReason ? `降级(${state.matchDisabledReason})` : '正常'}`,
@@ -4347,58 +5846,67 @@
       renderDebugPanel(snapshot);
     }
 
+    function updateTeacherDetailBudget() {
+      const now = performance.now();
+      if (state.lastTeacherFrameAt) {
+        const frameMs = now - state.lastTeacherFrameAt;
+        state.teacherFrameAvgMs = state.teacherFrameAvgMs == null
+          ? frameMs
+          : state.teacherFrameAvgMs * 0.9 + frameMs * 0.1;
+        if (state.teacherFrameAvgMs > 45) state.teacherHighDetail = false;
+        else if (state.teacherFrameAvgMs < 30) state.teacherHighDetail = true;
+      }
+      state.lastTeacherFrameAt = now;
+    }
+
     function render() {
+      updateTeacherDetailBudget();
       resizeCanvas();
       const { ctx, canvas } = elements;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const userPose = Array.isArray(state.lastPose) ? state.lastPose : null;
+      // 用 EMA 得到展示用的平滑姿态，匹配仍走 lastPose
+      if (userPose) {
+        state.smoothedUserPose = smoothLandmarks(state.smoothedUserPose, userPose, 0.5);
+      } else {
+        state.smoothedUserPose = null;
+      }
+      const userPoseDisplay = state.smoothedUserPose || userPose;
       const frame = getCurrentTargetFrame();
       const alignedFrame = frame ? safeGetAlignedFrameData(frame, state.lastPose) : null;
+      const visualFrame = frame && Array.isArray(getFramePoseLandmarks(frame)) && getFramePoseLandmarks(frame).length >= 29
+        ? frame
+        : getNearestRenderableFrame();
+      const displayFrame = visualFrame ? safeGetAlignedFrameData(visualFrame, null) : null;
       const playbackTime = getPlaybackClockTime();
       updateRhythmPrompt(playbackTime);
       evaluateRhythmProgress(playbackTime);
+      refreshTeacherPalette(userPose);
 
       const mirror = state.mirrorEnabled;
       const maybeMirrorPose = (pose) => (mirror ? mirrorLandmarksX(pose) : pose);
       const maybeMirrorHands = (hands) => (mirror ? mirrorHandsX(hands) : hands);
+      const teacherPalette = state.teacherPalette || DEFAULT_TEACHER_PALETTE;
 
-      // 先画标准动作（底层），再画用户（叠在上方），方便观察重合度
-      if (frame) {
+      // 只渲染标准动作：摄像头与用户骨架继续参与识别/评分，但不进入舞台视觉层。
+      if (visualFrame) {
         drawHumanBody(
-          maybeMirrorPose(alignedFrame?.pose || getFramePoseLandmarks(frame)),
-          alignedFrame?.alignedToUser ? BODY_PALETTES.targetStrong : BODY_PALETTES.target,
-          CAPSULE_ONLY_BODY_DRAW
+          maybeMirrorPose(displayFrame?.pose || getFramePoseLandmarks(visualFrame)),
+          teacherPalette,
+          { ...CAPSULE_ONLY_BODY_DRAW, highDetail: state.teacherHighDetail }
         );
       }
 
-      if (frame) {
-        drawHands(maybeMirrorHands(alignedFrame?.hands || frame.hands || []));
-      }
-
-      if (userPose) {
-        let userPalette = BODY_PALETTES.user;
-        if (typeof state.matchScore === 'number') {
-          if (state.matchScore < 55) userPalette = BODY_PALETTES.miss;
-          else if (state.matchScore >= 85) userPalette = BODY_PALETTES.userPerfect;
-        }
-        drawHumanBody(maybeMirrorPose(userPose), userPalette, CAPSULE_ONLY_BODY_DRAW);
-      }
-
-      if (userPose && hasActiveHeadSticker()) {
-        drawHeadSticker(maybeMirrorPose(userPose));
-      } else {
-        state.stickerHeadTransform = null;
-      }
-
-      if (state.lastHands.length) {
-        drawHands(maybeMirrorHands(state.lastHands), {
+      if (visualFrame) {
+        drawHands(maybeMirrorHands(displayFrame?.hands || visualFrame.hands || []), {
           monochrome: {
-            stroke: 'rgba(110, 243, 168, 0.92)',
-            fill: 'rgba(110, 243, 168, 0.92)',
+            stroke: teacherPalette.stroke,
+            fill: teacherPalette.accent || teacherPalette.stroke,
           },
         });
       }
+      state.stickerHeadTransform = null;
 
       updateJsonPreview(frame);
       const stageCopy = getStageCopy(alignedFrame);
@@ -4630,6 +6138,8 @@
         await elements.video.play();
         state.stream = stream;
         state.cameraRunning = true;
+        state.cameraError = null;
+        state.autoCameraRequested = false;
         setStatus('摄像头已连接，开始识别人像');
         if (!state.loopRunning) {
           state.loopRunning = true;
@@ -4638,7 +6148,8 @@
       } catch (error) {
         state.cameraRunning = false;
         state.loopRunning = false;
-        setStatus(`无法打开摄像头: ${error.message}`);
+        state.cameraError = describeCameraError(error);
+        setStatus(`无法打开摄像头: ${state.cameraError}`);
       }
     }
 
@@ -4700,6 +6211,9 @@
 
       state.poseData = json;
       state.jsonName = sourceName;
+      const matchedPreset = BUNDLED_POSE_PRESETS.find((p) => sourceName && (sourceName === p.label || sourceName.endsWith(p.label)));
+      state.selectedPresetId = matchedPreset ? matchedPreset.id : null;
+      if (typeof highlightSelectedPreset === 'function') highlightSelectedPreset();
       state.jsonAspectRatio = typeof json.aspect_ratio === 'number' && json.aspect_ratio > 0
         ? json.aspect_ratio
         : (json.video_width && json.video_height ? json.video_width / json.video_height : null);
@@ -4777,6 +6291,7 @@
     async function loadBundledJson(path, label) {
       try {
         setStatus(`正在加载 ${label}`);
+        setPresetLoadingId(findPresetIdByLabel(label));
         const response = await fetch(path);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
@@ -4788,7 +6303,23 @@
         attachAudio(inferAudioSource(path, json.audio_source));
       } catch (error) {
         setStatus(`加载示例失败: ${error.message}`);
+      } finally {
+        setPresetLoadingId(null);
       }
+    }
+
+    function findPresetIdByLabel(label) {
+      const p = BUNDLED_POSE_PRESETS.find((item) => item.label === label);
+      return p ? p.id : null;
+    }
+
+    function setPresetLoadingId(id) {
+      state.presetLoadingId = id || null;
+      const grid = document.querySelector('#presetGrid');
+      if (!grid) return;
+      grid.querySelectorAll('.preset-card').forEach((card) => {
+        card.classList.toggle('is-loading', card.dataset.presetId === state.presetLoadingId);
+      });
     }
 
     function syncAudioToFrame() {
@@ -4937,13 +6468,64 @@
       }
     });
 
-    BUNDLED_POSE_PRESETS.forEach((preset) => {
-      const button = document.querySelector(`#${preset.buttonId}`);
-      if (!button) return;
-      button.addEventListener('click', () => {
-        loadBundledJson(preset.path, preset.label);
+    const PRESET_COVER_PALETTE = {
+      hongmen:   ['rgba(255, 92, 132, 0.55)',  'rgba(255, 195, 0, 0.45)'],
+      timoteam:  ['rgba(255, 184, 59, 0.55)',  'rgba(255, 92, 132, 0.4)'],
+      shoushi:   ['rgba(110, 231, 255, 0.55)', 'rgba(84, 243, 168, 0.45)'],
+      angel:     ['rgba(180, 160, 255, 0.55)', 'rgba(110, 231, 255, 0.45)'],
+      ladada:    ['rgba(84, 243, 168, 0.55)',  'rgba(255, 211, 110, 0.45)'],
+      xingqiyao: ['rgba(255, 211, 110, 0.55)', 'rgba(110, 231, 255, 0.45)'],
+      migaoyao:  ['rgba(255, 168, 200, 0.55)', 'rgba(255, 92, 132, 0.4)'],
+      huajiliao: ['rgba(255, 168, 200, 0.55)', 'rgba(180, 160, 255, 0.4)'],
+      mofa:      ['rgba(110, 142, 255, 0.55)', 'rgba(180, 160, 255, 0.45)'],
+    };
+    const PRESET_COVER_FALLBACK = ['rgba(0, 194, 255, 0.45)', 'rgba(78, 242, 207, 0.4)'];
+
+    function renderPresetGrid() {
+      const grid = document.querySelector('#presetGrid');
+      if (!grid) return;
+      if (grid.dataset.rendered === '1') return;
+      const frag = document.createDocumentFragment();
+      BUNDLED_POSE_PRESETS.forEach((preset) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'preset-card';
+        button.dataset.presetId = preset.id;
+        button.setAttribute('role', 'listitem');
+        const [coverA, coverB] = PRESET_COVER_PALETTE[preset.id] || PRESET_COVER_FALLBACK;
+        button.style.setProperty('--cover-a', coverA);
+        button.style.setProperty('--cover-b', coverB);
+        button.innerHTML = `
+          <div class="preset-cover">
+            <span class="preset-emoji">${preset.emoji}</span>
+          </div>
+          <div class="preset-body">
+            <strong>${preset.name}</strong>
+            <small>${preset.tagline}</small>
+          </div>
+          ${preset.featured ? '<span class="preset-badge">推荐</span>' : ''}
+        `;
+        button.addEventListener('click', () => {
+          state.selectedPresetId = preset.id;
+          highlightSelectedPreset();
+          loadBundledJson(preset.path, preset.label);
+        });
+        frag.appendChild(button);
       });
-    });
+      grid.appendChild(frag);
+      grid.dataset.rendered = '1';
+    }
+
+    function highlightSelectedPreset() {
+      const grid = document.querySelector('#presetGrid');
+      if (!grid) return;
+      grid.querySelectorAll('.preset-card').forEach((card) => {
+        card.classList.toggle('is-selected', card.dataset.presetId === state.selectedPresetId);
+      });
+    }
+
+    BUNDLED_POSE_PRESETS.forEach(() => { /* placeholder kept for diff stability */ });
+    renderPresetGrid();
 
     elements.openCamera.addEventListener('click', openCamera);
     elements.stopCamera.addEventListener('click', stopCamera);
@@ -5194,13 +6776,26 @@
     applyMirrorState();
     void checkExtractionApiAvailability();
     setStatus('等待加载 JSON 与摄像头');
-    void loadBundledJson(DEFAULT_BUNDLED_POSE.path, DEFAULT_BUNDLED_POSE.label);
+
+    // URL 直达：?preset=hongmen 或 preset 名称匹配；?autoplay=1 自动进 practice
+    const presetParam = (urlParams.get('preset') || '').trim();
+    const autoplayParam = urlParams.get('autoplay') === '1';
+    const matchedPreset = presetParam
+      ? BUNDLED_POSE_PRESETS.find((p) => p.id === presetParam || p.name === presetParam || p.label === presetParam)
+      : null;
+    const initialPreset = matchedPreset || DEFAULT_BUNDLED_POSE;
+    void (async () => {
+      await loadBundledJson(initialPreset.path, initialPreset.label);
+      if (matchedPreset && autoplayParam) {
+        await enterPracticeFlow({ autoplay: true });
+      }
+    })();
     render();
 
     /* =============================================================
        录屏模块（ScreenRecorder）
        - 完全自包含的 IIFE，不触碰已有的 state / elements 字段
-       - 录制 #cameraVideo + #overlayCanvas 合成画面 + #bgmAudio 背景音
+       - 录制标准动作舞台背景 + #overlayCanvas 合成画面 + #bgmAudio 背景音
        ============================================================= */
     (function initScreenRecorder() {
       if (!('MediaRecorder' in window) || !HTMLCanvasElement.prototype.captureStream) {
@@ -5286,7 +6881,6 @@
 
       function composeFrame() {
         if (!local.isRecording) return;
-        const video = document.querySelector('#cameraVideo');
         const overlay = document.querySelector('#overlayCanvas');
         const ctx = local.composeCtx;
         const cvs = local.composeCanvas;
@@ -5297,31 +6891,11 @@
         }
 
         ctx.save();
-        ctx.fillStyle = '#010205';
+        const gradient = ctx.createLinearGradient(0, 0, 0, cvs.height);
+        gradient.addColorStop(0, '#060b13');
+        gradient.addColorStop(1, '#020409');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, cvs.width, cvs.height);
-
-        const mirrored = Boolean(
-          typeof state !== 'undefined' && state && state.mirrorEnabled
-        );
-
-        if (video && video.readyState >= 2 && video.videoWidth && video.videoHeight) {
-          const vw = video.videoWidth;
-          const vh = video.videoHeight;
-          const scale = Math.max(cvs.width / vw, cvs.height / vh);
-          const dw = vw * scale;
-          const dh = vh * scale;
-          const ox = (cvs.width - dw) / 2;
-          const oy = (cvs.height - dh) / 2;
-
-          if (mirrored) {
-            ctx.translate(cvs.width, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, ox, oy, dw, dh);
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-          } else {
-            ctx.drawImage(video, ox, oy, dw, dh);
-          }
-        }
 
         if (overlay) {
           ctx.drawImage(overlay, 0, 0, cvs.width, cvs.height);

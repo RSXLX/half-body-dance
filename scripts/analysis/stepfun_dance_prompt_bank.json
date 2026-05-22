@@ -1,0 +1,145 @@
+{
+  "dance_terms": [
+    {
+      "term": "卡点",
+      "meaning": "动作在音乐重拍、鼓点或歌词重音处干净命中，可以描述为“卡住这一拍”。"
+    },
+    {
+      "term": "打点",
+      "meaning": "短促明确的发力点，常见于手腕、肩、胸、胯的瞬间定住或弹出。"
+    },
+    {
+      "term": "定点 / freeze",
+      "meaning": "动作短暂停住，形成清晰 pose 或收势。"
+    },
+    {
+      "term": "wave",
+      "meaning": "手臂、手腕、肩、胸或身体形成连续波浪传导。"
+    },
+    {
+      "term": "body roll",
+      "meaning": "胸、腰、胯沿身体纵向连续滚动。"
+    },
+    {
+      "term": "isolation",
+      "meaning": "身体某一部位单独运动，其他部位尽量保持稳定。"
+    },
+    {
+      "term": "groove / 律动",
+      "meaning": "身体跟随节拍做持续弹性摆动，常见于膝盖、胯、肩和胸。"
+    },
+    {
+      "term": "bounce",
+      "meaning": "重心随节拍上下弹动，带有轻微下沉和回弹。"
+    },
+    {
+      "term": "pop",
+      "meaning": "肌肉或关节瞬间收紧释放，动作短促有爆点。"
+    },
+    {
+      "term": "roll",
+      "meaning": "肩、胸、胯或手腕绕圆弧滚动。"
+    },
+    {
+      "term": "hit",
+      "meaning": "动作在某一瞬间重击、停顿或强调。"
+    },
+    {
+      "term": "收势",
+      "meaning": "一组动作结束时回收到稳定姿态。"
+    }
+  ],
+  "action_labels": [
+    {
+      "label": "抬手 / 上举",
+      "guidance": [
+        "一只或两只手从胸口、腰侧向肩膀以上移动",
+        "手腕、手肘、肩线整体有上提趋势"
+      ]
+    },
+    {
+      "label": "落手 / 下压",
+      "guidance": [
+        "手臂或手掌从高处向下落、压、洒",
+        "动作可能有落雨、按压、沉下去的视觉语义"
+      ]
+    },
+    {
+      "label": "开合",
+      "guidance": [
+        "双臂向身体两侧打开，或从外侧向身体中线合拢",
+        "关注胸口是否打开、手部距离是否明显变化"
+      ]
+    },
+    {
+      "label": "摆臂",
+      "guidance": [
+        "手臂沿左右、斜上或斜下方向连续摆动",
+        "可标注主导方向，例如向左摆、向右摆、斜上摆"
+      ]
+    },
+    {
+      "label": "绕手 / 画圈",
+      "guidance": [
+        "手腕、前臂或整条手臂做圆弧或环绕轨迹",
+        "可描述顺时针、逆时针、胸前绕、头顶绕"
+      ]
+    },
+    {
+      "label": "扭胯 / 转身",
+      "guidance": [
+        "髋部或躯干出现左右扭转、回身、转体",
+        "即使是半身视频，也可通过肩线、腰线和重心判断"
+      ]
+    },
+    {
+      "label": "肩胸律动",
+      "guidance": [
+        "肩膀、胸口随节拍前后或上下弹动",
+        "适合描述 groove、chest pop、shoulder hit"
+      ]
+    },
+    {
+      "label": "下蹲 / 重心下沉",
+      "guidance": [
+        "身体高度明显降低，膝盖或髋部下沉",
+        "半身画面可通过肩部和头部高度变化推断"
+      ]
+    },
+    {
+      "label": "定格 pose",
+      "guidance": [
+        "动作突然停住，形成明确造型",
+        "常用于段落结尾、卡点或收势"
+      ]
+    }
+  ],
+  "output_schema_hint": {
+    "video_summary": "一句话总结舞蹈风格、节奏密度和主导身体部位",
+    "frame_actions": [
+      {
+        "frame_index": 1,
+        "timestamp_sec": 0.0,
+        "action": "抬手",
+        "body_parts": ["right_wrist", "right_elbow"],
+        "dance_term": "卡点",
+        "direction": "up",
+        "teaching_cue": "右手从胸前向上提，肩膀不要耸",
+        "confidence": 0.86
+      }
+    ],
+    "segments": [
+      {
+        "start_sec": 0.0,
+        "end_sec": 1.2,
+        "label": "右手上举卡点",
+        "summary": "右手快速上提后定住",
+        "primary_actions": ["抬手", "定格 pose"],
+        "dance_terms": ["卡点", "freeze"],
+        "difficulty": 2,
+        "teaching_cues": ["先抬肘再带手腕", "最后一拍停稳"],
+        "confidence": 0.82
+      }
+    ]
+  }
+}

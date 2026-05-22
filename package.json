@@ -1,12 +1,15 @@
 {
   "name": "wu",
   "version": "1.0.0",
-  "description": "Pose matching workspace",
+  "description": "Pose matching workspace (legacy + Vite migration)",
   "main": "index.js",
   "scripts": {
     "dev": "./.venv/bin/python dev_server.py",
     "start": "./.venv/bin/python dev_server.py",
-    "test": "echo \"No automated tests configured\""
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:test": "npm --prefix web run test",
+    "test": "npm --prefix web run test"
   },
   "keywords": [],
   "author": "",

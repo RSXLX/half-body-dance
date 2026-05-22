@@ -32,13 +32,18 @@
 - `pose_viewer.html`：主界面，包含准备页、练习页、结果页三段流程。
 - `dev_server.py`：本地开发服务，提供静态页面、`/api/health` 和 `/api/extract-pose`。
 - `extract_pose.py`：离线姿态提取脚本，输出 MediaPipe Pose + Hand JSON。
-- `analyze_pose_emoji.py`：基于规则的动作 emoji 时间线分析。
-- `analyze_video_emoji_volcengine.py`：分析公网视频 URL 的动作 emoji 时间线。
-- `upload_and_analyze_video_volcengine.py`：先上传本地视频到 TOS，再调用 ARK 分析。
-- `analyze_emoji_color_timeline_volcengine.py`：分析 emoji 视频颜色变化与音频结构。
-- `volcengine_emoji_prompt_bank.json`：火山引擎动作分析提示词库。
+- `scripts/analysis/`：
+  - `analyze_pose_emoji.py`：基于规则的动作 emoji 时间线分析。
+  - `analyze_video_emoji_volcengine.py`：分析公网视频 URL 的动作 emoji 时间线。
+  - `upload_and_analyze_video_volcengine.py`：先上传本地视频到 TOS，再调用 ARK 分析。
+  - `analyze_emoji_color_timeline_volcengine.py`：分析 emoji 视频颜色变化与音频结构。
+  - `analyze_video_frames_stepfun.py`：用 ffmpeg 抽取本地视频帧，再调用 StepFun 图片理解模型做逐帧舞蹈动作解析。
+  - `volcengine_emoji_prompt_bank.json`：火山引擎动作分析提示词库。
+  - `stepfun_dance_prompt_bank.json`：StepFun 逐帧舞蹈动作解析提示词库。
 - `wudao/`：示例视频和对应姿态 JSON。
-- `App.jsx`：早期 React 原型，不是当前主入口。
+- `output/`：分析产物默认落盘目录（已加入 `.gitignore`）。
+- `assets/`：本地调试图/音。
+- `legacy/App.jsx`：早期 React 原型，归档保留，不是当前主入口。
 
 ## 环境准备
 
@@ -182,13 +187,13 @@ python3 extract_pose.py wudao/angel.mp4 wudao/angel_pose.json \
 ### 1. 基于姿态 JSON 的规则分析
 
 ```bash
-python3 analyze_pose_emoji.py wudao/angel_pose.json
+python3 scripts/analysis/analyze_pose_emoji.py wudao/angel_pose.json
 ```
 
 可选输出路径：
 
 ```bash
-python3 analyze_pose_emoji.py wudao/angel_pose.json -o wudao/angel_emoji_analysis.json
+python3 scripts/analysis/analyze_pose_emoji.py wudao/angel_pose.json -o wudao/angel_emoji_analysis.json
 ```
 
 这个脚本会读取 `frames[].pose_landmarks`，按时间段生成：
@@ -203,7 +208,7 @@ python3 analyze_pose_emoji.py wudao/angel_pose.json -o wudao/angel_emoji_analysi
 
 ```bash
 export ARK_API_KEY=...
-python3 analyze_video_emoji_volcengine.py --video-url "https://example.com/demo.mp4"
+python3 scripts/analysis/analyze_video_emoji_volcengine.py --video-url "https://example.com/demo.mp4"
 ```
 
 常见可选项：
@@ -222,7 +227,7 @@ export ARK_API_KEY=...
 export TOS_ACCESS_KEY=...
 export TOS_SECRET_KEY=...
 export TOS_BUCKET=...
-python3 upload_and_analyze_video_volcengine.py wudao/angel.mp4
+python3 scripts/analysis/upload_and_analyze_video_volcengine.py wudao/angel.mp4
 ```
 
 这个脚本会：
@@ -235,8 +240,42 @@ python3 upload_and_analyze_video_volcengine.py wudao/angel.mp4
 如果只想预览 payload 和对象 key，不实际发请求，可以加：
 
 ```bash
-python3 upload_and_analyze_video_volcengine.py wudao/angel.mp4 --dry-run
+python3 scripts/analysis/upload_and_analyze_video_volcengine.py wudao/angel.mp4 --dry-run
 ```
+
+## StepFun 逐帧舞蹈动作解析
+
+这个分支适合本地视频：先用 ffmpeg 抽帧，再把图片帧按批次发给 StepFun Chat Completions 图片理解接口。请求地址默认是：
+
+```text
+https://api.stepfun.ai/v1/chat/completions
+```
+
+基础用法：
+
+```bash
+export STEPFUN_API_KEY=...
+python3 scripts/analysis/analyze_video_frames_stepfun.py wudao/angel.mp4 \
+  --model step-3.6 \
+  --sample-fps 2 \
+  --max-frames 40 \
+  -o output/angel_stepfun_dance_analysis.json
+```
+
+常用参数：
+
+- `--sample-fps`：抽帧采样 fps；不传则逐帧抽取，短视频可以用，长视频建议设为 `1` 到 `3`。
+- `--max-frames`：限制发送图片数量，便于先跑小样本。
+- `--batch-size`：每次请求发送的图片数量，默认 `12`。
+- `--prompt-bank`：舞蹈术语和动作标签 prompt 库，默认 `scripts/analysis/stepfun_dance_prompt_bank.json`。
+- `--extra-guidance`：附加提示词，例如强调“只分析半身手势”或“输出更口语化教学 cue”。
+- `--dry-run`：只抽帧并输出 prompt / payload 预览，不请求接口。
+
+输出结果会包含：
+
+- `frame_actions`：逐帧动作解析，含 `frame_index`、`timestamp_sec`、`action`、`body_parts`、`dance_term`、`teaching_cue`。
+- `segments`：连续动作段，把相邻语义一致的帧合并成适合教学展示的动作拆解。
+- `prompt_text`：本次实际使用的完整 prompt，方便管理和复盘。
 
 ## emoji 颜色与音频时间轴分析
 
@@ -244,7 +283,7 @@ python3 upload_and_analyze_video_volcengine.py wudao/angel.mp4 --dry-run
 
 ```bash
 export ARK_API_KEY=...
-python3 analyze_emoji_color_timeline_volcengine.py \
+python3 scripts/analysis/analyze_emoji_color_timeline_volcengine.py \
   --video-url "https://example.com/emoji.mp4"
 ```
 
@@ -259,7 +298,7 @@ python3 analyze_emoji_color_timeline_volcengine.py \
 如果只想检查 prompt 和请求体：
 
 ```bash
-python3 analyze_emoji_color_timeline_volcengine.py \
+python3 scripts/analysis/analyze_emoji_color_timeline_volcengine.py \
   --video-url "https://example.com/emoji.mp4" \
   --dry-run
 ```
@@ -283,22 +322,39 @@ export TOS_ENDPOINT=tos-cn-beijing.volces.com
 - `TOS_ACCESS_KEY` / `TOS_SECRET_KEY` / `TOS_BUCKET`：上传本地视频到 TOS 时必需。
 - `TOS_REGION` 和 `TOS_ENDPOINT`：可选，不传时脚本会按默认区域推导。
 
+StepFun 逐帧图片分析只需要：
+
+```bash
+export STEPFUN_API_KEY=...
+```
+
 ## 仓库结构
 
 ```text
 .
 ├── README.md
+├── CLAUDE.md
 ├── dev_server.py
 ├── extract_pose.py
-├── analyze_pose_emoji.py
-├── analyze_video_emoji_volcengine.py
-├── upload_and_analyze_video_volcengine.py
-├── analyze_emoji_color_timeline_volcengine.py
 ├── pose_viewer.html
-├── App.jsx
-├── volcengine_emoji_prompt_bank.json
+├── package.json
+├── pose_landmarker.task / hand_landmarker.task   # 由 extract_pose.py 自动下载
+├── scripts/
+│   └── analysis/
+│       ├── analyze_pose_emoji.py
+│       ├── analyze_video_emoji_volcengine.py
+│       ├── upload_and_analyze_video_volcengine.py
+│       ├── analyze_emoji_color_timeline_volcengine.py
+│       └── volcengine_emoji_prompt_bank.json
+├── output/                                       # 分析产物（gitignored）
+├── assets/                                       # 本地调试图/音
+├── legacy/
+│   ├── App.jsx
+│   └── snapshot.html
 ├── docs/
-│   └── pose-viewer-frontend-refactor-plan.md
+│   ├── pose-viewer-frontend-refactor-plan.md
+│   ├── refactor-roadmap.md
+│   └── product-and-optimization-roadmap.md
 └── wudao/
     ├── *.mp4
     ├── *_pose.json
@@ -308,7 +364,7 @@ export TOS_ENDPOINT=tos-cn-beijing.volces.com
 ## 当前约定与限制
 
 - 当前没有自动化测试，`npm test` 只会输出占位文本。
-- `App.jsx` 是早期原型，当前功能迭代应以 `pose_viewer.html` 为主。
+- `App.jsx` 已归档到 `legacy/`，当前功能迭代以 `pose_viewer.html` 为主。
 - 仓库里直接提交了示例视频、姿态 JSON 和模型文件，改动流程时要注意产物体积。
 - 页面和脚本文案当前以中文为主，后续新增说明建议保持一致风格。
 

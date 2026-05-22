@@ -10,6 +10,10 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from extract_pose import HAND_MODEL_FILE, POSE_MODEL_FILE, extract_pose_from_video
+import sys as _sys
+
+_sys.path.insert(0, str(Path(__file__).resolve().parent / "scripts" / "analysis"))
+from analyze_motion import analyze_from_dict  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 MAX_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -57,6 +61,9 @@ class PoseDevServerHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == "/api/analyze-motion":
+            self.handle_analyze_motion()
+            return
         if parsed.path != "/api/extract-pose":
             self.respond_json({"ok": False, "error": "Not found"}, status=HTTPStatus.NOT_FOUND)
             return
@@ -127,6 +134,96 @@ class PoseDevServerHandler(SimpleHTTPRequestHandler):
                 },
                 status=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
+
+    def handle_analyze_motion(self):
+        try:
+            content_length = int(self.headers.get("Content-Length", "0") or "0")
+        except ValueError:
+            content_length = 0
+
+        if content_length <= 0 or content_length > MAX_UPLOAD_BYTES:
+            self.respond_json(
+                {"ok": False, "error": "请求体为空或过大。"},
+                status=HTTPStatus.BAD_REQUEST,
+            )
+            return
+
+        try:
+            raw = self.rfile.read(content_length)
+            payload = json.loads(raw.decode("utf-8"))
+        except Exception as exc:
+            self.respond_json(
+                {"ok": False, "error": f"无法解析 JSON：{exc}"},
+                status=HTTPStatus.BAD_REQUEST,
+            )
+            return
+
+        pose_json = payload.get("poseJson")
+        pose_path = payload.get("posePath")
+        if not pose_json and pose_path:
+            try:
+                with open(ROOT / pose_path, "r", encoding="utf-8") as f:
+                    pose_json = json.load(f)
+            except Exception as exc:
+                self.respond_json(
+                    {"ok": False, "error": f"读取 posePath 失败：{exc}"},
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+                return
+
+        if not isinstance(pose_json, dict) or "frames" not in pose_json:
+            self.respond_json(
+                {"ok": False, "error": "poseJson 缺少 frames 字段。"},
+                status=HTTPStatus.BAD_REQUEST,
+            )
+            return
+
+        beat_times = payload.get("beatTimes")
+        if beat_times is not None:
+            try:
+                beat_times = [float(b) for b in beat_times]
+            except (TypeError, ValueError):
+                self.respond_json(
+                    {"ok": False, "error": "beatTimes 必须是数字数组。"},
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+                return
+
+        bpm = payload.get("bpm")
+        if bpm is not None:
+            try:
+                bpm = float(bpm)
+            except (TypeError, ValueError):
+                bpm = None
+
+        try:
+            motion = analyze_from_dict(
+                pose_json,
+                source_pose=str(pose_path or "<upload>"),
+                min_segment_duration=float(payload.get("minSegment", 0.6)),
+                max_segments=int(payload.get("maxSegments", 16)),
+                bpm=bpm,
+                beat_times=beat_times,
+            )
+        except Exception as exc:
+            self.respond_json(
+                {
+                    "ok": False,
+                    "error": str(exc),
+                    "traceback": traceback.format_exc(),
+                },
+                status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+            return
+
+        self.respond_json(
+            {
+                "ok": True,
+                "motion": motion,
+                "beatsCount": len(motion.get("beats", [])),
+                "segmentsCount": len(motion.get("segments", [])),
+            }
+        )
 
     def respond_json(self, payload: dict, status: HTTPStatus = HTTPStatus.OK):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")

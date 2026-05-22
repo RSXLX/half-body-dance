@@ -1,12 +1,19 @@
 .DS_Store
 .claude/
+.superpowers/
 .playwright-cli/
 .venv/
+.env
+.env.*
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 node_modules/
+
+# Vite build artifacts
+web/dist/
+web/tsconfig.tsbuildinfo
 
 # Auto-downloaded MediaPipe models
 *.task
@@ -19,6 +26,10 @@ all_videos_volcengine_analysis_summary.json
 test_output.json
 test_*_dry_run.json
 uploaded_video_emoji_analysis.json
+output/
+assets/frame*.jpg
+assets/top_*.jpg
+assets/tmp_*
 
 # Local docs and exports
 *.docx

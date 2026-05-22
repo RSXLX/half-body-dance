@@ -1,0 +1,167 @@
+/* SetupView styles — used by web/src/app/views/SetupView.ts.
+   Keep these visually aligned with the legacy pose_viewer.html setup
+   section so the eventual migration in Phase 2 is invisible to users. */
+
+:root {
+  color-scheme: dark;
+  --bg: #05080e;
+  --surface: rgba(10, 14, 23, 0.86);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f5f8ff;
+  --muted: #94a3be;
+  --accent: #6ee7ff;
+  --accent-strong: #00c2ff;
+  --success: #54f3a8;
+  --shadow-strong: 0 20px 56px rgba(0, 0, 0, 0.42);
+  font-family: 'PingFang SC', 'SF Pro Display', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(0, 194, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 82% 0%, rgba(84, 243, 168, 0.1), transparent 28%),
+    linear-gradient(180deg, #07111d 0%, #04070d 100%);
+  color: var(--text);
+}
+
+.setup-view {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 24px 16px calc(env(safe-area-inset-bottom) + 24px);
+}
+
+.app-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 1.04rem;
+  letter-spacing: -0.02em;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
+  color: #041019;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.preset-card {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-height: 112px;
+  padding: 14px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.preset-card:hover { background: rgba(255, 255, 255, 0.06); }
+
+.preset-card.is-selected {
+  background: linear-gradient(135deg, rgba(0, 194, 255, 0.22), rgba(78, 242, 207, 0.12));
+  border-color: rgba(110, 231, 255, 0.45);
+  box-shadow: 0 8px 20px rgba(0, 194, 255, 0.15);
+}
+
+.preset-card.is-loading { pointer-events: none; }
+
+.preset-card.is-loading::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: preset-loading 1.2s linear infinite;
+  border-radius: 0 0 16px 16px;
+}
+
+@keyframes preset-loading {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.preset-card strong { font-size: 1rem; letter-spacing: -0.02em; }
+.preset-card small { color: var(--muted); line-height: 1.45; font-size: 0.82rem; }
+.preset-card .preset-emoji { font-size: 1.6rem; line-height: 1; }
+
+.preset-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(84, 243, 168, 0.22);
+  color: var(--success);
+  font-size: 0.72rem;
+}
+
+.setup-cta {
+  position: sticky;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  z-index: 6;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(8, 14, 24, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-strong);
+  backdrop-filter: blur(16px);
+}
+
+.setup-cta .primary {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  background: linear-gradient(135deg, var(--accent-strong), #4ef2cf);
+  color: #041019;
+  font-weight: 600;
+}
+
+.setup-cta .primary:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.setup-cta-title { color: var(--text); font-weight: 600; font-size: 0.98rem; }
+.setup-cta-copy { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
